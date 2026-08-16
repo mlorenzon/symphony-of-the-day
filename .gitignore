@@ -9,6 +9,20 @@ data/historical-basemaps/
 # Derived geometry — regenerate with: python data/clip_region.py <year>
 data/clipped/
 
+# Downloaded portraits — refetch with: python scripts/prepare_work.py
+# (the credit line is kept in the work JSON, which IS tracked)
+data/portraits/
+
+# API response cache for prepare_work.py
+data/.cache/
+
+# Baked map stills — regenerate with SOTD.mapDraw/mapFinish/freezeMap
+data/maps/
+
+# Python
+__pycache__/
+*.pyc
+
 # OS
 Thumbs.db
 Desktop.ini

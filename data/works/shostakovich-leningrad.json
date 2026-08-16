@@ -1,0 +1,35 @@
+{
+  "slug": "shostakovich-leningrad",
+  "title_full": "Symphony No. 7 in C major, Op. 60 “Leningrad”",
+  "title_short": "Leningrad",
+  "catalogue": "Op. 60",
+  "number": "No. 7",
+  "period": "Modern",
+  "composer": {
+    "name": "Dmitri Shostakovich",
+    "born": 1906,
+    "died": 1975,
+    "life": "1906–1975",
+    "nationality": "Soviet",
+    "portrait": "data/portraits/shostakovich-leningrad.png",
+    "portrait_credit": "Fotothek_df_roe-neg_0002792_002_Portrait_Dmitri_Dmitrijewitsch_Schostakowitchs_im_Publikum_der_Bachfeier.jpg: Roger &amp; Renate Rössing, credit Deutsche Fotothek.\nderivative work: Improvist (talk), Taken on 28 July 1950 (CC BY-SA 3.0 de)",
+    "wikidata": "Q80135"
+  },
+  "composition": {
+    "year": 1941,
+    "age": 35,
+    "age_line": "Shostakovich was 35",
+    "place": "Kuibyshev",
+    "country_then": "Soviet Union",
+    "lon": 50.15,
+    "lat": 53.2
+  },
+  "context": "Begun in besieged Leningrad and finished in evacuation at Kuibyshev; dedicated to the city and flown out on microfilm for broadcast abroad.",
+  "context_label": "Occasion",
+  "map": {
+    "basemap_year": 1938,
+    "geojson": "data/clipped/europe_1938.geojson",
+    "half_span_lon": 6.0,
+    "has_place": true
+  }
+}

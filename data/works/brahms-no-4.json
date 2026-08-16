@@ -1,0 +1,35 @@
+{
+  "slug": "brahms-no-4",
+  "title_full": "Symphony No. 4 in E minor, Op. 98",
+  "title_short": "",
+  "catalogue": "Op. 98",
+  "number": "No. 4",
+  "period": "Romantic",
+  "composer": {
+    "name": "Johannes Brahms",
+    "born": 1833,
+    "died": 1897,
+    "life": "1833–1897",
+    "nationality": "German",
+    "portrait": "data/portraits/brahms-no-4.png",
+    "portrait_credit": "C. Brasch, Berlin (biography), 1889 (Public domain)",
+    "wikidata": "Q7294"
+  },
+  "composition": {
+    "year": 1885,
+    "age": 52,
+    "age_line": "Brahms was 52",
+    "place": "Mürzzuschlag",
+    "country_then": "Duchy of Styria, Austria-Hungary",
+    "lon": 15.673055555556,
+    "lat": 47.6075
+  },
+  "context": "",
+  "context_label": "Occasion",
+  "map": {
+    "basemap_year": 1880,
+    "geojson": "data/clipped/europe_1880.geojson",
+    "half_span_lon": 6.0,
+    "has_place": true
+  }
+}
