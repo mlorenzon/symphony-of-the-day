@@ -1,0 +1,15 @@
+# After Effects
+*.aep
+*.aep.lock
+Adobe After Effects Auto-Save/
+
+# Bulk map data (~73 MB) — re-downloadable, see docs/geolayers-3-via-mcp.md
+data/historical-basemaps/
+
+# Derived geometry — regenerate with: python data/clip_region.py <year>
+data/clipped/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
