@@ -377,9 +377,47 @@ size       1.83 MB -> 0.26 MB
 
 GEOlayers then simplifies further on import, down to 3,640 vertices.
 
-**Clip wider than you display.** Sutherland–Hodgman leaves dead-straight edges
-along the bbox. Clipped to `[-25, 34, 45, 72]` but fitted to
-`[-11, 36, 32, 61]`, so the artificial cuts stay off-frame.
+### Clip much wider than you display
+
+Sutherland–Hodgman leaves dead-straight edges along the bbox, and they are
+obvious in a render. The trap is that **the visible area is larger than the bbox
+you fit to.** `fitViewAtTime` fits the whole bbox inside the comp, so whichever
+dimension has slack shows *more* than you asked for. For a square comp and a
+wide bbox, that slack is all in latitude:
+
+```python
+import math
+def my(lat): return math.log(math.tan(math.radians(45 + lat/2)))
+def iy(y):   return math.degrees(2*math.atan(math.exp(y))) - 90
+w, s, e, n = -11, 36, 32, 61          # bbox fitted to a 1080x1080 comp
+half = math.radians(e - w) / 2         # width is the constraint
+c    = (my(s) + my(n)) / 2
+print(iy(c - half), iy(c + half))      # -> 34.31 .. 61.99, not 36..61
+```
+
+Fitting `[-11, 36, 32, 61]` actually shows **lat 34.3 to 62.0**. A clip at lat 34
+therefore lands right at the frame edge and its straight cut is visible.
+
+Settled on clipping to `[-35, 20, 60, 78]` and displaying `[-11, 36, 32, 61]`.
+Cost of the margin was modest — 95 → 109 features, 6,727 → 8,091 vertices — and
+GEOlayers simplifies on import anyway (final layer: 108 groups, 184 paths,
+6,049 vertices).
+
+**Telling a clip artifact from real data.** Historical datasets often *do* draw
+straight boundaries across empty desert, so a straight line isn't proof. Compare
+the clipped geometry against the unclipped source:
+
+```python
+# a clip forces every affected polity to the IDENTICAL latitude;
+# real boundaries are ragged and differ per polity
+Morocco   28.394 -> 34.000
+Algiers   31.873 -> 34.000
+Tunis     33.020 -> 34.000
+```
+
+Three different genuine boundaries collapsing onto exactly `34.000` is the
+signature of the clip. Had they stayed at 28.4/31.9/33.0, the line would have
+been real and re-clipping would have achieved nothing.
 
 ---
 
