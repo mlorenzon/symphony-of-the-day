@@ -37,7 +37,10 @@ var SOTD = (function () {
         // a poster — it crosses the art, so the picture sits in a window.
         frame:  { edge: 7, round: 20, inner: 11, innerWeight: 1.5, pad: 14 },
         // Every work currently built. api.buildAll() walks this.
-        works: ["mozart-linz", "brahms-no-4", "shostakovich-leningrad"],
+        works: ["mozart-linz", "brahms-no-4", "shostakovich-leningrad",
+                "beethoven-no-1", "beethoven-no-2", "beethoven-no-3",
+                "beethoven-no-4", "beethoven-no-5", "beethoven-no-6",
+                "beethoven-no-7", "beethoven-no-8", "beethoven-no-9"],
 
         mapcomp: "Europe",
         mapcompContainer: "containing Europe",
@@ -871,11 +874,18 @@ var SOTD = (function () {
         // Card 2 is the context card: where, why, and what to listen for. The
         // year and the composer are card 1's job, so the place gets the strap
         // at the same size the surname gets on card 1.
+        // The strap is one band high, so a place that wraps has to be small
+        // enough for TWO lines to sit inside it: 76 px at leading 1.2 caps the
+        // wrapping sizes at 31. There is no 34 tier for that reason — at 34 a
+        // 19-character place wrapped and the second line vanished under the
+        // region plate, so "Grätz, near Troppau" read as "GRÄTZ, NEAR". Past
+        // about 14 characters the line no longer fits the 356 px box at 40
+        // either, so that is where it drops straight to 28.
         cardStrap(c, BB.strap, [
             { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.mid,
               text: "PLACE", body: 'D.composition.place',
               steps: [{ size: T.place }, { over: 11, size: 40 },
-                      { over: 14, size: 34 }, { over: 19, size: 28 }] }
+                      { over: 14, size: 28 }, { over: 30, size: 24 }] }
         ]);
         fade(addText(c, poster({
             name: "REGION", box: [I.w - 16, 32], topLeft: [I.x + 8, BB.region.y + 3],
