@@ -1,0 +1,161 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-8",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 8 in F major, Op. 93",
+  "title_short": "",
+  "catalogue": "Op. 93",
+  "number": "No. 8",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove calls him German. He was born in Bonn, then capital of the Electorate of Cologne, and lived in Vienna from 1792 until his death; no German state existed in his lifetime.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Second period, but Grove reads it as a salute to the symphonic ideal of the previous age: the least Romantic of the middle group.",
+  "composition": {
+    "year": 1812,
+    "year_range": null,
+    "date": "1812",
+    "date_precision": "year",
+    "place": {
+      "building": "His brother Johann's house",
+      "city": "Linz",
+      "country_then": "Archduchy of Austria",
+      "country_now": "Austria",
+      "granularity": "building",
+      "note": "Grove: 'Linz, where he started the score of the Eighth Symphony; he stayed with his brother Johann, who had bought an apothecary's shop there in 1808.' Wikipedia says Teplice instead — the Bohemian spa where the summer's work began before he travelled on to Linz that autumn."
+    }
+  },
+  "reason": {
+    "summary": "Scored in Linz while lodging with his brother Johann, and dedicated to nobody.",
+    "dedicatee": "",
+    "occasion": "No commission and no dedication — begun straight after the Seventh, in a summer of spa visits and a family quarrel.",
+    "detail": "Grove's works list gives no dedicatee, unusually for a Beethoven symphony. Grove also notes his reason for being in Linz at all: 'to interfere in his brother's private life' — Johann was living with the woman he then married. Grove reads the work as 'a salute to the symphonic ideal of the previous age'."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1814-02-27",
+    "city": "Vienna",
+    "venue": "Redoutensaal",
+    "conductor": "Ludwig van Beethoven",
+    "notes": "Grove gives the date; Wikipedia the venue and the programme — the Seventh, Wellington's Victory, and the premiere of the trio 'Tremate, empi, tremate'. Grove notes the Eighth 'was one of its companion pieces', the Seventh being the draw."
+  },
+  "listen_for": [
+    {
+      "hook": "The second movement ticks: a joke about the new metronome.",
+      "kind": "famous-movement",
+      "timing": "II, Allegretto scherzando",
+      "card": true,
+      "detail": "Wikipedia reports the movement is likely a parody of Maelzel's recently invented metronome, and hears Haydn's 'Clock' behind it."
+    },
+    {
+      "hook": "The shortest of the nine, and the only one he dedicated to no one.",
+      "kind": "emblematic",
+      "detail": "Grove's works list carries no dedication, in a column where every other symphony names a prince, count or king."
+    },
+    {
+      "hook": "The finale is the heaviest movement, not the first.",
+      "kind": "structural",
+      "timing": "IV",
+      "detail": "Wikipedia notes 'the last movement the weightiest of the four', anticipating the Ninth. Grove records a shortened version of the first movement's ending."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-21",
+      "zotero_key": "J2HF4RUA"
+    },
+    {
+      "id": "wp-beethoven-no-8",
+      "type": "wikipedia",
+      "title": "Symphony No. 8 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._8_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "QA2SJ2JB"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "first_performance.venue": [
+      "wp-beethoven-no-8"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "era": [
+      "grove-beethoven"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "composition.place",
+      "wikipedia": "Teplice",
+      "grove": "Linz, at his brother Johann's",
+      "resolution": "Linz recorded at building grain; Teplitz noted as where the summer's work began",
+      "resolved_with": "grove-beethoven"
+    },
+    {
+      "field": "reason.dedicatee",
+      "wikipedia": "none",
+      "grove": "none (works-list dedication column carries only a remark about the first movement)",
+      "resolution": "no dedicatee — the sources agree, and it is the interesting fact",
+      "resolved_with": "grove-beethoven"
+    }
+  ],
+  "unknowns": [
+    "Whether any of it was drafted at Teplitz or Karlsbad before Linz."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 8.md"
+}

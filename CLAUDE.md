@@ -11,10 +11,11 @@ connector.
 |---|---|
 | The cards, the reel, `sotd.jsx` | [`docs/reel-cards.md`](docs/reel-cards.md) |
 | The map, GEOlayers, geojson | [`docs/geolayers-3-via-mcp.md`](docs/geolayers-3-via-mcp.md) |
+| Researching a work, sources, Zotero, the vault | [`docs/research-engine.md`](docs/research-engine.md) |
 
-Both are field notes verified against a live install, and both have a **Traps**
-section. Reading the relevant one first reliably saves more time than it costs —
-several of the traps fail silently rather than erroring.
+All three are field notes verified against a live install, and all three have a
+**Traps** section. Reading the relevant one first reliably saves more time than
+it costs — several of the traps fail silently rather than erroring.
 
 ## The golden rule
 
@@ -41,6 +42,20 @@ later calls in the same AE session can use `SOTD` directly — which is what mak
 the multi-call async map workflow possible.
 
 Run `check-bridge` first if anything times out or behaves oddly.
+
+## Researching a work
+
+The scholarship lives in `data/research/<slug>.json`, not in the card JSON. The
+`symphony-research` skill runs it: Wikipedia for the shape, **Grove Music Online
+fact-checks every field**, sources go to the Zotero *Symphony of the day*
+collection, and a readable note goes in the Obsidian vault. Grove needs Claude
+in Chrome — the in-app Browser pane has no Sydney University session.
+
+The record then feeds the card:
+
+```bash
+python scripts/research_to_work.py <slug> --dry-run
+```
 
 ## Making a change
 

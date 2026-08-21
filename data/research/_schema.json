@@ -1,0 +1,167 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sotd-research/1",
+  "title": "Symphony of the day — research record",
+  "description": "The scholarly record for one work. Upstream of data/works/<slug>.json: everything the card needs is in here, plus the provenance the card has no room for. scripts/research_to_work.py turns this into a prepare_work.py run.",
+  "type": "object",
+  "required": ["schema", "slug", "title_full", "composer", "era", "composition", "reason", "first_performance", "listen_for", "sources", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "schema":     { "const": "sotd-research/1" },
+    "slug":       { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Matches data/works/<slug>.json. Convention: surname-noNN (beethoven-no-3), using the number even where the work has a famous nickname, so a composer's symphonies sort in order. The nickname goes in title_short. mozart-linz and shostakovich-leningrad predate the rule and keep their names." },
+    "researched": { "type": "string", "description": "ISO date this record was compiled." },
+
+    "title_full":  { "type": "string", "description": "As it should read on the card, nickname in curly quotes." },
+    "title_short": { "type": "string", "description": "Nickname alone, e.g. Linz. Empty if the work has none." },
+    "catalogue":   { "type": "string", "description": "K. 425, Op. 98, Hob. I:94 …" },
+    "number":      { "type": "string", "description": "No. 36. Empty for unnumbered works." },
+
+    "composer": {
+      "type": "object",
+      "required": ["name", "nationality"],
+      "additionalProperties": false,
+      "properties": {
+        "name":        { "type": "string" },
+        "nationality": { "type": "string", "description": "Adjectival, e.g. Austrian. Use the identity Grove uses; note contested or shifting cases in nationality_note." },
+        "nationality_note": { "type": "string", "description": "For composers whose nationality is contested, changed, or anachronistic — e.g. a German born in a state that did not yet exist." },
+        "born": { "type": ["integer", "null"] },
+        "died": { "type": ["integer", "null"] }
+      }
+    },
+
+    "era": {
+      "enum": ["Baroque", "Classical", "Romantic", "Modern"],
+      "description": "The scholarly judgment. data/periods.json buckets mechanically by year and drives the card colour; when the two disagree, say why in era_note and decide deliberately."
+    },
+    "era_note": { "type": "string" },
+
+    "composition": {
+      "type": "object",
+      "required": ["year", "date_precision", "place"],
+      "additionalProperties": false,
+      "properties": {
+        "year":       { "type": ["integer", "null"], "description": "Single year for the card. For a work spanning years, the year of completion." },
+        "year_range": { "type": ["array", "null"], "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+        "date":       { "type": "string", "description": "Finest known date, ISO where possible: 1783-11-04, 1783-11, autumn 1783." },
+        "date_precision": { "enum": ["day", "month", "season", "year", "range", "unknown"] },
+        "place": {
+          "type": "object",
+          "required": ["granularity"],
+          "additionalProperties": false,
+          "properties": {
+            "building":    { "type": "string", "description": "Finest grain, e.g. Thun-Hohenstein palace." },
+            "city":        { "type": "string" },
+            "region":      { "type": "string" },
+            "country_then":{ "type": "string", "description": "The polity at the time — Archduchy of Austria, not Austria. Drives the historical basemap." },
+            "country_now": { "type": "string" },
+            "granularity": { "enum": ["building", "city", "region", "country", "unknown"] },
+            "note":        { "type": "string", "description": "For works written in more than one place, or where the attribution is disputed." }
+          }
+        }
+      }
+    },
+
+    "reason": {
+      "type": "object",
+      "required": ["summary"],
+      "additionalProperties": false,
+      "properties": {
+        "summary":   { "type": "string", "description": "Card 2's occasion line. Aim for 90 characters or fewer; 148 is the observed ceiling before the type shrinks past comfort." },
+        "patron":    { "type": "string" },
+        "dedicatee": { "type": "string", "description": "Often not the patron. Record both when they differ." },
+        "occasion":  { "type": "string" },
+        "commission":{ "type": "string", "description": "Fee, terms, or the absence of a commission where that is the interesting fact." },
+        "detail":    { "type": "string", "description": "The long version, for the Obsidian note." }
+      }
+    },
+
+    "first_performance": {
+      "type": "object",
+      "required": ["known"],
+      "additionalProperties": false,
+      "properties": {
+        "known":     { "type": "boolean", "description": "false when the premiere is unrecorded or disputed — then say so in notes rather than guessing." },
+        "date":      { "type": "string" },
+        "city":      { "type": "string" },
+        "venue":     { "type": "string" },
+        "conductor": { "type": "string" },
+        "ensemble":  { "type": "string" },
+        "soloists":  { "type": "string" },
+        "reception": { "type": "string" },
+        "notes":     { "type": "string" }
+      }
+    },
+
+    "listen_for": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["hook", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "hook":   { "type": "string", "description": "One sentence a viewer who has never heard the piece can act on. 64–71 characters is the range that sits well on the card." },
+          "kind":   { "enum": ["famous-movement", "pop-culture", "innovation", "emblematic", "structural", "orchestration"] },
+          "detail": { "type": "string", "description": "The long version, for the Obsidian note." },
+          "timing": { "type": "string", "description": "Movement and roughly where in it, e.g. IV, from the first bar." },
+          "card":   { "type": "boolean", "description": "Exactly one entry should be true — the hook that goes on the card." }
+        }
+      }
+    },
+
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title"],
+        "additionalProperties": false,
+        "properties": {
+          "id":       { "type": "string", "description": "Short handle used in claims, e.g. grove-mozart." },
+          "type":     { "enum": ["grove", "wikipedia", "book", "article", "score", "programme-note", "other"] },
+          "title":    { "type": "string" },
+          "author":   { "type": "string" },
+          "container":{ "type": "string", "description": "Grove Music Online, The Musical Times …" },
+          "year":     { "type": ["integer", "string", "null"] },
+          "url":      { "type": "string" },
+          "doi":      { "type": "string" },
+          "accessed": { "type": "string" },
+          "zotero_key": { "type": "string", "description": "Filled in once saved to the Symphony of the day collection." }
+        }
+      }
+    },
+
+    "claims": {
+      "type": "object",
+      "description": "Provenance per field: dotted path -> list of source ids. Every field that reaches the card must appear here. Two ids means Grove and Wikipedia agree.",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+
+    "conflicts": {
+      "type": "array",
+      "description": "Where the sources disagreed, and what was done about it. An empty array means checked and clean, not unchecked.",
+      "items": {
+        "type": "object",
+        "required": ["field", "resolution"],
+        "additionalProperties": false,
+        "properties": {
+          "field":      { "type": "string" },
+          "wikipedia":  { "type": "string" },
+          "grove":      { "type": "string" },
+          "other":      { "type": "string" },
+          "resolution": { "type": "string", "description": "What the record now says." },
+          "resolved_with": { "type": "string", "description": "Source id that settled it." }
+        }
+      }
+    },
+
+    "unknowns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Things genuinely not known, stated as such. Better here than silently absent."
+    },
+
+    "obsidian_note": { "type": "string", "description": "Vault-relative path of the human-readable note." }
+  }
+}

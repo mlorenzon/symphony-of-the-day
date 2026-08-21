@@ -1,0 +1,162 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-3",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 3 in E flat major, Op. 55 “Eroica”",
+  "title_short": "Eroica",
+  "catalogue": "Op. 55",
+  "number": "No. 3",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove calls him German. He was born in Bonn, then capital of the Electorate of Cologne, and lived in Vienna from 1792 until his death; no German state existed in his lifetime.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. This is where the line would fall if one were drawn. Grove calls the symphonic ideal the Eroica inaugurates ‘par excellence a Romantic phenomenon’, while allowing that the purely musical procedures may still be regarded as Classical. Romantic in ambition and Classical in method, from here on — which is why a single boundary cannot express it.",
+  "composition": {
+    "year": 1803,
+    "year_range": null,
+    "date": "1803",
+    "date_precision": "year",
+    "place": {
+      "city": "Vienna",
+      "region": "Oberdöbling",
+      "country_then": "Archduchy of Austria",
+      "country_now": "Austria",
+      "granularity": "city",
+      "note": "Grove gives 1803 and places him at Oberdöbling, a village outside Vienna, for the summer — 'not a happy summer for Beethoven, and for a time he may have thought of leaving Vienna altogether – perhaps for Paris.' Wikipedia's 1802–1804 span takes in sketches and final revisions."
+    }
+  },
+  "reason": {
+    "summary": "Dedicated to Napoleon, then scratched out when he crowned himself Emperor.",
+    "patron": "Prince Franz Joseph von Lobkowitz",
+    "dedicatee": "Prince Franz Joseph von Lobkowitz",
+    "occasion": "Conceived as a 'Bonaparte symphony'; the published dedication went to Lobkowitz, who had bought the exclusive rights.",
+    "detail": "Grove: the decision to embark on a 'Bonaparte symphony' at just this time 'came from inner pressures', not from the theatre contracts he was then negotiating. Wikipedia gives the familiar account of the withdrawn dedication in autumn 1804, after Napoleon declared himself Emperor, and the score's publication in 1806 as Sinfonia Eroica. Grove notes more is known about this work's composition than any other of Beethoven's, thanks to Nottebohm's monograph on the sketches."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1805-04-07",
+    "city": "Vienna",
+    "venue": "Theater an der Wien",
+    "conductor": "Ludwig van Beethoven",
+    "notes": "First public performance. Grove records a private one earlier, at the Lobkowitz palace in the summer of 1804; Wikipedia dates that 9 June 1804. Grove does not give a day, so the record keeps the season."
+  },
+  "listen_for": [
+    {
+      "hook": "A horn slips in with the theme four bars early — it sounds wrong.",
+      "kind": "famous-movement",
+      "timing": "I, late in the development",
+      "card": true,
+      "detail": "The horn enters with the main theme over the dominant, against the strings' hushed tremolo, and was long taken for a copyist's error. Wikipedia: a horn 'famously appears to come in early with the main theme in E♭'."
+    },
+    {
+      "hook": "It runs twice as long as any symphony before it.",
+      "kind": "innovation",
+      "detail": "Wikipedia: 'twice as long as the symphonies of Joseph Haydn and Wolfgang Amadeus Mozart', with the first movement alone about the length of a complete Classical symphony."
+    },
+    {
+      "hook": "The second movement is a funeral march for a hero still living.",
+      "kind": "famous-movement",
+      "timing": "II, Marcia funebre",
+      "detail": "Wikipedia notes its range 'from the misery of the funeral march theme to the relative solace of happier, major-key episodes'."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-21",
+      "zotero_key": "J2HF4RUA"
+    },
+    {
+      "id": "wp-beethoven-no-3",
+      "type": "wikipedia",
+      "title": "Symphony No. 3 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._3_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "SUFQR7W7"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-3"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-3"
+    ],
+    "first_performance.venue": [
+      "wp-beethoven-no-3"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-3"
+    ],
+    "era": [
+      "grove-beethoven"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "composition.year",
+      "wikipedia": "1802–1804",
+      "grove": "1803",
+      "resolution": "1803 recorded, with the wider span noted in place.note",
+      "resolved_with": "grove-beethoven"
+    },
+    {
+      "field": "first_performance (private)",
+      "wikipedia": "9 June 1804, Lobkowitz's Vienna palace",
+      "grove": "Lobkowitz palace, summer 1804",
+      "resolution": "season recorded, not the day; Wikipedia's date noted",
+      "resolved_with": "grove-beethoven"
+    }
+  ],
+  "unknowns": [
+    "The exact date of the private Lobkowitz performance; Grove gives only 'sum. 1804'."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 3 (Eroica).md"
+}
