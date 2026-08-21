@@ -205,61 +205,87 @@ from world to Europe moved scale `3.48 → 1.70`.
 geolayers3.fitViewAtTime("Europe", [-11, 36, 32, 61]);
 ```
 
-Synchronous. Returns an object.
+Synchronous. Returns the resulting view as
+`{latitude, longitude, zoom, bearing, pitch}`.
 
-### Draw a GeoJSON file — note the async
+### Animating the view — the name lies
 
-```js
-$.global.__glDraw = {called: false};
-geolayers3.draw("Europe", new File(path), function (err, data) {
-  $.global.__glDraw = {called: true, err: err ? String(err) : null};
-}, { drawInsideMapcomp: true, namingProp: "NAME" });
-```
+`fitViewAtTime(comp, bbox, forceKeyframe, time)` and its sibling
+`setViewAtTime` **ignore both trailing arguments**. Passing `true, 5` sets no
+keyframe and does not act at t=5; the view is applied statically at whatever the
+comp's current time happens to be. Verified: after two calls at different times
+the property still reported `numKeys: 0`.
 
-`draw` returns `undefined` immediately and **the callback has not fired yet**.
-Nothing changes in the project during that call. Poll `$.global.__glDraw` in a
-*separate* `execute-script` call a moment later.
-
-Two things worth knowing about the result:
-
-- All features go into **one shape layer**, not one per feature. 95 features
-  became a single layer with 89 groups, 149 paths, 3,640 vertices. Great for
-  object count.
-- `namingProp: "NAME"` names each group after that property, so groups come out
-  as `Ottoman Empire`, `Austrian Netherlands`, etc. The layer itself gets named
-  from the first few.
-
-### Fix the default styling — you will always need this
-
-Drawn features default to **pure white fill at 100% opacity with no stroke**,
-which is invisible on a light basemap. Restyle every group:
+Animate it yourself instead. `fitViewAtTime` works by driving **`MapPivot`**,
+an ordinary layer inside the mapcomp — the `<name> Anchor` layer in the
+containing comp only mirrors it:
 
 ```js
-var contents = layer.property("ADBE Root Vectors Group");
-for (var g = 1; g <= contents.numProperties; g++) {
-  var vg = contents.property(g).property("ADBE Vectors Group");
-  var fill = null, stroke = null;
-  for (var v = 1; v <= vg.numProperties; v++) {
-    var p = vg.property(v);
-    if (p.matchName === "ADBE Vector Graphic - Fill")   fill = p;
-    if (p.matchName === "ADBE Vector Graphic - Stroke") stroke = p;
-  }
-  fill.property("ADBE Vector Fill Color").setValue([0.80, 0.76, 0.68, 1]);
-  fill.property("ADBE Vector Fill Opacity").setValue(16);
-  if (!stroke) stroke = vg.addProperty("ADBE Vector Graphic - Stroke");
-  stroke.property("ADBE Vector Stroke Color").setValue([0.24, 0.21, 0.19, 1]);
-  stroke.property("ADBE Vector Stroke Width").setValue(2.5);
-  stroke.property("ADBE Vector Stroke Opacity").setValue(90);
-}
+// on the Anchor layer, all four transform properties look like this
+parent.source.layer("MapPivot").transform.scale.valueAtTime(time - parent.startTime)
 ```
 
-`addProperty` appends the stroke *below* the fill in paint order. That's fine as
-long as fill opacity is low; if you want an opaque fill with a visible stroke
-you'll need to rethink the group order.
+So `MapPivot`'s `scale` and `anchorPoint` are plain animatable AE properties,
+and the projection turns out to be trivial:
 
-Values above are tuned for an inset over a pale basemap: parchment fill at 16%,
-2.5px dark warm stroke. Strokes need to be thick-ish because the comp gets scaled
-down as an inset.
+- **`scale = K / halfSpanLon`**, exactly. Fitting half-spans of 30/20/13/9/6°
+  gave scales of 1.9775/2.9663/4.5636/6.5918/9.8877 — `K = 59.326` throughout.
+- **`anchorPoint` is the centre in world pixels and is independent of zoom.** A
+  zoom centred on one point does not move it at all.
+
+So one fit call recovers both constants, and every intermediate frame is
+arithmetic. Sample the curve you want, then write the keyframes:
+
+```js
+var P = mapcomp.layer("MapPivot").property("ADBE Transform Group");
+var S = P.property("ADBE Scale");
+geolayers3.fitViewAtTime("Europe", bboxFor(lon, lat, endH));
+var K = S.value[0] * endH;
+for (var i = 0; i <= N; i++) { /* s = K / span(i); S.setValueAtTime(t, [s,s,s]); */ }
+```
+
+Interpolate the span **geometrically** (`start · (end/start)^u`), not linearly —
+halving the span reads as the same amount of movement at any scale, so a linear
+ramp appears to accelerate violently at the end. And set the keys to LINEAR: on
+bezier, AE rounds its own curve through your samples and overshoots.
+
+**`finalize` does NOT follow these keyframes — and can silently do nothing.**
+An earlier version of this note claimed the opposite. It was wrong, and the
+mistake is worth recording because the evidence looked convincing:
+
+- After keyframing a 30°→6° move and finalizing, the mapcomp held 25 tiles
+  across **zoom levels 3, 4 and 5**, where a static view had only ever produced
+  one level. That looked like finalize reading the animation.
+- It was not. Those tiles were assembled from the **existing local cache**
+  (`%APPDATA%\aescripts\GEOlayers3\tiles\`), which already held a zoom-5 set
+  from earlier work. Finalize had simply re-laid tiles it already had.
+
+The check that settles it is the cache mtime, not the layer count:
+
+```bash
+find "$APPDATA/aescripts/GEOlayers3/tiles" -type f -newermt '-10 minutes' | wc -l
+```
+
+On a run where `finalize` fired its callback with `err: null` and the layer
+count changed, that returned **0** — nothing had been downloaded for three days.
+So:
+
+- `finalize` computes a tile set for the mapcomp's **current static view** only.
+  It has no idea the view is animated.
+- A `finalize` that reports success has not necessarily downloaded anything.
+  **Always verify against the tile cache mtime.**
+- Tiles are fetched by the panel's Chromium side. The `geolayers3` and
+  `mb_GEOlayers3` globals live in AE's shared ExtendScript engine and keep
+  working after the panel is gone, so every scripted call still *succeeds* while
+  quietly fetching nothing. Reopening the panel with
+  `app.executeCommand(app.findMenuCommandId("GEOlayers 3"))` restores the
+  globals' host side but was **not** by itself enough to make downloads resume.
+
+Consequence for an animated zoom: one tile set cannot serve a wide range. A
+30°→6° move is 5×, so tiles adequate at one end are wrong at the other — the
+observed failure is a single 1024 px tile scaled to **1600%**. Either keep the
+range modest (about 2× tolerates one tile set), or bake the move in passes:
+finalize at each zoom band's static view, then render only that band's frames.
 
 ---
 

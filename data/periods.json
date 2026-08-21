@@ -1,10 +1,10 @@
 {
-  "_comment": "Timeline shown on the back card. Edit and re-run build_work to change it: the bar segments, labels and marker are all generated from this file, and the card reads it live via expressions. Boundaries are the conventional teaching dates, not hard truths.",
+  "_comment": "The four artistic periods. prepare_work.py files a work by year, and the card reads the colour live: on the duotone-poster design the period IS the card's colour, so this file drives the whole palette. Boundaries are the conventional teaching dates, not hard truths. Adding a period means adding a colour with it.",
   "span": [1600, 2025],
   "periods": [
-    { "name": "Baroque",   "from": 1600, "to": 1750 },
-    { "name": "Classical", "from": 1750, "to": 1830 },
-    { "name": "Romantic",  "from": 1830, "to": 1900 },
-    { "name": "Modern",    "from": 1900, "to": 2025 }
+    { "name": "Baroque",   "from": 1600, "to": 1750, "color": "#7A4A12" },
+    { "name": "Classical", "from": 1750, "to": 1830, "color": "#932823" },
+    { "name": "Romantic",  "from": 1830, "to": 1900, "color": "#3B2A6B" },
+    { "name": "Modern",    "from": 1900, "to": 2025, "color": "#12554F" }
   ]
 }

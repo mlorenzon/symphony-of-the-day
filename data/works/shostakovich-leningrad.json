@@ -26,10 +26,17 @@
   },
   "context": "Begun in besieged Leningrad and finished in evacuation at Kuibyshev; dedicated to the city and flown out on microfilm for broadcast abroad.",
   "context_label": "Occasion",
+  "listen_for": "The first-movement march — one tune, over and over, growing deafening.",
   "map": {
     "basemap_year": 1938,
     "geojson": "data/clipped/europe_1938.geojson",
     "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      75.15,
+      78.0
+    ],
     "has_place": true
   }
 }

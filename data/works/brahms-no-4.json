@@ -26,10 +26,17 @@
   },
   "context": "",
   "context_label": "Occasion",
+  "listen_for": "The finale: one eight-bar bass line, over and over, rebuilt every time.",
   "map": {
     "basemap_year": 1880,
     "geojson": "data/clipped/europe_1880.geojson",
     "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      60.0,
+      78.0
+    ],
     "has_place": true
   }
 }

@@ -105,10 +105,12 @@ Kuibyshev.
 
 ## Conventions
 
-- Tracked: source, docs, and `data/works/*.json`. Not tracked: the `.aep`,
-  portraits, map stills, clipped geojson, basemaps — all regenerable from the
-  work JSON.
-- Python is stdlib plus `requests` and `Pillow`. ExtendScript is ES3: no `let`,
-  no arrow functions, no template literals.
+- Tracked: source, docs, `data/works/*.json`, `data/periods.json` (which now
+  carries the period colours) and `data/audio/credits.json`. Not tracked: the
+  `.aep`, portraits, map stills, clipped geojson, basemaps, the card-turn wav —
+  all regenerable by a script.
+- Python is stdlib plus `requests` and `Pillow`, and `yt-dlp` + `ffmpeg` for
+  `fetch_sfx.py`. ExtendScript is ES3: no `let`, no arrow functions, no
+  template literals.
 - Fonts are Windows/Adobe stock only (Cambria, Trajan Pro 3) so the project
   opens anywhere.

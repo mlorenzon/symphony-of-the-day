@@ -26,10 +26,17 @@
   },
   "context": "Written in four days for a subscription concert at the Linz theatre, while the Mozarts were guests of Count Johann Joseph Anton von Thun-Hohenstein.",
   "context_label": "Occasion",
+  "listen_for": "It opens with a slow introduction — his first symphony to do so.",
   "map": {
     "basemap_year": 1783,
     "geojson": "data/clipped/europe_1783.geojson",
     "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      60.0,
+      78.0
+    ],
     "has_place": true
   }
 }

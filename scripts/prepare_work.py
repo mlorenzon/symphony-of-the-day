@@ -273,6 +273,9 @@ def main():
     ap.add_argument("--context", default="",
                     help="Patron, dedication or occasion. Left blank if not given.")
     ap.add_argument("--context-label", default="Occasion")
+    ap.add_argument("--listen", default="",
+                    help="One thing to listen out for — the hook for a viewer "
+                         "who has never heard the piece. Left blank if not given.")
     ap.add_argument("--slug", default="")
     ap.add_argument("--short-title", default="", help="Nickname, e.g. Linz")
     ap.add_argument("--catalogue", default="", help="e.g. K. 425")
@@ -364,10 +367,10 @@ def main():
     # --- basemap ------------------------------------------------------------
     basemap_year, token = nearest_basemap(args.year)
     geojson_path = ""
+    clip_bbox = EUROPE_CLIP
     if token is None:
         report.append("basemap    : data/historical-basemaps missing — see README")
     else:
-        clip_bbox = EUROPE_CLIP
         if lon is not None and lat is not None:
             clip_bbox = union_bbox(EUROPE_CLIP, (
                 lon - CITY_CLIP_PAD_LON, lat - CITY_CLIP_PAD_LAT,
@@ -411,10 +414,15 @@ def main():
         },
         "context": args.context,
         "context_label": args.context_label,
+        "listen_for": args.listen,
         "map": {
             "basemap_year": basemap_year,
             "geojson": os.path.relpath(geojson_path, ROOT).replace("\\", "/") if geojson_path else "",
             "half_span_lon": args.map_half_span,
+            # How far the geometry actually extends. The reel opens on a
+            # continent-wide view and zooms in; without this the wide end can
+            # overshoot the clip and show its dead-straight cut edge.
+            "clip_bbox": [round(v, 4) for v in clip_bbox],
             "has_place": lon is not None and lat is not None,
         },
     }
