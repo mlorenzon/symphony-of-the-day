@@ -1538,12 +1538,16 @@ var SOTD = (function () {
      * Slow: downloads the tile set for the whole move. Do this last, after the
      * style settles, and poll mapFinalizeStatus() from a LATER call.
      *
-     * finalize DOES follow the keyframes. Its options default to
-     * {onlyCurrentFrame:false, previewQuality:false, onlyWorkArea:false,
-     * purgeImageryCache:false}, and it samples the animated view at
-     * 2 × finalizationBaseSampleRate, deduping near-identical views. An earlier
-     * version of this file claimed the opposite; the claim came from a run with
-     * the panel shut and no callback, which is silent twice over.
+     * finalize DOES follow the keyframes — demonstrated, not deduced: once the
+     * move was real, one call fetched 21 tiles spanning zoom 3, 4 and 5. Its
+     * options default to {onlyCurrentFrame:false, previewQuality:false,
+     * onlyWorkArea:false, purgeImageryCache:false}.
+     *
+     * The notes long said the opposite, from runs where the keyframes were on
+     * MapPivot and therefore inert: finalize was correctly finalizing the one
+     * static view that existed. Don't reason about this from preference names
+     * either — finalizationBaseSampleRate drives LABEL sampling, not imagery.
+     * Watch the tile cache instead.
      *
      * The callback is the ONLY place errors appear, and the one that matters
      * most is a real sentence: "Too many tiles. The imagery coverage is too

@@ -77,13 +77,23 @@ geolayers3.getBrowserSelection([callback[, options]])
 geolayers3.fitViewAtTime(comp, bbox[, forceKeyframe[, time]])
 geolayers3.setViewAtTime(comp, view[, forceKeyframe[, time]])
 geolayers3.readFileJson(file[, encoding])
-geolayers3.finalize(comp, [callback[, options]])
+geolayers3.finalize(comps, callback[, options])
 geolayers3.getMapcomps()
 ```
 
 - `comp` accepts a mapcomp **name string**, a mapcomp, or the containing comp.
 - `bbox` is `[lonMin, latMin, lonMax, latMax]` in WGS 84.
 - `view` is `{latitude, longitude, zoom, bearing, pitch}`.
+- `finalize`'s **callback is not optional in practice** — it is the only place
+  errors appear. Its `options` are
+  `{onlyCurrentFrame, previewQuality, onlyWorkArea, purgeImageryCache}`, all
+  defaulting to `false`. See §7.
+- `getMapcomps()` returns plain AE `CompItem`s, not GEOlayers wrappers, so
+  there is no status or style field on them to read.
+
+Enumerating the live object gives **38 functions**. Notably absent, in case you
+go looking: `analyseMapcomp`, `addTiles`, `getZoomRange` — those are on
+`hostInterface` below, not here.
 - `addObj` is an ExtendScript `File`, a URL string, or a geojson object.
   `addToBrowser` accepts geojson URLs directly.
 - Also present: `geolayers3.utils.*` (~80 AE helpers), `.charts`, `.logger`,
@@ -94,11 +104,15 @@ Functions are jsxbin-compiled, so `toString()` gives `[compiled code]` and
 
 ### `mb_GEOlayers3.hostInterface` — internal, undocumented
 
-~100 methods, each taking **one options object**: `createMapcomp`,
+**101 methods** (counted), each taking **one options object**: `createMapcomp`,
 `removeMapcomp`, `duplicateMapcomp`, `setViewKeyframes`,
 `animateViewBetweenFeatures`, `analyseMapcomp`, `addTiles`, `getZoomRange`,
 `create3DLandscapeSetup`, `createDiagram`, `addToRenderQueue`, `queueInAme`,
-`evalStr`, …
+`evalStr`, … — all seven of those named have been confirmed present.
+
+`setViewKeyframes` and `animateViewBetweenFeatures` are the interesting pair:
+they look like the sanctioned way to animate a view, and would likely be
+better than the hand-keyframing in §5. **Untested — argument shapes unknown.**
 
 **These return JSON strings, not objects.** Always parse:
 
@@ -216,76 +230,135 @@ keyframe and does not act at t=5; the view is applied statically at whatever the
 comp's current time happens to be. Verified: after two calls at different times
 the property still reported `numKeys: 0`.
 
-Animate it yourself instead. `fitViewAtTime` works by driving **`MapPivot`**,
-an ordinary layer inside the mapcomp — the `<name> Anchor` layer in the
-containing comp only mirrors it:
+Animate it yourself instead. But **not by keyframing `MapPivot`** — that is the
+trap this section used to walk into, and it cost a lot of time downstream.
+
+### Do NOT keyframe MapPivot
+
+`MapPivot.transform.scale` carries a GEOlayers expression, and
+`expressionEnabled` is `true`. It computes itself and discards anything you key
+onto it:
 
 ```js
-// on the Anchor layer, all four transform properties look like this
-parent.source.layer("MapPivot").transform.scale.valueAtTime(time - parent.startTime)
+var ZoomEff = comp("containing Europe").layer("Europe").effect("Zoom").param(1);
+var scaleVal = 100*Math.pow(2, ZoomEff.valueAtTime(myTime))/mapSize*globalInterpolationTileSize;
 ```
 
-So `MapPivot`'s `scale` and `anchorPoint` are plain animatable AE properties,
-and the projection turns out to be trivial:
+An earlier version of `sotd.jsx` wrote 62 linear keyframes to that scale. They
+were real, counted, and completely inert: `valueAtTime` returned the *same*
+number at every time, so no card ever zoomed, and every "5× move" in the
+project was a static view. Everything downstream that looked broken — coarse
+imagery, a finalize that fetched three tiles — was this one fact wearing a
+disguise.
+
+### Keyframe the view controls instead
+
+The real controls are five effects on the mapcomp's **layer in the containing
+comp** (not on the mapcomp): `Latitude`, `Longitude`, `Zoom` (a Slider
+Control), `Bearing`, `Pitch`.
+
+```js
+var cont = /* the "containing <name>" comp */;
+var Z = cont.layer("Europe").property("ADBE Effect Parade")
+            .property("Zoom").property(1);
+Z.setValueAtTime(t, zoomLevel);
+```
+
+**Clear stale keys first.** Nothing does it for you: a mapcomp re-aimed at a new
+work kept animating the *previous* work's pan, so a card labelled Vienna was
+travelling to Linz. `hostInterface.removeMapcompControlKeys` exists for this.
+
+### Half-span degrees ↔ zoom level
+
+The old measurement here was correct and is still the basis of the conversion:
 
 - **`scale = K / halfSpanLon`**, exactly. Fitting half-spans of 30/20/13/9/6°
   gave scales of 1.9775/2.9663/4.5636/6.5918/9.8877 — `K = 59.326` throughout.
-- **`anchorPoint` is the centre in world pixels and is independent of zoom.** A
-  zoom centred on one point does not move it at all.
+- **The centre is independent of zoom.** A zoom centred on one point does not
+  move it.
 
-So one fit call recovers both constants, and every intermediate frame is
-arithmetic. Sample the curve you want, then write the keyframes:
+Combine that with `scale% = 100·2^zoom/512` from the expression and the whole
+conversion collapses to one line, because scale ∝ 1/span means **halving the
+span is exactly +1 zoom**:
 
 ```js
-var P = mapcomp.layer("MapPivot").property("ADBE Transform Group");
-var S = P.property("ADBE Scale");
-geolayers3.fitViewAtTime("Europe", bboxFor(lon, lat, endH));
-var K = S.value[0] * endH;
-for (var i = 0; i <= N; i++) { /* s = K / span(i); S.setValueAtTime(t, [s,s,s]); */ }
+function zoomForSpan(zEnd, endH, H) { return zEnd + Math.log(endH / H) / Math.LN2; }
 ```
+
+Checked against the live comp: span 6° ↔ zoom 5.6618 ↔ scale 9.8877%.
+
+The useful corollary: interpolating the span **geometrically** is the same thing
+as interpolating zoom **linearly**, so an easing curve written for one carries
+over to the other untouched. Get the end zoom from one `fitViewAtTime` on the
+city, derive every wider view from it, and set the keys to LINEAR — on bezier,
+AE rounds its own curve through your samples and overshoots.
+
+Measured after switching `sotd.jsx` over, which is what a working move looks
+like:
+
+```
+t=0.25  zoom 3.340  scale 1.98  span 30.0°     continent
+t=2.00  zoom 4.541  scale 4.55  span 13.1°
+t=5.25  zoom 5.662  scale 9.89  span  6.0°     city
+```
+
+If the scale column does not change, you are keyframing the wrong property.
+That is the one-line check worth running before believing any zoom works.
 
 Interpolate the span **geometrically** (`start · (end/start)^u`), not linearly —
 halving the span reads as the same amount of movement at any scale, so a linear
 ramp appears to accelerate violently at the end. And set the keys to LINEAR: on
 bezier, AE rounds its own curve through your samples and overshoots.
 
-**`finalize` does NOT follow these keyframes — and can silently do nothing.**
-An earlier version of this note claimed the opposite. It was wrong, and the
-mistake is worth recording because the evidence looked convincing:
+**`finalize` DOES follow these keyframes.** This section twice claimed
+otherwise, and the reversals are worth keeping, because the wrong conclusion was
+reached from evidence that looked airtight both times.
 
-- After keyframing a 30°→6° move and finalizing, the mapcomp held 25 tiles
-  across **zoom levels 3, 4 and 5**, where a static view had only ever produced
-  one level. That looked like finalize reading the animation.
-- It was not. Those tiles were assembled from the **existing local cache**
-  (`%APPDATA%\aescripts\GEOlayers3\tiles\`), which already held a zoom-5 set
-  from earlier work. Finalize had simply re-laid tiles it already had.
+The claim was that finalize only ever sees the current static view. The evidence:
+finalizing a keyframed 30°→6° move produced tiles at one zoom level, and a cache
+check showed nothing downloaded for three days. Reasonable — and wrong. **There
+was no animation.** The keys were on `MapPivot`, which ignores them (see §5), so
+finalize was correctly finalizing the single static view that actually existed.
+It was never the one at fault.
 
-The check that settles it is the cache mtime, not the layer count:
+Once the keys went onto the `Zoom` control, a single `finalize` fetched **21 new
+tiles across zoom 3, 4 and 5**, spanning the move, with the callback returning
+`err: null`. That is the whole correction: finalize samples the animated view.
+There is no need to bake in bands, and `addTiles` is not needed either.
 
-```bash
-find "$APPDATA/aescripts/GEOlayers3/tiles" -type f -newermt '-10 minutes' | wc -l
-```
+Two failure modes remain real, and both report success:
 
-On a run where `finalize` fired its callback with `err: null` and the layer
-count changed, that returned **0** — nothing had been downloaded for three days.
-So:
-
-- `finalize` computes a tile set for the mapcomp's **current static view** only.
-  It has no idea the view is animated.
-- A `finalize` that reports success has not necessarily downloaded anything.
-  **Always verify against the tile cache mtime.**
-- Tiles are fetched by the panel's Chromium side. The `geolayers3` and
+- **Tiles are fetched by the panel's Chromium side.** The `geolayers3` and
   `mb_GEOlayers3` globals live in AE's shared ExtendScript engine and keep
   working after the panel is gone, so every scripted call still *succeeds* while
   quietly fetching nothing. Reopening the panel with
   `app.executeCommand(app.findMenuCommandId("GEOlayers 3"))` restores the
   globals' host side but was **not** by itself enough to make downloads resume.
+- **The callback is the only place errors appear**, and the one that matters most
+  is a real sentence: *"Too many tiles. The imagery coverage is too large for a
+  single Mapcomp. Please consider splitting your animation to multiple
+  Mapcomps."* — thrown when the sampled views exceed `maxTilesForFinalization`
+  (1000). Call `finalize` without a callback and that diagnosis becomes silence.
 
-Consequence for an animated zoom: one tile set cannot serve a wide range. A
-30°→6° move is 5×, so tiles adequate at one end are wrong at the other — the
-observed failure is a single 1024 px tile scaled to **1600%**. Either keep the
-range modest (about 2× tolerates one tile set), or bake the move in passes:
-finalize at each zoom band's static view, then render only that band's frames.
+So never trust the return value. Verify against the cache:
+
+```bash
+find "$APPDATA/aescripts/GEOlayers3/tiles" -type f -newermt '-10 minutes' | wc -l
+```
+
+`SOTD.mapFinalize` / `mapFinalizeStatus` wrap all of this: they pass a callback,
+scope sampling to the move with `onlyWorkArea`, count the cache before and after,
+and report `ok` only when the callback came back clean **and** the cache grew.
+`{purge: true}` sets `purgeImageryCache` to force a real fetch, which is how to
+tell a genuine download from re-laid cache.
+
+One trap in the wrapping itself: `finalize` is async, so **restore the work area
+inside the callback**, not after the call. Restoring it synchronously puts it
+back before the sampling has read it — the same class of mistake as polling for
+`saveFrameToPng` on the same thread (§8).
+
+If the tile count does exceed the cap, the developer's own advice is to split
+across multiple mapcomps — `hostInterface.duplicateMapcomp` exists for that.
 
 ---
 
@@ -342,7 +415,15 @@ Tiles are downloaded by the **Chromium side**, not the host script. Consequences
 - Changing the view from script does **not** refetch tiles. After
   `fitViewAtTime` the comp still had only the two zoom-2 preview tiles from
   creation. Imagery stayed coarse until finalized.
-- `geolayers3.finalize()` is the documented way to pull full-resolution tiles.
+- `geolayers3.finalize()` is the documented way to pull full-resolution tiles,
+  and it **does** cover an animated view — but only with a callback, and only
+  with the panel open. See §5.
+- The cache is the only honest witness. `<styleId>` includes a hash of the
+  style's configured variables, so a "bring your own tile URL" style like Esri
+  appears as e.g. `esri-msv7u3vdm1pqe` — and tiles from a *differently
+  configured* instance of the same style will not serve it. A cache holding
+  `esri_512_2` does not help a comp using `esri-msv7u3vdm1pqe`, which is an easy
+  way to think coverage exists when it does not.
 - Tile files are named `<styleId>_<size>_<zoom>_<index>.png`, e.g.
   `cdb1_512_2_12.png`, cached in `%APPDATA%\aescripts\GEOlayers3\tiles\`.
   Reading one directly is the fastest way to confirm what's actually baked into
@@ -455,5 +536,14 @@ been real and re-clipping would have achieved nothing.
 3. Script: `geolayers3.draw(...)`, then poll for the callback.
 4. Script: restyle fills and strokes — the defaults are always wrong.
 5. Script: `fitViewAtTime` to a bbox inside the clip bbox.
-6. **Panel or script:** `finalize()` for full-resolution tiles, last.
-7. Verify by reading the newest bridge PNG, not by trusting `see-frame`.
+6. Script: keyframe the **`Zoom` control** for the move — clearing stale view
+   keys first, and never `MapPivot` (§5). Check that `MapPivot`'s scale now
+   *varies over time*; if it doesn't, the move isn't real.
+7. **Panel must be open.** `finalize()` with a callback, last — then verify the
+   tile cache grew. Success is not a return value (§7).
+8. Verify by reading the newest bridge PNG, not by trusting `see-frame`.
+
+Steps 6 and 7 are in that order for a reason: finalize samples whatever the view
+actually does, so there is no point fetching tiles for a move that isn't there
+yet. And bake/freeze only after 7 — baking locks the imagery in permanently, so
+freezing on a thin cache bakes the coarse version for good.
