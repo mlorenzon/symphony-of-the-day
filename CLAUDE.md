@@ -99,9 +99,9 @@ Frozen works are immune to later map changes and stay frozen across rebuilds.
 
 ## Current state
 
-Three works are built and frozen: `mozart-linz`, `brahms-no-4`,
-`shostakovich-leningrad`. The live mapcomp last held 1938 borders aimed at
-Kuibyshev.
+Twelve works are built and frozen, each with a real 136-frame map move baked to
+`data/maps/<slug>/`: `mozart-linz`, `brahms-no-4`, `shostakovich-leningrad`, and
+Beethoven 1–9. The live mapcomp last held 1815 borders aimed at Vienna.
 
 ## Conventions
 

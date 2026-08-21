@@ -1,6 +1,7 @@
 # Handover — `research-engine` branch
 
-Written 21 Aug 2026. Delete this file when the branch merges.
+Written 21 Aug 2026, updated the same day. Delete this file when the branch
+merges.
 
 Read [`CLAUDE.md`](CLAUDE.md) first, then this. This covers only what a fresh
 session cannot discover from the repo: the current state, the environment
@@ -10,40 +11,36 @@ prerequisites that fail silently, and what to do next.
 
 ## 1. Where things stand
 
-Five commits on `origin/research-engine`, tree clean, nothing merged to `main`:
-
-```
-ece83a5  Correct the field notes: finalize does follow the animation
-fc779c5  Drive the map from the Zoom control, not MapPivot — so it actually zooms
-a8803c0  Land the duotone-poster redesign, the listen-for line and the card-flip SFX
-8e10202  Pin place coordinates in the record, so the map stops guessing
-478ba44  Add the research engine, and Beethoven's nine symphonies through it
-```
-
-Two things landed. **A research engine** — `data/research/<slug>.json` upstream of
-the card JSON, with per-field provenance, validated by
-`scripts/research_to_work.py`, written up by `scripts/research_to_note.py`. And
-**a fix to the map zoom, which had never worked on any card.**
+**All twelve works are built, mapped and frozen.** Steps 1–4 of the previous
+handover are done.
 
 | | State |
 |---|---|
 | Research records | 9 (Beethoven 1–9), all validating clean |
 | Zotero | 10 items in *Symphony of the day* (`R77QY4EK`), keys written back |
 | Vault notes | 9, in `Symphony of the day/` |
-| Card JSONs | 4 — `beethoven-no-3` plus the 3 older works. **8 Beethoven records have no card yet.** |
-| Built in AE | `beethoven-no-3`, **not frozen** |
-| `CFG.works` in `sotd.jsx` | still only the 3 older works |
+| Card JSONs | 12 — Beethoven 1–9 plus the 3 older works |
+| Built in AE | all 12, **all frozen**, each on a real 136-frame move |
+| `CFG.works` in `sotd.jsx` | all 12 |
 
-### The map zoom, and what it means for existing work
+Every work's map is now a baked PNG sequence in `data/maps/<slug>/` — continent
+to city, 136 frames at 25 fps. The three older works had static stills from
+before the zoom fix; they were re-done from scratch (`buildWork` → `mapDraw` →
+`mapFinish` → `mapZoom` → `mapFinalize` → freeze) and now move like the rest.
 
-`MapPivot.transform.scale` carries a GEOlayers expression computed from
-`effect("Zoom")`, so keyframes written to it are discarded. `mapZoom` wrote 62 of
-them. **No card has ever zoomed** — every "30°→6° over five seconds" was a static
-view. `fc779c5` fixes this by keyframing the `Zoom` control instead. Verified:
-scale now varies 1.98 → 9.89 across the move.
+The live mapcomp last held **1815 borders aimed at Vienna** (`beethoven-no-9`).
+It is free — every card is frozen, so re-aiming it costs nothing.
 
-Consequence: `data/maps/` holds **three single PNGs**, not frame sequences. The
-three older works have static map stills. Re-doing them is step 2 below.
+### What changed in the script
+
+- `CFG.works` lists all twelve, so `buildAll()` walks the whole set.
+- **The place strap lost its 34 px tier.** The strap is one band high (76 px), so
+  a place that wraps needs two lines to fit inside it, which caps a wrapping
+  size at 31. At 34 the second line rendered *under the region plate* and simply
+  vanished: `beethoven-no-4` read "GRÄTZ, NEAR" with Troppau gone. Past ~14
+  characters the line no longer fits the 356 px box at 40 either, so it now
+  drops straight from 40 to 28. Verified in a render on no-4 (one line now),
+  no-5 (two lines, both visible) and `brahms-no-4` (12 chars, untouched at 40).
 
 ---
 
@@ -70,72 +67,40 @@ connectors are **account-scoped** and do not.
 - **The GEOlayers 3 panel must be open** for any tile fetching. The
   `geolayers3` / `mb_GEOlayers3` globals outlive the panel and keep returning
   success while downloading nothing.
+- **The GEOlayers panel can also crash outright**, and it did during this
+  session — see §4. Nothing scriptable detects it.
 
 Run `check-bridge` before assuming AE is reachable.
 
 ---
 
-## 3. Next steps, in this order
+## 3. Next steps
 
-### Step 1 — Freeze `beethoven-no-3`. Do this first.
-
-The tile cache is currently warm for this work — 24 tiles for the active style
-(`esri-msv7u3vdm1pqe`) across zoom 3, 4 and 5, spanning the move. That coverage is what a freeze bakes
-in, and it took real effort to get. Anything that re-aims the mapcomp loses it.
-
-```js
-SOTD.freezeMapRender("beethoven-no-3");   // then, in a SEPARATE call:
-SOTD.freezeMapAttach("beethoven-no-3");
-```
-
-Two calls, because `saveFrameToPng` only lands its files once the script returns.
-It should write a **frame sequence** to `data/maps/beethoven-no-3/`, not a single
-PNG — if you get a single PNG, the move isn't real and something has regressed.
-
-Confirm with a render before and after; the map must still move.
-
-### Step 2 — Re-do the three older works
-
-`mozart-linz`, `brahms-no-4`, `shostakovich-leningrad` have static stills.
-**One at a time**, because they share the single mapcomp:
-
-```js
-SOTD.buildWork(slug);      // if needed
-SOTD.mapDraw(slug);        // poll SOTD.mapStatus() in a LATER call
-SOTD.mapFinish(slug);
-SOTD.mapZoom(slug);        // check MapPivot scale actually varies
-SOTD.mapFinalize();        // poll SOTD.mapFinalizeStatus() until ok:true
-SOTD.freezeMapRender(slug); SOTD.freezeMapAttach(slug);   // separate calls
-```
-
-Do not start the next work until the previous one is frozen.
-
-### Step 3 — Add the built works to `CFG.works`
-
-`scripts/sotd.jsx` line ~40 still lists only the three older works, so
-`buildAll()` skips everything new.
-
-### Step 4 — Build the remaining eight Beethoven cards
-
-The research is done; only the card JSON and the AE build are outstanding.
-
-```bash
-python scripts/research_to_work.py beethoven-no-1 --dry-run   # then without --dry-run
-```
-
-Coordinates are pinned in every record, so the geocoder is no longer consulted.
-Then `buildWork` → map sequence → freeze, one at a time.
-
-### Step 5 — Worth trying: `setViewKeyframes`
+### Step 1 — Worth trying: `setViewKeyframes`
 
 `mb_GEOlayers3.hostInterface` has `setViewKeyframes` and
-`animateViewBetweenFeatures` (confirmed present, 101 methods). These look like
+`animateViewBetweenFeatures` (confirmed present, 108 methods). These look like
 the sanctioned way to animate a view and would likely be better than the
 hand-keyframing `mapZoom` now does. **Untested, argument shapes unknown** —
 recover them from the panel's own calls in `js/main.js` as §2 of the GEOlayers
-doc describes.
+doc describes. Nothing depends on this; the hand-keyframed move works and every
+card is baked.
 
-### Step 6 — PR
+### Step 2 — Two editorial gaps, both visible in a render
+
+- **`brahms-no-4` has an empty `context`**, so its card back shows the
+  "listen-out-for only" slab state with 100 px of bare card ground above it. It
+  is the one work with no research record — it predates the engine. Running
+  `symphony-research` on it would close the gap.
+- **Two Beethoven places are phrases, not city names**: `beethoven-no-4` is
+  "Grätz, near Troppau" (19 chars) and no-5 / no-6 are "Heiligenstadt, and
+  Vienna" (24). They now render without losing text, but they set at 28 px and
+  the Heiligenstadt one wraps to two lines, where every other card gets one loud
+  city name at 40–46. Shortening them is a change to a **fact-checked field**
+  (`place.city` in the research record), so it is Matthew's call, not a silent
+  fix. The full description would move to `place.region` or `place.note`.
+
+### Step 3 — PR
 
 https://github.com/mlorenzon/symphony-of-the-day/pull/new/research-engine
 
@@ -143,32 +108,57 @@ https://github.com/mlorenzon/symphony-of-the-day/pull/new/research-engine
 
 ## 4. Traps that already cost time
 
+- **The GEOlayers panel can crash, and every scripted call keeps reporting
+  success.** It happened on the first finalize aimed at a region with nothing
+  cached (Kuibyshev). The tell is a **callback that never fires at all** — not
+  slow, never — while `geolayers3.version()` and
+  `hostInterface.initialized` both keep answering, because those live host-side.
+  `draw` dies with it, and it dies *after* removing the old border layers.
+  Neither the menu command nor `hostInterface.initEngine()` revived it;
+  **closing and reopening the panel by hand did.** Nothing downstream was lost —
+  re-running `mapDraw` for the work in flight picked it straight back up.
+- **`freezeMapAttach` only checks frame 0.** Called while the bake is still
+  writing, it succeeds and imports a *short* sequence — one run took 80 frames
+  of 136 and still reported `attached: true, animated: true`. Wait for the full
+  count on disk, then confirm `duration * fps === 136` on the imported item.
 - **Verify tile fetching against the cache, never the return value.** `finalize`
   reports success with the panel shut and fetches nothing.
   `SOTD.mapFinalizeStatus()` reports `ok` only if the callback came back clean
   *and* the cache grew. `mapFinalize({purge:true})` forces a real fetch.
+  **`ok: false` is not by itself a failure**: for a city near one already baked,
+  every tile is genuinely cached already and the count does not move. Nine of
+  the twelve works finalized to `tilesGained: 0` and rendered perfectly. Settle
+  it by looking at the close end of the move — missing tiles render as flat
+  empty colour, which is unmistakable.
 - **`styleId` embeds a hash of the style's configured variables.** Cached
   `esri_512_2` tiles do not serve a comp using `esri-msv7u3vdm1pqe`. Easy way to
   believe coverage exists when it doesn't.
-- **Never keyframe `MapPivot`.** See §1.
-- **Stale view keys survive re-aiming.** The mapcomp was animating Vienna→Linz
-  from `mozart-linz` while showing the Eroica. `mapZoom` now clears them.
+- **Never keyframe `MapPivot`.** Its scale carries a GEOlayers expression
+  computed from `effect("Zoom")`, so keyframes written to it are discarded.
+  Keyframe the `Zoom` control on the mapcomp's layer in `containing Europe`.
+- **Stale view keys survive re-aiming.** `mapZoom` clears them now.
 - **`see-frame` renders the comp midpoint and ignores the playhead**, and
-  sometimes returns an unreadable frame. Fall back to the newest bridge PNG:
-  `ls -t "$LOCALAPPDATA/ae-mcp-bridge/"*.png | head -1`. For a specific moment,
-  use `comp.saveFrameToPng(t, file)` — in one call, read in the next.
-- **`prepare_work.py` geocodes a place *name*.** It resolved "Vienna" to Vienna,
-  Illinois and clipped a basemap reaching New Spain. All nine records now pin
+  sometimes returns an unreadable frame — it failed that way twice this session.
+  For a specific moment use `comp.saveFrameToPng(t, file)` in one call and read
+  the file in the next; that never misbehaved.
+- **`buildAll()` outruns the MCP call timeout.** Twelve works, each rebuilding
+  five comps and re-importing a 136-frame sequence, took longer than the 600 s
+  ceiling — the tool reported a timeout while the script ran happily to
+  completion. `check-bridge` returns "no response" while AE is busy. Wait, then
+  audit the comps rather than re-running the build.
+- **`prepare_work.py` geocodes a place *name*.** All nine records pin
   `place.lat` / `place.lon` / `place.wikidata`; the validator warns if they're
   missing. Keep pinning them.
-- **The working tree had unrelated in-progress work in it** at the start of this
-  session; `a8803c0` is that work, committed with a message written from the
-  diffs, not from knowledge of intent. Worth a read before merging.
+- **`a8803c0` was committed from the diffs**, not from knowledge of intent —
+  it was unrelated in-progress work found in the tree. Worth a read before
+  merging.
 
 ## 5. Don't
 
 - **Don't hand-edit an AE comp you want to keep.** `buildWork` deletes and
-  recreates all five comps per work, and the `.aep` isn't tracked.
+  recreates all five comps per work, and the `.aep` isn't tracked. Rebuilding is
+  safe for the maps, though: `buildMapComp` prefers a bake on disk over the live
+  mapcomp, so all twelve survived a full `buildAll()` still frozen.
 - **Don't freeze on a thin tile cache.** Baking locks imagery in permanently.
 - **Don't rename `mozart-linz` or `shostakovich-leningrad`.** The slug convention
   is now `surname-noNN`, but those two predate it, are built and frozen, and

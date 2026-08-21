@@ -326,7 +326,26 @@ tiles across zoom 3, 4 and 5**, spanning the move, with the callback returning
 `err: null`. That is the whole correction: finalize samples the animated view.
 There is no need to bake in bands, and `addTiles` is not needed either.
 
-Two failure modes remain real, and both report success:
+Three failure modes remain real, and all three report success:
+
+- **The panel can crash outright, and nothing in ExtendScript says so.** Seen
+  once mid-session, on the first finalize aimed at a region with no cached tiles
+  at all (Kuibyshev): the callback simply never fired. Not slow — *never*, over
+  four minutes, with the tile cache flat and even `{purge: true}` failing to
+  empty it. Meanwhile `geolayers3.version()` still returned `"1.18.1"` and
+  `mb_GEOlayers3.hostInterface.initialized` still returned `true`, because both
+  live host-side. `draw` had died with it: it removed the old border layers and
+  then never drew the new ones.
+
+  **The tell is a callback that never fires at all**, on any panel-side call.
+  Distinguish it from a slow fetch by asking for the cheapest possible job —
+  `finalize` with `{onlyCurrentFrame: true}` — and by watching file timestamps
+  in the tile cache rather than the count. Neither the menu command nor
+  `hostInterface.initEngine()` (which throws `TypeError: undefined is not an
+  object` with no arguments) brought it back. **Closing and reopening the panel
+  by hand did.** Everything downstream survived: the work JSON, the bakes
+  already on disk, and the frozen comps were all untouched, so recovery was
+  simply re-running `mapDraw` for the work in flight.
 
 - **Tiles are fetched by the panel's Chromium side.** The `geolayers3` and
   `mb_GEOlayers3` globals live in AE's shared ExtendScript engine and keep

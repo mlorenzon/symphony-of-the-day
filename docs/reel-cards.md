@@ -209,6 +209,19 @@ SOTD.freezeMapRender("brahms-no-4");   // writes data/maps/<slug>/map_*.png
 SOTD.freezeMapAttach("brahms-no-4");   // in a LATER call — see §4
 ```
 
+**"A LATER call" means later than the last frame, not later than the script.**
+`freezeMapAttach` only checks that frame 0 exists, so calling it while the other
+135 are still being written succeeds and imports a *short* sequence — one run
+attached 80 frames of 136 and reported `attached: true, animated: true`. The
+move then ends early and freezes on a half-zoomed view, which no return value
+mentions. Wait for the full count on disk before attaching, and confirm the
+imported item afterwards:
+
+```js
+// 136 = (CFG.map.dur + CFG.map.tail) * fps + 1
+Math.round(findItem("map-" + slug + " [seq]").duration * CFG.reel.fps);
+```
+
 **Do not skip this.** There is only one GEOlayers mapcomp in the project, and
 every card's map panel points at it. Aiming it at tomorrow's city silently
 rewrites the map on every card built before. Freezing bakes the map — the whole
