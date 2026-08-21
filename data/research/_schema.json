@@ -55,7 +55,10 @@
             "country_then":{ "type": "string", "description": "The polity at the time — Archduchy of Austria, not Austria. Drives the historical basemap." },
             "country_now": { "type": "string" },
             "granularity": { "enum": ["building", "city", "region", "country", "unknown"] },
-            "note":        { "type": "string", "description": "For works written in more than one place, or where the attribution is disputed." }
+            "note":        { "type": "string", "description": "For works written in more than one place, or where the attribution is disputed." },
+            "lat":         { "type": ["number", "null"], "description": "Verified latitude. Pin it here: prepare_work.py geocodes the place NAME through a Wikidata search, and a bare city name resolves to the wrong continent often enough to matter (Vienna finds Vienna, Illinois). Set lat/lon and the build stops guessing." },
+            "lon":         { "type": ["number", "null"], "description": "Verified longitude. See lat." },
+            "wikidata":    { "type": "string", "description": "Q-id the coordinates came from, so the next person can check rather than re-search." }
           }
         }
       }

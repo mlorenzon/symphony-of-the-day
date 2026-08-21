@@ -26,7 +26,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "building",
-      "note": "Grove: 'Linz, where he started the score of the Eighth Symphony; he stayed with his brother Johann, who had bought an apothecary's shop there in 1808.' Wikipedia says Teplice instead — the Bohemian spa where the summer's work began before he travelled on to Linz that autumn."
+      "note": "Grove: 'Linz, where he started the score of the Eighth Symphony; he stayed with his brother Johann, who had bought an apothecary's shop there in 1808.' Wikipedia says Teplice instead — the Bohemian spa where the summer's work began before he travelled on to Linz that autumn.",
+      "lat": 48.3058,
+      "lon": 14.2864,
+      "wikidata": "Q41329"
     }
   },
   "reason": {

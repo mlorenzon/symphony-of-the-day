@@ -29,7 +29,10 @@
       "country_then": "Kingdom of Bohemia, Habsburg monarchy",
       "country_now": "Czech Republic (Teplice)",
       "granularity": "city",
-      "note": "Wikipedia places the writing at the Bohemian spa where Beethoven was taking the cure. Grove confirms the 1811–12 span and repeated visits to Teplitz 'to take the cure', and that he 'completed it in the spring of 1812, going on without a break to the Eighth Symphony'."
+      "note": "Wikipedia places the writing at the Bohemian spa where Beethoven was taking the cure. Grove confirms the 1811–12 span and repeated visits to Teplitz 'to take the cure', and that he 'completed it in the spring of 1812, going on without a break to the Eighth Symphony'.",
+      "lat": 50.6333,
+      "lon": 13.8167,
+      "wikidata": "Q146342"
     }
   },
   "reason": {

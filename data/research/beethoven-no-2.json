@@ -29,7 +29,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Then a village north of Vienna, now a city district. Grove places Beethoven at Heiligenstadt from spring 1802, 'perhaps with the thought of spending longer in the country than usual for the sake of his health and hearing'."
+      "note": "Then a village north of Vienna, now a city district. Grove places Beethoven at Heiligenstadt from spring 1802, 'perhaps with the thought of spending longer in the country than usual for the sake of his health and hearing'.",
+      "lat": 48.2538,
+      "lon": 16.3549,
+      "wikidata": "Q379531"
     }
   },
   "reason": {

@@ -28,7 +28,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Grove has him starting almost immediately after the Missa solemnis was virtually complete in autumn 1822, with the last details finished the following March. His summers in these years were spent at Baden, Mödling or Hetzendorf outside the city."
+      "note": "Grove has him starting almost immediately after the Missa solemnis was virtually complete in autumn 1822, with the last details finished the following March. His summers in these years were spent at Baden, Mödling or Hetzendorf outside the city.",
+      "lat": 48.2083,
+      "lon": 16.3725,
+      "wikidata": "Q1741"
     }
   },
   "reason": {

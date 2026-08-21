@@ -25,7 +25,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Grove dates it 1808 flatly. Wikipedia's 1802–1808 reaches back to early pastoral sketches. The countryside north of Vienna where Beethoven took summer lodgings is the landscape the work describes."
+      "note": "Grove dates it 1808 flatly. Wikipedia's 1802–1808 reaches back to early pastoral sketches. The countryside north of Vienna where Beethoven took summer lodgings is the landscape the work describes.",
+      "lat": 48.2538,
+      "lon": 16.3549,
+      "wikidata": "Q379531"
     }
   },
   "reason": {

@@ -28,7 +28,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Grove has him at Heiligenstadt 'no doubt completing the Fifth Symphony'. Wikipedia instead names the Pasqualati House in Vienna and a 1804–1808 span; Grove's works list dates the symphony 1807–8 with 'preliminary sketches, 1804'."
+      "note": "Grove has him at Heiligenstadt 'no doubt completing the Fifth Symphony'. Wikipedia instead names the Pasqualati House in Vienna and a 1804–1808 span; Grove's works list dates the symphony 1807–8 with 'preliminary sketches, 1804'.",
+      "lat": 48.2538,
+      "lon": 16.3549,
+      "wikidata": "Q379531"
     }
   },
   "reason": {

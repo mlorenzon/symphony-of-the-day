@@ -26,7 +26,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Grove gives 1803 and places him at Oberdöbling, a village outside Vienna, for the summer — 'not a happy summer for Beethoven, and for a time he may have thought of leaving Vienna altogether – perhaps for Paris.' Wikipedia's 1802–1804 span takes in sketches and final revisions."
+      "note": "Grove gives 1803 and places him at Oberdöbling, a village outside Vienna, for the summer — 'not a happy summer for Beethoven, and for a time he may have thought of leaving Vienna altogether – perhaps for Paris.' Wikipedia's 1802–1804 span takes in sketches and final revisions.",
+      "lat": 48.2083,
+      "lon": 16.3725,
+      "wikidata": "Q1741"
     }
   },
   "reason": {

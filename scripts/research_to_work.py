@@ -152,6 +152,12 @@ def review(rec):
                             "card takes the bucket, and with it the colour. Reconcile "
                             "deliberately, or say why in era_note." % (era, year, bucket))
 
+    place = rec.get("composition", {}).get("place", {})
+    if place.get("granularity") != "unknown" and (place.get("lat") is None or place.get("lon") is None):
+        warnings.append("place has no lat/lon — prepare_work.py will geocode the name, and a "
+                        "bare city name lands on the wrong continent often enough to matter. "
+                        "Pin the coordinates and record the Q-id.")
+
     claims = rec.get("claims", {})
     for field in ("title_full", "composition.year", "composition.place",
                   "reason.summary", "composer.nationality", "listen_for"):
@@ -193,6 +199,11 @@ def command_for(rec):
             argv.extend([flag, str(value)])
 
     opt("--place", place_str)
+    # Pin the coordinates when the record has them. prepare_work.py otherwise
+    # resolves the place name through a Wikidata search, which cheerfully
+    # returns Vienna, Illinois for "Vienna" and then clips a basemap around it.
+    if place.get("lat") is not None and place.get("lon") is not None:
+        argv.extend(["--lat", str(place["lat"]), "--lon", str(place["lon"])])
     opt("--slug", rec.get("slug"))
     opt("--short-title", rec.get("title_short"))
     opt("--catalogue", rec.get("catalogue"))

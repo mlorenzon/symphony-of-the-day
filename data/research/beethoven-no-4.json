@@ -27,7 +27,10 @@
       "country_then": "Habsburg monarchy",
       "country_now": "Czech Republic (Hradec nad Moravicí)",
       "granularity": "building",
-      "note": "Wikipedia places the writing at Lichnowsky's Silesian estate, the commission arising from a September visit to Count Oppersdorff at Oberglogau nearby (Prussian Silesia, now Głogówek, Poland). Grove confirms 1806 and the Oppersdorff dedication but not the estate."
+      "note": "Wikipedia places the writing at Lichnowsky's Silesian estate, the commission arising from a September visit to Count Oppersdorff at Oberglogau nearby (Prussian Silesia, now Głogówek, Poland). Grove confirms 1806 and the Oppersdorff dedication but not the estate.",
+      "lat": 49.871,
+      "lon": 17.8759,
+      "wikidata": "Q668190"
     }
   },
   "reason": {

@@ -28,7 +28,10 @@
       "country_then": "Archduchy of Austria",
       "country_now": "Austria",
       "granularity": "city",
-      "note": "Grove gives 1799–1800. Wikipedia's 1795–1800 counts early sketches, including finale material from 1795 and counterpoint studies of spring 1797."
+      "note": "Grove gives 1799–1800. Wikipedia's 1795–1800 counts early sketches, including finale material from 1795 and counterpoint studies of spring 1797.",
+      "lat": 48.2083,
+      "lon": 16.3725,
+      "wikidata": "Q1741"
     }
   },
   "reason": {
