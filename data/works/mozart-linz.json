@@ -24,9 +24,13 @@
     "lon": 14.286388888888888,
     "lat": 48.30583333333333
   },
-  "context": "Written in four days for a subscription concert at the Linz theatre, while the Mozarts were guests of Count Johann Joseph Anton von Thun-Hohenstein.",
-  "context_label": "Occasion",
-  "listen_for": "It opens with a slow introduction — his first symphony to do so.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "",
+    "occasion": "Written in four days for a subscription concert at the Linz theatre, while the Mozarts were guests of Count Johann Joseph Anton von Thun-Hohenstein.",
+    "listen_for": "It opens with a slow introduction — his first symphony to do so."
+  },
   "map": {
     "basemap_year": 1783,
     "geojson": "data/clipped/europe_1783.geojson",

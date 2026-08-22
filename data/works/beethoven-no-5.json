@@ -24,9 +24,13 @@
     "lon": 16.3549,
     "lat": 48.2538
   },
-  "context": "Premiered in a four-hour all-Beethoven benefit concert in a freezing theatre.",
-  "context_label": "Occasion",
-  "listen_for": "Four notes. The whole first movement is built from almost nothing else.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Theater an der Wien, Vienna, 22 December 1808",
+    "occasion": "Premiered in a four-hour all-Beethoven benefit concert in a freezing theatre.",
+    "listen_for": "Four notes. The whole first movement is built from almost nothing else."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",

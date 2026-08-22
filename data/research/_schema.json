@@ -4,170 +4,563 @@
   "title": "Symphony of the day — research record",
   "description": "The scholarly record for one work. Upstream of data/works/<slug>.json: everything the card needs is in here, plus the provenance the card has no room for. scripts/research_to_work.py turns this into a prepare_work.py run.",
   "type": "object",
-  "required": ["schema", "slug", "title_full", "composer", "era", "composition", "reason", "first_performance", "listen_for", "sources", "claims"],
+  "required": [
+    "schema",
+    "slug",
+    "title_full",
+    "composer",
+    "era",
+    "composition",
+    "reason",
+    "first_performance",
+    "listen_for",
+    "sources",
+    "claims"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema":     { "const": "sotd-research/1" },
-    "slug":       { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Matches data/works/<slug>.json. Convention: surname-noNN (beethoven-no-3), using the number even where the work has a famous nickname, so a composer's symphonies sort in order. The nickname goes in title_short. mozart-linz and shostakovich-leningrad predate the rule and keep their names." },
-    "researched": { "type": "string", "description": "ISO date this record was compiled." },
-
-    "title_full":  { "type": "string", "description": "As it should read on the card, nickname in curly quotes." },
-    "title_short": { "type": "string", "description": "Nickname alone, e.g. Linz. Empty if the work has none." },
-    "catalogue":   { "type": "string", "description": "K. 425, Op. 98, Hob. I:94 …" },
-    "number":      { "type": "string", "description": "No. 36. Empty for unnumbered works." },
-
+    "schema": {
+      "const": "sotd-research/1"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Matches data/works/<slug>.json. Convention: surname-noNN (beethoven-no-3), using the number even where the work has a famous nickname, so a composer's symphonies sort in order. The nickname goes in title_short. mozart-linz and shostakovich-leningrad predate the rule and keep their names."
+    },
+    "researched": {
+      "type": "string",
+      "description": "ISO date this record was compiled."
+    },
+    "title_full": {
+      "type": "string",
+      "description": "As it should read on the card, nickname in curly quotes."
+    },
+    "title_short": {
+      "type": "string",
+      "description": "Nickname alone, e.g. Linz. Empty if the work has none."
+    },
+    "catalogue": {
+      "type": "string",
+      "description": "K. 425, Op. 98, Hob. I:94 …"
+    },
+    "number": {
+      "type": "string",
+      "description": "No. 36. Empty for unnumbered works."
+    },
     "composer": {
       "type": "object",
-      "required": ["name", "nationality"],
+      "required": [
+        "name",
+        "nationality"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name":        { "type": "string" },
-        "nationality": { "type": "string", "description": "Adjectival, e.g. Austrian. Use the identity Grove uses; note contested or shifting cases in nationality_note." },
-        "nationality_note": { "type": "string", "description": "For composers whose nationality is contested, changed, or anachronistic — e.g. a German born in a state that did not yet exist." },
-        "born": { "type": ["integer", "null"] },
-        "died": { "type": ["integer", "null"] }
+        "name": {
+          "type": "string"
+        },
+        "nationality": {
+          "type": "string",
+          "description": "Adjectival, e.g. Austrian. Use the identity Grove uses; note contested or shifting cases in nationality_note."
+        },
+        "nationality_note": {
+          "type": "string",
+          "description": "For composers whose nationality is contested, changed, or anachronistic — e.g. a German born in a state that did not yet exist."
+        },
+        "born": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "died": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
       }
     },
-
     "era": {
-      "enum": ["Baroque", "Classical", "Romantic", "Modern"],
+      "enum": [
+        "Baroque",
+        "Classical",
+        "Romantic",
+        "Modern"
+      ],
       "description": "The scholarly judgment. data/periods.json buckets mechanically by year and drives the card colour; when the two disagree, say why in era_note and decide deliberately."
     },
-    "era_note": { "type": "string" },
-
+    "era_note": {
+      "type": "string"
+    },
     "composition": {
       "type": "object",
-      "required": ["year", "date_precision", "place"],
+      "required": [
+        "year",
+        "date_precision",
+        "place"
+      ],
       "additionalProperties": false,
       "properties": {
-        "year":       { "type": ["integer", "null"], "description": "Single year for the card. For a work spanning years, the year of completion." },
-        "year_range": { "type": ["array", "null"], "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
-        "date":       { "type": "string", "description": "Finest known date, ISO where possible: 1783-11-04, 1783-11, autumn 1783." },
-        "date_precision": { "enum": ["day", "month", "season", "year", "range", "unknown"] },
+        "year": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Single year for the card. For a work spanning years, the year of completion."
+        },
+        "year_range": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "date": {
+          "type": "string",
+          "description": "Finest known date, ISO where possible: 1783-11-04, 1783-11, autumn 1783."
+        },
+        "date_precision": {
+          "enum": [
+            "day",
+            "month",
+            "season",
+            "year",
+            "range",
+            "unknown"
+          ]
+        },
         "place": {
           "type": "object",
-          "required": ["granularity"],
+          "required": [
+            "granularity"
+          ],
           "additionalProperties": false,
           "properties": {
-            "building":    { "type": "string", "description": "Finest grain, e.g. Thun-Hohenstein palace." },
-            "city":        { "type": "string" },
-            "region":      { "type": "string" },
-            "country_then":{ "type": "string", "description": "The CONSTITUENT LAND at the time and nothing above it — Archduchy of Austria, Kingdom of Bohemia, Duchy of Styria, Austrian Silesia, Russian SFSR. Printed on card 2 under the place name, where it sits directly beneath a map already printing the sovereign state, so naming the sovereign here too (or appending it: 'Duchy of Styria, Austria-Hungary') just says it twice. Where the place had no land between it and the sovereign, leave it empty rather than repeating `polity`." },
-            "polity":      { "type": "string", "description": "THE COUNTRY OF COMPOSITION: the sovereign state the place belonged to in the year of composition, named as a historian would name it that year. This is the authoritative one — it is printed on the map and is the label the card shows, so it must be fact-checked against Grove like any other field and must appear in `claims`. Distinct from country_then, which may name a constituent duchy or kingdom (Archduchy of Austria) rather than the sovereign entity above it (Habsburg Monarchy). Watch the anachronisms: no Austrian Empire before August 1804, no Austria-Hungary before 1867, no Italy or Germany before 1861 and 1871. Keep it short enough to print — over about 34 characters it wraps to a third line on the card." },
-            "polity_note": { "type": "string", "description": "Why this polity and not another: a contested case, a succession in the year of composition, or a place whose sovereign changed between the sketches and the finished work." },
-            "country_now": { "type": "string" },
-            "granularity": { "enum": ["building", "city", "region", "country", "unknown"] },
-            "note":        { "type": "string", "description": "For works written in more than one place, or where the attribution is disputed." },
-            "lat":         { "type": ["number", "null"], "description": "Verified latitude. Pin it here: prepare_work.py geocodes the place NAME through a Wikidata search, and a bare city name resolves to the wrong continent often enough to matter (Vienna finds Vienna, Illinois). Set lat/lon and the build stops guessing." },
-            "lon":         { "type": ["number", "null"], "description": "Verified longitude. See lat." },
-            "wikidata":    { "type": "string", "description": "Q-id the coordinates came from, so the next person can check rather than re-search." }
+            "building": {
+              "type": "string",
+              "description": "Finest grain, e.g. Thun-Hohenstein palace."
+            },
+            "city": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            },
+            "country_then": {
+              "type": "string",
+              "description": "The CONSTITUENT LAND at the time and nothing above it — Archduchy of Austria, Kingdom of Bohemia, Duchy of Styria, Austrian Silesia, Russian SFSR. Printed on card 2 under the place name, where it sits directly beneath a map already printing the sovereign state, so naming the sovereign here too (or appending it: 'Duchy of Styria, Austria-Hungary') just says it twice. Where the place had no land between it and the sovereign, leave it empty rather than repeating `polity`."
+            },
+            "polity": {
+              "type": "string",
+              "description": "THE COUNTRY OF COMPOSITION: the sovereign state the place belonged to in the year of composition, named as a historian would name it that year. This is the authoritative one — it is printed on the map and is the label the card shows, so it must be fact-checked against Grove like any other field and must appear in `claims`. Distinct from country_then, which may name a constituent duchy or kingdom (Archduchy of Austria) rather than the sovereign entity above it (Habsburg Monarchy). Watch the anachronisms: no Austrian Empire before August 1804, no Austria-Hungary before 1867, no Italy or Germany before 1861 and 1871. Keep it short enough to print — over about 34 characters it wraps to a third line on the card."
+            },
+            "polity_note": {
+              "type": "string",
+              "description": "Why this polity and not another: a contested case, a succession in the year of composition, or a place whose sovereign changed between the sketches and the finished work."
+            },
+            "country_now": {
+              "type": "string"
+            },
+            "granularity": {
+              "enum": [
+                "building",
+                "city",
+                "region",
+                "country",
+                "unknown"
+              ]
+            },
+            "note": {
+              "type": "string",
+              "description": "For works written in more than one place, or where the attribution is disputed."
+            },
+            "lat": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Verified latitude. Pin it here: prepare_work.py geocodes the place NAME through a Wikidata search, and a bare city name resolves to the wrong continent often enough to matter (Vienna finds Vienna, Illinois). Set lat/lon and the build stops guessing."
+            },
+            "lon": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Verified longitude. See lat."
+            },
+            "wikidata": {
+              "type": "string",
+              "description": "Q-id the coordinates came from, so the next person can check rather than re-search."
+            }
           }
         }
       }
     },
-
     "reason": {
       "type": "object",
-      "required": ["summary"],
+      "required": [
+        "summary"
+      ],
       "additionalProperties": false,
       "properties": {
-        "summary":   { "type": "string", "description": "Card 2's occasion line. Aim for 90 characters or fewer; 148 is the observed ceiling before the type shrinks past comfort." },
-        "patron":    { "type": "string" },
-        "dedicatee": { "type": "string", "description": "Often not the patron. Record both when they differ." },
-        "occasion":  { "type": "string" },
-        "commission":{ "type": "string", "description": "Fee, terms, or the absence of a commission where that is the interesting fact." },
-        "detail":    { "type": "string", "description": "The long version, for the Obsidian note." }
+        "summary": {
+          "type": "string",
+          "description": "Card 2's occasion line. Aim for 90 characters or fewer; 148 is the observed ceiling before the type shrinks past comfort."
+        },
+        "patron": {
+          "type": "string"
+        },
+        "dedicatee": {
+          "type": "string",
+          "description": "Often not the patron. Record both when they differ."
+        },
+        "occasion": {
+          "type": "string"
+        },
+        "commission": {
+          "type": "string",
+          "description": "Fee, terms, or the absence of a commission where that is the interesting fact."
+        },
+        "detail": {
+          "type": "string",
+          "description": "The long version, for the Obsidian note."
+        }
       }
     },
-
     "first_performance": {
       "type": "object",
-      "required": ["known"],
+      "required": [
+        "known"
+      ],
       "additionalProperties": false,
       "properties": {
-        "known":     { "type": "boolean", "description": "false when the premiere is unrecorded or disputed — then say so in notes rather than guessing." },
-        "date":      { "type": "string" },
-        "city":      { "type": "string" },
-        "venue":     { "type": "string" },
-        "conductor": { "type": "string" },
-        "ensemble":  { "type": "string" },
-        "soloists":  { "type": "string" },
-        "reception": { "type": "string" },
-        "notes":     { "type": "string" }
+        "known": {
+          "type": "boolean",
+          "description": "false when the premiere is unrecorded or disputed — then say so in notes rather than guessing."
+        },
+        "date": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venue_short": {
+          "type": "string",
+          "description": "The venue as the card should print it, where the scholarly name carries a parenthetical or an alternative title. Omit and the card uses venue verbatim."
+        },
+        "conductor": {
+          "type": "string"
+        },
+        "ensemble": {
+          "type": "string"
+        },
+        "soloists": {
+          "type": "string"
+        },
+        "reception": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
-
+    "scoring": {
+      "type": "object",
+      "description": "What it takes to play the work, for card 2's first fact. Three DIFFERENT questions live here, and the card answers whichever is best attested — in this order: what the composer specified, then who actually played it, then what the score's parts add up to. Record every one you can source; research_to_work.py applies the priority and picks the card's label to match, so the card never implies a stronger claim than the source supports. There is deliberately no 'modern complement' option: a present-day string section is a convention of ours, not a fact about the work, and this series prints the period fact or nothing — the same rule as composition.place.polity.",
+      "additionalProperties": false,
+      "properties": {
+        "specified": {
+          "type": "object",
+          "description": "FIRST PRIORITY. Player counts the composer wrote INTO the score — '16 first violins', not an editor's guess. Rare before the late romantics, and the strongest thing the card can say. Card label: SCORED FOR.",
+          "additionalProperties": false,
+          "properties": {
+            "players": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Total players the composer asked for."
+            },
+            "strings": {
+              "type": "string",
+              "description": "The specified string desks, e.g. '16.16.12.10.8'."
+            },
+            "note": {
+              "type": "string",
+              "description": "Where in the score the numbers appear."
+            },
+            "source": {
+              "type": "string",
+              "description": "id of the entry in `sources` that carries it."
+            }
+          }
+        },
+        "premiere": {
+          "type": "object",
+          "description": "SECOND PRIORITY. How many people were on the platform on the night, where the roster is documented. A fact about an event, not about the work, which is why the card labels it PREMIERE ORCHESTRA rather than SCORED FOR.",
+          "additionalProperties": false,
+          "properties": {
+            "players": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Instrumentalists at the premiere."
+            },
+            "strings": {
+              "type": "string",
+              "description": "Documented string numbers, e.g. '24 violins, 10 violas, 12 cellos and basses'."
+            },
+            "note": {
+              "type": "string",
+              "description": "Whose account this is. Premiere rosters are usually reported second-hand and often disagree."
+            },
+            "source": {
+              "type": "string",
+              "description": "id of the entry in `sources` that carries it."
+            }
+          }
+        },
+        "instrumentation": {
+          "type": "object",
+          "description": "THIRD PRIORITY, and the usual case. What the score's parts add up to: the instruments called for, counting a doubling player ONCE. It cannot give a player total, because string numbers are almost never in the score — so the card says '67 instruments', not '67 players'. Card label: SCORED FOR.",
+          "additionalProperties": false,
+          "properties": {
+            "instruments": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Instruments the score calls for. Doublings counted once."
+            },
+            "shorthand": {
+              "type": "string",
+              "description": "The publisher's shorthand verbatim, e.g. '3.2.2.3 - 2.2.3.0 - timp - strings'."
+            },
+            "doublings": {
+              "type": "string",
+              "description": "What the doublings are, e.g. 'two of the four flutes take piccolo'."
+            },
+            "note": {
+              "type": "string",
+              "description": "How the count was arrived at."
+            },
+            "source": {
+              "type": "string",
+              "description": "id of the entry in `sources` that carries it."
+            }
+          }
+        },
+        "voices": {
+          "type": "object",
+          "description": "Singers, where the work needs them. Never folded into any players total: a chorus is a different kind of force and the card names it separately.",
+          "additionalProperties": false,
+          "properties": {
+            "chorus": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Singers in the chorus."
+            },
+            "soloists": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Vocal soloists."
+            },
+            "note": {
+              "type": "string",
+              "description": ""
+            },
+            "source": {
+              "type": "string",
+              "description": "id of the entry in `sources` that carries it."
+            }
+          }
+        },
+        "line": {
+          "type": "string",
+          "description": "Override for the card's fact text. Leave out and research_to_work.py derives it from whichever block won the priority."
+        },
+        "label": {
+          "type": "string",
+          "enum": [
+            "SCORED FOR",
+            "PREMIERE ORCHESTRA"
+          ],
+          "description": "Override for the card's label. Leave out and the winning block picks it. Only these two exist."
+        }
+      }
+    },
     "listen_for": {
       "type": "array",
       "minItems": 1,
       "maxItems": 3,
       "items": {
         "type": "object",
-        "required": ["hook", "kind"],
+        "required": [
+          "hook",
+          "kind"
+        ],
         "additionalProperties": false,
         "properties": {
-          "hook":   { "type": "string", "description": "One sentence a viewer who has never heard the piece can act on. 64–71 characters is the range that sits well on the card." },
-          "kind":   { "enum": ["famous-movement", "pop-culture", "innovation", "emblematic", "structural", "orchestration"] },
-          "detail": { "type": "string", "description": "The long version, for the Obsidian note." },
-          "timing": { "type": "string", "description": "Movement and roughly where in it, e.g. IV, from the first bar." },
-          "card":   { "type": "boolean", "description": "Exactly one entry should be true — the hook that goes on the card." }
+          "hook": {
+            "type": "string",
+            "description": "One sentence a viewer who has never heard the piece can act on. 64–71 characters is the range that sits well on the card."
+          },
+          "kind": {
+            "enum": [
+              "famous-movement",
+              "pop-culture",
+              "innovation",
+              "emblematic",
+              "structural",
+              "orchestration"
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "description": "The long version, for the Obsidian note."
+          },
+          "timing": {
+            "type": "string",
+            "description": "Movement and roughly where in it, e.g. IV, from the first bar."
+          },
+          "card": {
+            "type": "boolean",
+            "description": "Exactly one entry should be true — the hook that goes on the card."
+          }
         }
       }
     },
-
     "sources": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "type", "title"],
+        "required": [
+          "id",
+          "type",
+          "title"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id":       { "type": "string", "description": "Short handle used in claims, e.g. grove-mozart." },
-          "type":     { "enum": ["grove", "wikipedia", "book", "article", "score", "programme-note", "other"] },
-          "title":    { "type": "string" },
-          "author":   { "type": "string" },
-          "container":{ "type": "string", "description": "Grove Music Online, The Musical Times …" },
-          "year":     { "type": ["integer", "string", "null"] },
-          "url":      { "type": "string" },
-          "doi":      { "type": "string" },
-          "accessed": { "type": "string" },
-          "zotero_key": { "type": "string", "description": "Filled in once saved to the Symphony of the day collection." },
-          "snapshot":   { "type": "string", "description": "Zotero attachment key of the stored copy of the page as consulted. Expected on every `grove` source: Grove sits behind the Sydney University login and Oxford revises articles in place, so the URL alone proves nothing later. See scripts/grove_snapshot.py." }
+          "id": {
+            "type": "string",
+            "description": "Short handle used in claims, e.g. grove-mozart."
+          },
+          "type": {
+            "enum": [
+              "grove",
+              "wikipedia",
+              "book",
+              "article",
+              "score",
+              "programme-note",
+              "other"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "container": {
+            "type": "string",
+            "description": "Grove Music Online, The Musical Times …"
+          },
+          "year": {
+            "type": [
+              "integer",
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string"
+          },
+          "doi": {
+            "type": "string"
+          },
+          "accessed": {
+            "type": "string"
+          },
+          "zotero_key": {
+            "type": "string",
+            "description": "Filled in once saved to the Symphony of the day collection."
+          },
+          "snapshot": {
+            "type": "string",
+            "description": "Zotero attachment key of the stored copy of the page as consulted. Expected on every `grove` source: Grove sits behind the Sydney University login and Oxford revises articles in place, so the URL alone proves nothing later. See scripts/grove_snapshot.py."
+          }
         }
       }
     },
-
     "claims": {
       "type": "object",
       "description": "Provenance per field: dotted path -> list of source ids. Every field that reaches the card must appear here. Two ids means Grove and Wikipedia agree.",
-      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
     },
-
     "conflicts": {
       "type": "array",
       "description": "Where the sources disagreed, and what was done about it. An empty array means checked and clean, not unchecked.",
       "items": {
         "type": "object",
-        "required": ["field", "resolution"],
+        "required": [
+          "field",
+          "resolution"
+        ],
         "additionalProperties": false,
         "properties": {
-          "field":      { "type": "string" },
-          "wikipedia":  { "type": "string" },
-          "grove":      { "type": "string" },
-          "other":      { "type": "string" },
-          "resolution": { "type": "string", "description": "What the record now says." },
-          "resolved_with": { "type": "string", "description": "Source id that settled it." }
+          "field": {
+            "type": "string"
+          },
+          "wikipedia": {
+            "type": "string"
+          },
+          "grove": {
+            "type": "string"
+          },
+          "other": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "description": "What the record now says."
+          },
+          "resolved_with": {
+            "type": "string",
+            "description": "Source id that settled it."
+          }
         }
       }
     },
-
     "unknowns": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Things genuinely not known, stated as such. Better here than silently absent."
     },
-
-    "obsidian_note": { "type": "string", "description": "Vault-relative path of the human-readable note." }
+    "obsidian_note": {
+      "type": "string",
+      "description": "Vault-relative path of the human-readable note."
+    }
   }
 }

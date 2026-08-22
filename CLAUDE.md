@@ -62,6 +62,60 @@ The record then feeds the card:
 python scripts/research_to_work.py <slug> --dry-run
 ```
 
+## Card 2 is four facts
+
+Card 2's lower half is a list of labelled facts, each a run-in heading — the
+label in Trajan caps, then the fact in sentence case on the same line, no rules
+between them:
+
+| Fact | Work JSON key | Means |
+|---|---|---|
+| `SCORED FOR` / `PREMIERE ORCHESTRA` | `facts.scored_for` | How many players — **and the label moves with the source**, see below |
+| `FIRST PERFORMANCE` | `facts.first_performance` | Venue, city, date as one line. Derived from `first_performance` |
+| `OCCASION` | `facts.occasion` | **Why the work exists** — commission, patron, dedicatee, purpose |
+| `LISTEN OUT FOR` | `facts.listen_for` | The hook for someone who has never heard it |
+
+**Occasion is not the premiere.** They are two different facts — Beethoven 9 was
+commissioned in London and first played in Vienna sixteen months later. Three
+records still carry premiere news in `reason.summary` (`beethoven-no-5`, `-no-6`,
+`-no-7`); `research_to_work.py` warns on them, and they need rewriting to say
+why the work exists instead.
+
+**Nothing here auto-shrinks.** Titles and the place line have size steps; these
+do not. Keep each fact under ~80 characters and all four inside `CFG.back.slab`
+(274 px), or the last one is clipped. A missing fact closes up and the rest
+re-centre, so a work with nothing researched for one of them still looks
+deliberate — `mozart-linz` currently shows two.
+
+Three of the four labels are card structure, in `CFG.facts` in `sotd.jsx`: a
+work does not get to rename one, it only gets to leave the value out.
+
+## The first fact's label moves with its source
+
+The number of performers can come from three different places, and they are not
+the same claim — so the label changes to match, and only ever to one of two
+values. The priority is in `SCORING_PRIORITY` in `research_to_work.py`:
+
+| Priority | Research field | Card label | Card says |
+|---|---|---|---|
+| 1 | `scoring.specified.players` | `SCORED FOR` | `110 players` — the composer wrote the numbers into the score |
+| 2 | `scoring.premiere.players` | `PREMIERE ORCHESTRA` | `69 players` — who was actually on the platform |
+| 3 | `scoring.instrumentation.instruments` | `SCORED FOR` | `67 instruments` — what the parts add up to |
+
+**The unit changes with the source, not just the number.** An instrumentation
+count is *instruments*, never players, because string numbers are almost never in
+the score to be counted. Saying "67 players" from that data would be inventing a
+string section.
+
+Record every level you can source — the derivation picks the best and the rest
+stay in the record. There is deliberately **no modern-complement option**: a
+present-day string section is a convention of ours, not a fact about the work,
+and this series prints the period fact or nothing. Same rule as
+`composition.place.polity`.
+
+`research_to_work.py` warns when a work falls back to level 3, so an upgrade is
+visible as soon as a premiere roster turns up.
+
 ## The country in focus
 
 The card highlights the polity the work was written in and prints its name on
@@ -172,16 +226,18 @@ draws:
 | 1880 | `brahms-no-4` |
 | 1938 | `shostakovich-leningrad` (highlight only — needs the label) |
 
-**Only `beethoven-no-1` has the current card design too.** The thin stat rules,
-the thin map rules, and card 2's "PLACE OF COMPOSITION" heading over a single
-"Vienna, Archduchy of Austria" address all landed after the other eleven were
-last built. That part is a plain `SOTD.buildAll()` — it is a rebuild, not a
-re-bake, and it leaves every frozen map alone.
+**All twelve have the current card design.** Card 2 was rebuilt as a fact list
+(22 Aug 2026): the strap came down from 120 px to 96 (place 40 px → 24), the
+24 px went to the slab, the two divider rules went entirely, and the occasion
+and listening paragraphs became two of four run-in facts. `SCORED FOR` is blank
+on all twelve until the `scoring` research is done, and blank facts close up, so
+the Beethovens currently show three facts and the other three show two.
 
 ## Conventions
 
-- Tracked: source, docs, `data/works/*.json`, `data/periods.json` (which now
-  carries the period colours) and `data/audio/credits.json`. Not tracked: the
+- Tracked: source, docs, `data/works/*.json`, `data/research/*.json`,
+  `data/periods.json` (which now carries the period colours) and
+  `data/audio/credits.json`. Not tracked: the
   `.aep`, portraits, map stills, clipped geojson, basemaps, the card-turn wav —
   all regenerable by a script.
 - Python is stdlib plus `requests` and `Pillow`, and `yt-dlp` + `ffmpeg` for

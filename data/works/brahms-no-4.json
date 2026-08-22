@@ -24,9 +24,13 @@
     "lon": 15.673055555556,
     "lat": 47.6075
   },
-  "context": "",
-  "context_label": "Occasion",
-  "listen_for": "The finale: one eight-bar bass line, over and over, rebuilt every time.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "",
+    "occasion": "",
+    "listen_for": "The finale: one eight-bar bass line, over and over, rebuilt every time."
+  },
   "map": {
     "basemap_year": 1880,
     "geojson": "data/clipped/europe_1880.geojson",
