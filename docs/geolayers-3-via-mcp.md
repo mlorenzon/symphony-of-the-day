@@ -77,13 +77,23 @@ geolayers3.getBrowserSelection([callback[, options]])
 geolayers3.fitViewAtTime(comp, bbox[, forceKeyframe[, time]])
 geolayers3.setViewAtTime(comp, view[, forceKeyframe[, time]])
 geolayers3.readFileJson(file[, encoding])
-geolayers3.finalize(comp, [callback[, options]])
+geolayers3.finalize(comps, callback[, options])
 geolayers3.getMapcomps()
 ```
 
 - `comp` accepts a mapcomp **name string**, a mapcomp, or the containing comp.
 - `bbox` is `[lonMin, latMin, lonMax, latMax]` in WGS 84.
 - `view` is `{latitude, longitude, zoom, bearing, pitch}`.
+- `finalize`'s **callback is not optional in practice** — it is the only place
+  errors appear. Its `options` are
+  `{onlyCurrentFrame, previewQuality, onlyWorkArea, purgeImageryCache}`, all
+  defaulting to `false`. See §7.
+- `getMapcomps()` returns plain AE `CompItem`s, not GEOlayers wrappers, so
+  there is no status or style field on them to read.
+
+Enumerating the live object gives **38 functions**. Notably absent, in case you
+go looking: `analyseMapcomp`, `addTiles`, `getZoomRange` — those are on
+`hostInterface` below, not here.
 - `addObj` is an ExtendScript `File`, a URL string, or a geojson object.
   `addToBrowser` accepts geojson URLs directly.
 - Also present: `geolayers3.utils.*` (~80 AE helpers), `.charts`, `.logger`,
@@ -94,11 +104,15 @@ Functions are jsxbin-compiled, so `toString()` gives `[compiled code]` and
 
 ### `mb_GEOlayers3.hostInterface` — internal, undocumented
 
-~100 methods, each taking **one options object**: `createMapcomp`,
+**101 methods** (counted), each taking **one options object**: `createMapcomp`,
 `removeMapcomp`, `duplicateMapcomp`, `setViewKeyframes`,
 `animateViewBetweenFeatures`, `analyseMapcomp`, `addTiles`, `getZoomRange`,
 `create3DLandscapeSetup`, `createDiagram`, `addToRenderQueue`, `queueInAme`,
-`evalStr`, …
+`evalStr`, … — all seven of those named have been confirmed present.
+
+`setViewKeyframes` and `animateViewBetweenFeatures` are the interesting pair:
+they look like the sanctioned way to animate a view, and would likely be
+better than the hand-keyframing in §5. **Untested — argument shapes unknown.**
 
 **These return JSON strings, not objects.** Always parse:
 
@@ -195,6 +209,133 @@ Drawn shapes land **above** the tiles and **below** MapPivot. `fitViewAtTime`
 works by rescaling the `<name> Anchor` layer in the *containing* comp — a fit
 from world to Europe moved scale `3.48 → 1.70`.
 
+### How the drawn geometry is named
+
+A whole geojson becomes **one shape layer**, not one per feature. Its layer name
+is the first few feature names run together (`"Luxembourg, Ottoman Empire,
+United Kingdom of Great Britain and Ireland..."`), and inside it each feature is
+a top-level `ADBE Vector Group`. With `{namingProp: "NAME"}` those groups take
+the geojson `NAME` **verbatim** — accents, en-dashes and all. The 1815 Europe
+clip gave 112 groups.
+
+That makes an individual country restylable by a plain string match, which is
+how `SOTD.mapFinish` picks out the work's own polity. Three facts about those
+names decide whether the match is safe:
+
+- **A feature whose `NAME` is null becomes a group called `Feature`** — and so
+  does every other unnamed feature. There were **39** of them in the 1815 clip,
+  all identical. Matching `Feature` therefore recolours a third of the
+  continent, which looks like a rendering bug rather than a lookup mistake. It
+  is the one name that has to be refused outright, at both ends: the resolver
+  will not write it and the restyle will not act on it.
+- **Names repeat legitimately.** Prussia is four groups in 1815, Germany two in
+  1880 — one polity drawn as several features. All of them have to be restyled
+  together, so the match cannot stop at the first hit, and the count is worth
+  asserting against a count taken from the geojson itself.
+- **The dataset's spelling is the only one that matches.** 1880 calls it
+  `Austria Hungary`, with a space and no hyphen. Anything typed from memory is a
+  guess, so the name is read out of the same file that gets drawn —
+  `scripts/map_focus.py` does it by point-in-polygon on the city coordinates.
+
+One oddity seen in the wild: a group named `"       "`, seven spaces, from a
+feature carrying whitespace as its `NAME`. Trim before comparing.
+
+### Labels — `addLabel`, and the checkbox that matters
+
+Labels are fully scriptable through the **public** API, and that is the call to
+use:
+
+```js
+geolayers3.addLabel(mapcomp, templateComp, { lat: 47.4, lon: 16.9,
+                                             name: "HABSBURG MONARCHY" });
+```
+
+`labelData` wants `lat`/`latitude` and `lon`/`longitude` plus whatever string
+properties the template asks for. The internal
+`hostInterface.addLabel({mapcompId, labelCompId, data, coordinates,
+netCoordTimes, additionalOptions})` does the same job and its shape is
+recoverable from `main.js` (§2) — but it needs comp *ids* and adds nothing, so
+reaching for it is a workaround for documentation you have not read yet.
+
+Twelve templates ship; `05 Region` is the one meant for a territory rather than
+a point. `getLabelTemplates()` lists them with their comp ids, and
+`geolayers3.getLabelLayersOfMapcomp(comp)` gives back what you have created.
+
+#### The anchor is a point; the label is not
+
+`map_focus.py` picks the anchor by pole of inaccessibility — the point furthest
+from any boundary, which is where a cartographer prints a name — and then clamps
+it back toward the city so it is still on screen when the zoom finishes. All of
+that reasons about a **point**. The thing actually drawn is a wide piece of type
+*centred* on that point, and nothing in the calculation knows how wide.
+
+So a perfectly interior anchor can still print the first letters of the name
+across the border it was clamped back from, onto a neighbour the highlight
+exists to dim. That is what happened to Beethoven 1: the anchor was pinned to
+its longitude limit, which put "HABSBURG MONARCHY" centred under the pin — the
+pin marks the *city*, so the country's name sat on top of it — with the "H" over
+the Bavarian border.
+
+`map_focus.py` now prints a **`LOOK`** line whenever the anchor lands on that
+longitude limit, which is 11 of the 12 works built so far. It is a prompt to
+look at a render, not an error. When the name does clash, nudge it by hand:
+
+```bash
+python scripts/map_focus.py beethoven-no-1 --nudge-lon 1.10
+```
+
+The nudge is recorded on the work as `map.focus.anchor.nudge` and **survives
+later re-runs**, exactly like a hand-set `--label` — and, like the label, only
+while the polity underneath is unchanged, because re-clipping onto a different
+basemap year can put a different country under the city. `describe()` prints
+both the nudged value and the automatic one it replaced.
+
+Changing the anchor means re-running `mapLabel` and re-baking the work: the
+label lives inside the map, so it is baked with it.
+
+Facts worth having before you use it:
+
+- **The label layer lands in the CONTAINING comp, not the mapcomp**, and is not
+  parented to the anchor. Its `Position` carries a Mercator expression reading
+  `Latitude` / `Longitude` effects on the layer itself, so it tracks its
+  geographic point through any move at no cost.
+- **`addLabel` duplicates the template into a new comp per label**, named
+  `Label '<text>'`. So the template is safe to leave alone, and restyling one
+  label cannot leak into the next. It also means the comps accumulate — remove
+  the source comp along with the layer.
+- **`Scale with Map` is a checkbox, but the mechanism is the expression.** The
+  checkbox is read by the stock expression *on the layer's Scale property*,
+  which multiplies the layer's own `value` by the map's scale. So size a label
+  with `setValue` and leave the expression alone. **Clearing the expression
+  before setting a value silently removes the lock** — the label stays in
+  exactly the right place and simply stops changing size, which a single frame
+  cannot reveal. Compare two frames, or check `expressionEnabled`.
+- **The multiplier is not 1.0 at any predictable moment.** GEOlayers bakes a
+  `scaleFactor` into that expression when the label is created, from whatever
+  view the comp was on at the time. The same `value` therefore means different
+  sizes run to run. Probe it instead: set 100, read `valueAtTime` at the moment
+  you care about, and solve for the base you want there.
+- **The stock templates are built to be restyled, and have their own controls.**
+  Everything visible is parented to a null called `SCALE` — scaling that is the
+  intended way to resize a label. The text layers ship with continuous
+  rasterisation already on, which is the documented fix for labels going blurry
+  when scaled up. And the `LabelColors` swatch layers are scaled to
+  **1,000,000%**, so they cannot run out of coverage however large the type
+  gets. Recolour that 200×100 comp to restyle every label at once.
+- **The plate is cut from a Minimax-dilated copy of the text**, and the dilation
+  does not scale with the type. Past the shipped size it comes out *narrower
+  than the word it sits behind*, and it never bridges two lines. Either keep
+  labels near the stock size, or switch the plate off and set the type in a
+  colour that reads against the map.
+- **Switching off a plate or a pointer means disabling both layers of the pair**
+  — the coloured one and the shape layer that mattes it. A disabled matte layer
+  still mattes, so hiding only the shape changes nothing visible.
+- Setting a larger `fontSize` on the template's text **does not update the
+  leading**, which is set for the shipped 35 pt — two lines then overlap. The
+  same trap as any auto-shrinking text, in the other direction.
+- `getMapcompLabelTemplateSpecs({mapcompName})` returns `status: 2`. Argument
+  shape still unknown; `getLabelTemplates()` gives what is needed anyway.
+
 ---
 
 ## 5. Recipes that work
@@ -205,61 +346,165 @@ from world to Europe moved scale `3.48 → 1.70`.
 geolayers3.fitViewAtTime("Europe", [-11, 36, 32, 61]);
 ```
 
-Synchronous. Returns an object.
+Synchronous. Returns the resulting view as
+`{latitude, longitude, zoom, bearing, pitch}`.
 
-### Draw a GeoJSON file — note the async
+### Animating the view — the name lies
 
-```js
-$.global.__glDraw = {called: false};
-geolayers3.draw("Europe", new File(path), function (err, data) {
-  $.global.__glDraw = {called: true, err: err ? String(err) : null};
-}, { drawInsideMapcomp: true, namingProp: "NAME" });
-```
+`fitViewAtTime(comp, bbox, forceKeyframe, time)` and its sibling
+`setViewAtTime` **ignore both trailing arguments**. Passing `true, 5` sets no
+keyframe and does not act at t=5; the view is applied statically at whatever the
+comp's current time happens to be. Verified: after two calls at different times
+the property still reported `numKeys: 0`.
 
-`draw` returns `undefined` immediately and **the callback has not fired yet**.
-Nothing changes in the project during that call. Poll `$.global.__glDraw` in a
-*separate* `execute-script` call a moment later.
+Animate it yourself instead. But **not by keyframing `MapPivot`** — that is the
+trap this section used to walk into, and it cost a lot of time downstream.
 
-Two things worth knowing about the result:
+### Do NOT keyframe MapPivot
 
-- All features go into **one shape layer**, not one per feature. 95 features
-  became a single layer with 89 groups, 149 paths, 3,640 vertices. Great for
-  object count.
-- `namingProp: "NAME"` names each group after that property, so groups come out
-  as `Ottoman Empire`, `Austrian Netherlands`, etc. The layer itself gets named
-  from the first few.
-
-### Fix the default styling — you will always need this
-
-Drawn features default to **pure white fill at 100% opacity with no stroke**,
-which is invisible on a light basemap. Restyle every group:
+`MapPivot.transform.scale` carries a GEOlayers expression, and
+`expressionEnabled` is `true`. It computes itself and discards anything you key
+onto it:
 
 ```js
-var contents = layer.property("ADBE Root Vectors Group");
-for (var g = 1; g <= contents.numProperties; g++) {
-  var vg = contents.property(g).property("ADBE Vectors Group");
-  var fill = null, stroke = null;
-  for (var v = 1; v <= vg.numProperties; v++) {
-    var p = vg.property(v);
-    if (p.matchName === "ADBE Vector Graphic - Fill")   fill = p;
-    if (p.matchName === "ADBE Vector Graphic - Stroke") stroke = p;
-  }
-  fill.property("ADBE Vector Fill Color").setValue([0.80, 0.76, 0.68, 1]);
-  fill.property("ADBE Vector Fill Opacity").setValue(16);
-  if (!stroke) stroke = vg.addProperty("ADBE Vector Graphic - Stroke");
-  stroke.property("ADBE Vector Stroke Color").setValue([0.24, 0.21, 0.19, 1]);
-  stroke.property("ADBE Vector Stroke Width").setValue(2.5);
-  stroke.property("ADBE Vector Stroke Opacity").setValue(90);
-}
+var ZoomEff = comp("containing Europe").layer("Europe").effect("Zoom").param(1);
+var scaleVal = 100*Math.pow(2, ZoomEff.valueAtTime(myTime))/mapSize*globalInterpolationTileSize;
 ```
 
-`addProperty` appends the stroke *below* the fill in paint order. That's fine as
-long as fill opacity is low; if you want an opaque fill with a visible stroke
-you'll need to rethink the group order.
+An earlier version of `sotd.jsx` wrote 62 linear keyframes to that scale. They
+were real, counted, and completely inert: `valueAtTime` returned the *same*
+number at every time, so no card ever zoomed, and every "5× move" in the
+project was a static view. Everything downstream that looked broken — coarse
+imagery, a finalize that fetched three tiles — was this one fact wearing a
+disguise.
 
-Values above are tuned for an inset over a pale basemap: parchment fill at 16%,
-2.5px dark warm stroke. Strokes need to be thick-ish because the comp gets scaled
-down as an inset.
+### Keyframe the view controls instead
+
+The real controls are five effects on the mapcomp's **layer in the containing
+comp** (not on the mapcomp): `Latitude`, `Longitude`, `Zoom` (a Slider
+Control), `Bearing`, `Pitch`.
+
+```js
+var cont = /* the "containing <name>" comp */;
+var Z = cont.layer("Europe").property("ADBE Effect Parade")
+            .property("Zoom").property(1);
+Z.setValueAtTime(t, zoomLevel);
+```
+
+**Clear stale keys first.** Nothing does it for you: a mapcomp re-aimed at a new
+work kept animating the *previous* work's pan, so a card labelled Vienna was
+travelling to Linz. `hostInterface.removeMapcompControlKeys` exists for this.
+
+### Half-span degrees ↔ zoom level
+
+The old measurement here was correct and is still the basis of the conversion:
+
+- **`scale = K / halfSpanLon`**, exactly. Fitting half-spans of 30/20/13/9/6°
+  gave scales of 1.9775/2.9663/4.5636/6.5918/9.8877 — `K = 59.326` throughout.
+- **The centre is independent of zoom.** A zoom centred on one point does not
+  move it.
+
+Combine that with `scale% = 100·2^zoom/512` from the expression and the whole
+conversion collapses to one line, because scale ∝ 1/span means **halving the
+span is exactly +1 zoom**:
+
+```js
+function zoomForSpan(zEnd, endH, H) { return zEnd + Math.log(endH / H) / Math.LN2; }
+```
+
+Checked against the live comp: span 6° ↔ zoom 5.6618 ↔ scale 9.8877%.
+
+The useful corollary: interpolating the span **geometrically** is the same thing
+as interpolating zoom **linearly**, so an easing curve written for one carries
+over to the other untouched. Get the end zoom from one `fitViewAtTime` on the
+city, derive every wider view from it, and set the keys to LINEAR — on bezier,
+AE rounds its own curve through your samples and overshoots.
+
+Measured after switching `sotd.jsx` over, which is what a working move looks
+like:
+
+```
+t=0.25  zoom 3.340  scale 1.98  span 30.0°     continent
+t=2.00  zoom 4.541  scale 4.55  span 13.1°
+t=5.25  zoom 5.662  scale 9.89  span  6.0°     city
+```
+
+If the scale column does not change, you are keyframing the wrong property.
+That is the one-line check worth running before believing any zoom works.
+
+Interpolate the span **geometrically** (`start · (end/start)^u`), not linearly —
+halving the span reads as the same amount of movement at any scale, so a linear
+ramp appears to accelerate violently at the end. And set the keys to LINEAR: on
+bezier, AE rounds its own curve through your samples and overshoots.
+
+**`finalize` DOES follow these keyframes.** This section twice claimed
+otherwise, and the reversals are worth keeping, because the wrong conclusion was
+reached from evidence that looked airtight both times.
+
+The claim was that finalize only ever sees the current static view. The evidence:
+finalizing a keyframed 30°→6° move produced tiles at one zoom level, and a cache
+check showed nothing downloaded for three days. Reasonable — and wrong. **There
+was no animation.** The keys were on `MapPivot`, which ignores them (see §5), so
+finalize was correctly finalizing the single static view that actually existed.
+It was never the one at fault.
+
+Once the keys went onto the `Zoom` control, a single `finalize` fetched **21 new
+tiles across zoom 3, 4 and 5**, spanning the move, with the callback returning
+`err: null`. That is the whole correction: finalize samples the animated view.
+There is no need to bake in bands, and `addTiles` is not needed either.
+
+Three failure modes remain real, and all three report success:
+
+- **The panel can crash outright, and nothing in ExtendScript says so.** Seen
+  once mid-session, on the first finalize aimed at a region with no cached tiles
+  at all (Kuibyshev): the callback simply never fired. Not slow — *never*, over
+  four minutes, with the tile cache flat and even `{purge: true}` failing to
+  empty it. Meanwhile `geolayers3.version()` still returned `"1.18.1"` and
+  `mb_GEOlayers3.hostInterface.initialized` still returned `true`, because both
+  live host-side. `draw` had died with it: it removed the old border layers and
+  then never drew the new ones.
+
+  **The tell is a callback that never fires at all**, on any panel-side call.
+  Distinguish it from a slow fetch by asking for the cheapest possible job —
+  `finalize` with `{onlyCurrentFrame: true}` — and by watching file timestamps
+  in the tile cache rather than the count. Neither the menu command nor
+  `hostInterface.initEngine()` (which throws `TypeError: undefined is not an
+  object` with no arguments) brought it back. **Closing and reopening the panel
+  by hand did.** Everything downstream survived: the work JSON, the bakes
+  already on disk, and the frozen comps were all untouched, so recovery was
+  simply re-running `mapDraw` for the work in flight.
+
+- **Tiles are fetched by the panel's Chromium side.** The `geolayers3` and
+  `mb_GEOlayers3` globals live in AE's shared ExtendScript engine and keep
+  working after the panel is gone, so every scripted call still *succeeds* while
+  quietly fetching nothing. Reopening the panel with
+  `app.executeCommand(app.findMenuCommandId("GEOlayers 3"))` restores the
+  globals' host side but was **not** by itself enough to make downloads resume.
+- **The callback is the only place errors appear**, and the one that matters most
+  is a real sentence: *"Too many tiles. The imagery coverage is too large for a
+  single Mapcomp. Please consider splitting your animation to multiple
+  Mapcomps."* — thrown when the sampled views exceed `maxTilesForFinalization`
+  (1000). Call `finalize` without a callback and that diagnosis becomes silence.
+
+So never trust the return value. Verify against the cache:
+
+```bash
+find "$APPDATA/aescripts/GEOlayers3/tiles" -type f -newermt '-10 minutes' | wc -l
+```
+
+`SOTD.mapFinalize` / `mapFinalizeStatus` wrap all of this: they pass a callback,
+scope sampling to the move with `onlyWorkArea`, count the cache before and after,
+and report `ok` only when the callback came back clean **and** the cache grew.
+`{purge: true}` sets `purgeImageryCache` to force a real fetch, which is how to
+tell a genuine download from re-laid cache.
+
+One trap in the wrapping itself: `finalize` is async, so **restore the work area
+inside the callback**, not after the call. Restoring it synchronously puts it
+back before the sampling has read it — the same class of mistake as polling for
+`saveFrameToPng` on the same thread (§8).
+
+If the tile count does exceed the cap, the developer's own advice is to split
+across multiple mapcomps — `hostInterface.duplicateMapcomp` exists for that.
 
 ---
 
@@ -316,7 +561,15 @@ Tiles are downloaded by the **Chromium side**, not the host script. Consequences
 - Changing the view from script does **not** refetch tiles. After
   `fitViewAtTime` the comp still had only the two zoom-2 preview tiles from
   creation. Imagery stayed coarse until finalized.
-- `geolayers3.finalize()` is the documented way to pull full-resolution tiles.
+- `geolayers3.finalize()` is the documented way to pull full-resolution tiles,
+  and it **does** cover an animated view — but only with a callback, and only
+  with the panel open. See §5.
+- The cache is the only honest witness. `<styleId>` includes a hash of the
+  style's configured variables, so a "bring your own tile URL" style like Esri
+  appears as e.g. `esri-msv7u3vdm1pqe` — and tiles from a *differently
+  configured* instance of the same style will not serve it. A cache holding
+  `esri_512_2` does not help a comp using `esri-msv7u3vdm1pqe`, which is an easy
+  way to think coverage exists when it does not.
 - Tile files are named `<styleId>_<size>_<zoom>_<index>.png`, e.g.
   `cdb1_512_2_12.png`, cached in `%APPDATA%\aescripts\GEOlayers3\tiles\`.
   Reading one directly is the fastest way to confirm what's actually baked into
@@ -425,9 +678,21 @@ been real and re-clipping would have achieved nothing.
 
 1. **Panel:** create the mapcomp, pick the style, set size and frame rate.
    (Frame rate defaults to 25 — set it at creation to match the edit.)
-2. Script: `clip_region.py <year>` to prepare geometry.
+2. Script: `clip_region.py <year>` to prepare geometry, and `map_focus.py <slug>`
+   to read the focus polity's exact `NAME` back out of the clipped file.
 3. Script: `geolayers3.draw(...)`, then poll for the callback.
-4. Script: restyle fills and strokes — the defaults are always wrong.
+4. Script: restyle fills and strokes — the defaults are always wrong — and
+   check that the focus country matched as many groups as the geojson says it
+   should. This is the last cheap moment to catch it; everything after is slow.
 5. Script: `fitViewAtTime` to a bbox inside the clip bbox.
-6. **Panel or script:** `finalize()` for full-resolution tiles, last.
-7. Verify by reading the newest bridge PNG, not by trusting `see-frame`.
+6. Script: keyframe the **`Zoom` control** for the move — clearing stale view
+   keys first, and never `MapPivot` (§5). Check that `MapPivot`'s scale now
+   *varies over time*; if it doesn't, the move isn't real.
+7. **Panel must be open.** `finalize()` with a callback, last — then verify the
+   tile cache grew. Success is not a return value (§7).
+8. Verify by reading the newest bridge PNG, not by trusting `see-frame`.
+
+Steps 6 and 7 are in that order for a reason: finalize samples whatever the view
+actually does, so there is no point fetching tiles for a move that isn't there
+yet. And bake/freeze only after 7 — baking locks the imagery in permanently, so
+freezing on a thin cache bakes the coarse version for good.

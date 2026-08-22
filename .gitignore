@@ -13,11 +13,21 @@ data/clipped/
 # (the credit line is kept in the work JSON, which IS tracked)
 data/portraits/
 
+# Downloaded sound effect — refetch with: python scripts/fetch_sfx.py
+# (the CC-BY credit is kept in data/audio/credits.json, which IS tracked)
+data/audio/*.wav
+
 # API response cache for prepare_work.py
 data/.cache/
 
-# Baked map stills — regenerate with SOTD.mapDraw/mapFinish/freezeMap
+# Baked maps: a PNG sequence per work (the continent-to-city move), or a
+# single still for a work whose map does not move.
+# Regenerate with SOTD.mapDraw/mapFinish/mapZoom/mapFinalize/freezeMap
 data/maps/
+
+# Design-review export — regenerate with scripts/export_design_html.py
+# (embeds copies of the untracked portraits and map stills)
+design/
 
 # Python
 __pycache__/

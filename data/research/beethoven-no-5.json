@@ -1,0 +1,242 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-5",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 5 in C minor, Op. 67",
+  "title_short": "",
+  "catalogue": "Op. 67",
+  "number": "No. 5",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Second period — Romantic in ambition, Classical in method.",
+  "composition": {
+    "year": 1808,
+    "year_range": [
+      1807,
+      1808
+    ],
+    "date": "1807–1808",
+    "date_precision": "range",
+    "place": {
+      "city": "Heiligenstadt, and Vienna",
+      "country_then": "Archduchy of Austria",
+      "polity": "Austrian Empire",
+      "polity_note": "The Austrian Empire was proclaimed 11 August 1804 and the Holy Roman Empire dissolved 6 August 1806, so the sovereign state in 1808 is the Empire. Heiligenstadt was then a village outside Vienna, in the Archduchy of Austria — country_then names that crown land, this names the sovereign state above it.",
+      "country_now": "Austria",
+      "granularity": "city",
+      "note": "Grove has him at Heiligenstadt 'no doubt completing the Fifth Symphony'. Wikipedia instead names the Pasqualati House in Vienna and a 1804–1808 span; Grove's works list dates the symphony 1807–8 with 'preliminary sketches, 1804'.",
+      "lat": 48.2538,
+      "lon": 16.3549,
+      "wikidata": "Q379531"
+    }
+  },
+  "reason": {
+    "summary": "Premiered in a four-hour all-Beethoven benefit concert in a freezing theatre.",
+    "dedicatee": "Prince Franz Joseph von Lobkowitz and Count Andreas Rasumovsky",
+    "occasion": "A benefit concert for the composer, granted him partly in recognition of his charity performances.",
+    "detail": "Grove: the Theater an der Wien 'was finally put at his disposal for the night of 22 December 1808, partly in just recognition of his services to charity; so he arranged to give an enormous benefit concert.' Grove notes the Fifth was conceived around 1804 but 'work got deflected into certain other C major and minor projects, and things did not come together until late 1807 and 1808.'"
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1808-12-22",
+    "city": "Vienna",
+    "venue": "Theater an der Wien",
+    "conductor": "Ludwig van Beethoven",
+    "notes": "The same concert premiered the Sixth. Wikipedia describes a programme of Beethoven premieres running over four hours and also including the Choral Fantasy."
+  },
+  "listen_for": [
+    {
+      "hook": "Four notes. The whole first movement is built from almost nothing else.",
+      "kind": "structural",
+      "timing": "I, from the first bar",
+      "card": true,
+      "detail": "Grove: the Fifth 'has come to typify the thematic unification, or organicism, as the 19th century viewed it, that Beethoven developed to such a high degree in these years.' The 'fate knocking at the door' gloss is contested."
+    },
+    {
+      "hook": "The finale breaks into C major, and three new instruments walk in.",
+      "kind": "orchestration",
+      "timing": "III into IV, without a break",
+      "detail": "Wikipedia: the finale shifts from C minor to C major, bringing in piccolo, contrabassoon and trombones for the first time in the work."
+    },
+    {
+      "hook": "The BBC beat those four notes across occupied Europe as V for victory.",
+      "kind": "pop-culture",
+      "detail": "Wikipedia: the short-short-short-long figure matches Morse code V, and the BBC used it in wartime broadcasts to SOE operatives; Toscanini played the first movement after Mussolini's fall in September 1943."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-5",
+      "type": "wikipedia",
+      "title": "Symphony No. 5 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._5_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "DA7PREHT"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-5"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-5"
+    ],
+    "first_performance.venue": [
+      "grove-beethoven",
+      "wp-beethoven-no-5"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-5"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "composition.year_range",
+      "wikipedia": "1804–1808",
+      "grove": "1807–8, with preliminary sketches 1804",
+      "resolution": "1807–1808 recorded; the 1804 sketches noted",
+      "resolved_with": "grove-beethoven"
+    },
+    {
+      "field": "composition.place",
+      "wikipedia": "Pasqualati House, Vienna",
+      "grove": "Heiligenstadt",
+      "resolution": "Heiligenstadt and Vienna both recorded; Grove's Heiligenstadt leads",
+      "resolved_with": "grove-beethoven"
+    }
+  ],
+  "unknowns": [
+    "Which of the two lodgings saw most of the work; the sources point in different directions."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 5.md"
+}

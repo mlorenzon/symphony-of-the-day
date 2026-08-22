@@ -1,0 +1,237 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-9",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 9 in D minor, Op. 125 “Choral”",
+  "title_short": "Choral",
+  "catalogue": "Op. 125",
+  "number": "No. 9",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Third period. Most accounts would call this the hinge into the Romantic symphony and the date does not, so it is the most arguable of the nine — and still reads Classical on the card.",
+  "composition": {
+    "year": 1824,
+    "year_range": [
+      1822,
+      1824
+    ],
+    "date": "1822–1824",
+    "date_precision": "range",
+    "place": {
+      "city": "Vienna",
+      "country_then": "Archduchy of Austria",
+      "polity": "Austrian Empire",
+      "polity_note": "Vienna was the capital of the Austrian Empire, proclaimed 11 August 1804 and by 1824 in its third decade; the Holy Roman Empire had been dissolved eighteen years earlier.",
+      "country_now": "Austria",
+      "granularity": "city",
+      "note": "Grove has him starting almost immediately after the Missa solemnis was virtually complete in autumn 1822, with the last details finished the following March. His summers in these years were spent at Baden, Mödling or Hetzendorf outside the city.",
+      "lat": 48.2083,
+      "lon": 16.3725,
+      "wikidata": "Q1741"
+    }
+  },
+  "reason": {
+    "summary": "Commissioned by London's Philharmonic Society; the Schiller plan dated to 1793.",
+    "patron": "Philharmonic Society of London",
+    "dedicatee": "King Friedrich Wilhelm III of Prussia",
+    "occasion": "A commission from London, finally answering a scheme to set Schiller that Beethoven had carried since his twenties.",
+    "detail": "Grove traces the intention to set Schiller's An die Freude back to Beethoven's last days in Bonn: a letter of January 1793 from the Bonn law professor Fischenich to Schiller's wife reports that 'he proposes to compose Schiller's Freude, strophe by strophe'. Grove records that he 'now intended to conclude with Turkish music and a full choir', and reads the period as showing 'a desire in Beethoven around this time to gather up the unfinished business of the past'. Wikipedia dates the Philharmonic Society commission to 1817; the dedication went instead to the Prussian king."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1824-05-07",
+    "city": "Vienna",
+    "venue": "Kärntnertortheater",
+    "conductor": "Michael Umlauf, with Beethoven on stage setting tempos",
+    "soloists": "Henriette Sontag, Caroline Unger, Anton Haizinger, Joseph Seipelt",
+    "reception": "Ovations Beethoven could not hear; the contralto Caroline Unger turned him round to face the audience.",
+    "notes": "Grove confirms the date and the Kärntnertortheater. The conducting arrangement, the soloists and the Unger story come from Wikipedia."
+  },
+  "listen_for": [
+    {
+      "hook": "Voices arrive in the finale — the first time in a major symphony.",
+      "kind": "innovation",
+      "timing": "IV, after the instrumental recitatives",
+      "card": true,
+      "detail": "Wikipedia: the first time a major composer used voices in a symphony, effectively founding a genre. Grove notes the plan to end with 'Turkish music and a full choir'."
+    },
+    {
+      "hook": "That tune is now the anthem of Europe.",
+      "kind": "pop-culture",
+      "detail": "Wikipedia: the instrumental arrangement of the Ode to Joy was adopted as the Anthem of Europe in 1972; it also appears in A Clockwork Orange, and Japan performs the work en masse at year's end."
+    },
+    {
+      "hook": "He was too deaf to hear the ovation, and had to be turned around.",
+      "kind": "emblematic",
+      "detail": "Caroline Unger turned Beethoven to face the applauding hall. Grove has him almost wholly deaf by this point."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-9",
+      "type": "wikipedia",
+      "title": "Symphony No. 9 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._9_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "GEZQEQUB"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-9"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-9"
+    ],
+    "first_performance.venue": [
+      "grove-beethoven",
+      "wp-beethoven-no-9"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-9"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "reason.patron",
+      "wikipedia": "Philharmonic Society of London commissioned it in 1817",
+      "grove": "confirms the Philharmonic Society connection without dating the commission",
+      "resolution": "commission recorded, 1817 date attributed to Wikipedia",
+      "resolved_with": "wp-beethoven-no-9"
+    }
+  ],
+  "unknowns": [
+    "Whether the Philharmonic Society commission of 1817 was for this symphony specifically, or for the 'promised two' Grove mentions."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 9 (Choral).md"
+}

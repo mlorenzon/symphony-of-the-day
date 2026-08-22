@@ -1,0 +1,56 @@
+{
+  "slug": "beethoven-no-9",
+  "title_full": "Symphony No. 9 in D minor, Op. 125 “Choral”",
+  "title_short": "Choral",
+  "catalogue": "Op. 125",
+  "number": "No. 9",
+  "period": "Classical",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "born": 1770,
+    "died": 1827,
+    "life": "1770–1827",
+    "nationality": "German",
+    "portrait": "data/portraits/beethoven-no-9.png",
+    "portrait_credit": "Joseph Karl Stieler, 1820 (Public domain)",
+    "wikidata": "Q255"
+  },
+  "composition": {
+    "year": 1824,
+    "age": 54,
+    "age_line": "Beethoven was 54",
+    "place": "Vienna",
+    "country_then": "Archduchy of Austria",
+    "lon": 16.3725,
+    "lat": 48.2083
+  },
+  "context": "Commissioned by London's Philharmonic Society; the Schiller plan dated to 1793.",
+  "context_label": "Occasion",
+  "listen_for": "Voices arrive in the finale — the first time in a major symphony.",
+  "map": {
+    "basemap_year": 1815,
+    "geojson": "data/clipped/europe_1815.geojson",
+    "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      60.0,
+      78.0
+    ],
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 16.2803,
+        "lat": 47.2766,
+        "fit": "clamped",
+        "clearance_deg": 2.493
+      },
+      "source": "research"
+    }
+  }
+}

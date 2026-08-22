@@ -1,0 +1,56 @@
+{
+  "slug": "beethoven-no-4",
+  "title_full": "Symphony No. 4 in B flat major, Op. 60",
+  "title_short": "",
+  "catalogue": "Op. 60",
+  "number": "No. 4",
+  "period": "Classical",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "born": 1770,
+    "died": 1827,
+    "life": "1770–1827",
+    "nationality": "German",
+    "portrait": "data/portraits/beethoven-no-4.png",
+    "portrait_credit": "Joseph Karl Stieler, 1820 (Public domain)",
+    "wikidata": "Q255"
+  },
+  "composition": {
+    "year": 1806,
+    "age": 36,
+    "age_line": "Beethoven was 36",
+    "place": "Grätz, near Troppau",
+    "country_then": "Austrian Silesia",
+    "lon": 17.8759,
+    "lat": 49.871
+  },
+  "context": "Commissioned by Count Oppersdorff, written at Lichnowsky's estate in Silesia.",
+  "context_label": "Occasion",
+  "listen_for": "A slow, groping introduction in the dark before B flat major dawns.",
+  "map": {
+    "basemap_year": 1800,
+    "geojson": "data/clipped/europe_1800.geojson",
+    "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      60.0,
+      78.0
+    ],
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 19.5559,
+        "lat": 48.2491,
+        "fit": "clamped",
+        "clearance_deg": 2.5687
+      },
+      "source": "research"
+    }
+  }
+}

@@ -28,6 +28,8 @@ import subprocess
 import sys
 import unicodedata
 
+import map_focus
+
 try:
     import requests
 except ImportError:
@@ -273,6 +275,9 @@ def main():
     ap.add_argument("--context", default="",
                     help="Patron, dedication or occasion. Left blank if not given.")
     ap.add_argument("--context-label", default="Occasion")
+    ap.add_argument("--listen", default="",
+                    help="One thing to listen out for — the hook for a viewer "
+                         "who has never heard the piece. Left blank if not given.")
     ap.add_argument("--slug", default="")
     ap.add_argument("--short-title", default="", help="Nickname, e.g. Linz")
     ap.add_argument("--catalogue", default="", help="e.g. K. 425")
@@ -284,7 +289,12 @@ def main():
     ap.add_argument("--lon", type=float, help="Override place longitude")
     ap.add_argument("--lat", type=float, help="Override place latitude")
     ap.add_argument("--country-then", default="",
-                    help="Polity the place belonged to at the time, e.g. Archduchy of Austria")
+                    help="Polity the place belonged to at the time, e.g. Archduchy of Austria. "
+                         "Printed under the place name on card 2")
+    ap.add_argument("--polity", default="",
+                    help="Country of composition — the sovereign state, e.g. Habsburg "
+                         "Monarchy. Printed on the map. Normally comes from the research "
+                         "record; this flag is for works that have none")
 
     ap.add_argument("--map-half-span", type=float, default=DEFAULT_MAP_HALF_SPAN,
                     help="Degrees of longitude either side of the city (default %.0f)"
@@ -364,10 +374,10 @@ def main():
     # --- basemap ------------------------------------------------------------
     basemap_year, token = nearest_basemap(args.year)
     geojson_path = ""
+    clip_bbox = EUROPE_CLIP
     if token is None:
         report.append("basemap    : data/historical-basemaps missing — see README")
     else:
-        clip_bbox = EUROPE_CLIP
         if lon is not None and lat is not None:
             clip_bbox = union_bbox(EUROPE_CLIP, (
                 lon - CITY_CLIP_PAD_LON, lat - CITY_CLIP_PAD_LAT,
@@ -411,13 +421,40 @@ def main():
         },
         "context": args.context,
         "context_label": args.context_label,
+        "listen_for": args.listen,
         "map": {
             "basemap_year": basemap_year,
             "geojson": os.path.relpath(geojson_path, ROOT).replace("\\", "/") if geojson_path else "",
             "half_span_lon": args.map_half_span,
+            # How far the geometry actually extends. The reel opens on a
+            # continent-wide view and zooms in; without this the wide end can
+            # overshoot the clip and show its dead-straight cut edge.
+            "clip_bbox": [round(v, 4) for v in clip_bbox],
             "has_place": lon is not None and lat is not None,
         },
     }
+
+    # --- focus country ------------------------------------------------------
+    # Which polity the city sat inside. Read off the very geojson the map will
+    # be drawn from, never typed: the card highlights a shape group that
+    # GEOlayers names verbatim from that file's NAME field, so the dataset's
+    # own spelling is the only one that matches. Has to happen down here rather
+    # than in the assembly above, because it needs the finished clip on disk.
+    # The highlight key comes from the geometry; the printed label comes from
+    # the research record if there is one, and only falls back to the basemap's
+    # own wording when nothing better exists. See map_focus.apply_focus.
+    focus = map_focus.apply_focus(work, map_focus.focus_for_work(work),
+                                  args.polity or None)
+    report.append("focus      : %s (%s, %d group%s)"
+                  % (focus["name"] or "—", focus["match"], focus["groups"],
+                     "" if focus["groups"] == 1 else "s"))
+    report.append("label      : %s (source: %s)"
+                  % (focus["label"] or "—", focus.get("source", "?")))
+    if focus["note"]:
+        report.append("           : %s" % focus["note"])
+    if focus.get("source") == "dataset" and focus["label"]:
+        report.append("           : unverified — the basemap's own wording. Give the "
+                      "work a research record, or pass --polity.")
 
     print("\n".join(report))
     if args.dry_run:
@@ -430,6 +467,9 @@ def main():
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(work, fh, indent=2, ensure_ascii=False)
     print("written    : %s" % os.path.relpath(out, ROOT))
+    if focus["match"] != "contains":
+        print("\nThe focus country is a guess — check it before building:")
+        print("  python scripts/map_focus.py %s --dry-run" % slug)
     print("\nNext:  build it in After Effects with")
     print('  SOTD.buildWork("%s")' % slug)
 

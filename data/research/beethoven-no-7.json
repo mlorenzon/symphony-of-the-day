@@ -1,0 +1,229 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-7",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 7 in A major, Op. 92",
+  "title_short": "",
+  "catalogue": "Op. 92",
+  "number": "No. 7",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Second period — Romantic in ambition, Classical in method.",
+  "composition": {
+    "year": 1812,
+    "year_range": [
+      1811,
+      1812
+    ],
+    "date": "1811–1812",
+    "date_precision": "range",
+    "place": {
+      "city": "Teplitz",
+      "country_then": "Kingdom of Bohemia",
+      "polity": "Austrian Empire",
+      "polity_note": "Teplitz lay in the Kingdom of Bohemia, a crown land of the Austrian Empire by 1812 — country_then names the crown land, this names the sovereign state above it.",
+      "country_now": "Czech Republic (Teplice)",
+      "granularity": "city",
+      "note": "Wikipedia places the writing at the Bohemian spa where Beethoven was taking the cure. Grove confirms the 1811–12 span and repeated visits to Teplitz 'to take the cure', and that he 'completed it in the spring of 1812, going on without a break to the Eighth Symphony'.",
+      "lat": 50.6333,
+      "lon": 13.8167,
+      "wikidata": "Q146342"
+    }
+  },
+  "reason": {
+    "summary": "Premiered at a charity concert for soldiers wounded at the Battle of Hanau.",
+    "dedicatee": "Count Moritz von Fries",
+    "occasion": "A charity concert for Austrian and Bavarian soldiers wounded at Hanau, eighteen months after the symphony was finished.",
+    "detail": "Grove records that the piano and duet arrangements were dedicated separately to Elisabeth Aleksiev, Empress of Russia. Wikipedia describes the premiere: an orchestra led by Ignaz Schuppanzigh that included Hummel, Meyerbeer and Salieri among the players, with Wellington's Victory sharing the programme. Beethoven called it 'one of my best works' at the premiere."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1813-12-08",
+    "city": "Vienna",
+    "venue": "University of Vienna festival hall",
+    "conductor": "Ludwig van Beethoven",
+    "ensemble": "Ad hoc orchestra led by Ignaz Schuppanzigh",
+    "reception": "The Allegretto was encored on the spot.",
+    "notes": "Grove gives the date; the venue and the players come from Wikipedia. Wellington's Victory was the crowd-pleaser on the bill."
+  },
+  "listen_for": [
+    {
+      "hook": "The Allegretto: one rhythm, repeated, thickening every time round.",
+      "kind": "famous-movement",
+      "timing": "II, Allegretto",
+      "card": true,
+      "detail": "Encored at the premiere and detached for separate performance ever since. Grove points to 'the 6-4 chords spanning the Allegretto' as part of the work's reach for new ground."
+    },
+    {
+      "hook": "Wagner called it the apotheosis of the dance, and meant the pounding.",
+      "kind": "emblematic",
+      "detail": "Grove: 'the expanding introduction, the 6-4 chords spanning the Allegretto, the rolling ostinatos at the ends of the outer movements, the rhythmic preoccupation throughout.'"
+    },
+    {
+      "hook": "The finale reaches fff — a marking he almost never used.",
+      "kind": "orchestration",
+      "timing": "IV",
+      "detail": "Wikipedia notes the rare fortissimo fortissimo fortissimo in the last movement."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-7",
+      "type": "wikipedia",
+      "title": "Symphony No. 7 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._7_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "5M5Z5S62"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven",
+      "wp-beethoven-no-7"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-7"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-7"
+    ],
+    "first_performance.venue": [
+      "wp-beethoven-no-7"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-7"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [],
+  "unknowns": [
+    "How much of the symphony was drafted in Vienna before the Teplitz visits."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 7.md"
+}

@@ -1,0 +1,239 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-8",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 8 in F major, Op. 93",
+  "title_short": "",
+  "catalogue": "Op. 93",
+  "number": "No. 8",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Second period, but Grove reads it as a salute to the symphonic ideal of the previous age: the least Romantic of the middle group.",
+  "composition": {
+    "year": 1812,
+    "year_range": null,
+    "date": "1812",
+    "date_precision": "year",
+    "place": {
+      "building": "His brother Johann's house",
+      "city": "Linz",
+      "country_then": "Archduchy of Austria",
+      "polity": "Austrian Empire",
+      "polity_note": "The Austrian Empire was proclaimed 11 August 1804 and the Holy Roman Empire dissolved 6 August 1806, so the sovereign state in 1812 is the Empire. Linz sat in the Archduchy of Austria above the Enns, a crown land of the Empire.",
+      "country_now": "Austria",
+      "granularity": "building",
+      "note": "Grove: 'Linz, where he started the score of the Eighth Symphony; he stayed with his brother Johann, who had bought an apothecary's shop there in 1808.' Wikipedia says Teplice instead — the Bohemian spa where the summer's work began before he travelled on to Linz that autumn.",
+      "lat": 48.3058,
+      "lon": 14.2864,
+      "wikidata": "Q41329"
+    }
+  },
+  "reason": {
+    "summary": "Scored in Linz while lodging with his brother Johann, and dedicated to nobody.",
+    "dedicatee": "",
+    "occasion": "No commission and no dedication — begun straight after the Seventh, in a summer of spa visits and a family quarrel.",
+    "detail": "Grove's works list gives no dedicatee, unusually for a Beethoven symphony. Grove also notes his reason for being in Linz at all: 'to interfere in his brother's private life' — Johann was living with the woman he then married. Grove reads the work as 'a salute to the symphonic ideal of the previous age'."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1814-02-27",
+    "city": "Vienna",
+    "venue": "Redoutensaal",
+    "conductor": "Ludwig van Beethoven",
+    "notes": "Grove gives the date; Wikipedia the venue and the programme — the Seventh, Wellington's Victory, and the premiere of the trio 'Tremate, empi, tremate'. Grove notes the Eighth 'was one of its companion pieces', the Seventh being the draw."
+  },
+  "listen_for": [
+    {
+      "hook": "The second movement ticks: a joke about the new metronome.",
+      "kind": "famous-movement",
+      "timing": "II, Allegretto scherzando",
+      "card": true,
+      "detail": "Wikipedia reports the movement is likely a parody of Maelzel's recently invented metronome, and hears Haydn's 'Clock' behind it."
+    },
+    {
+      "hook": "The shortest of the nine, and the only one he dedicated to no one.",
+      "kind": "emblematic",
+      "detail": "Grove's works list carries no dedication, in a column where every other symphony names a prince, count or king."
+    },
+    {
+      "hook": "The finale is the heaviest movement, not the first.",
+      "kind": "structural",
+      "timing": "IV",
+      "detail": "Wikipedia notes 'the last movement the weightiest of the four', anticipating the Ninth. Grove records a shortened version of the first movement's ending."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-8",
+      "type": "wikipedia",
+      "title": "Symphony No. 8 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._8_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "QA2SJ2JB"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "first_performance.venue": [
+      "wp-beethoven-no-8"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-8"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "composition.place",
+      "wikipedia": "Teplice",
+      "grove": "Linz, at his brother Johann's",
+      "resolution": "Linz recorded at building grain; Teplitz noted as where the summer's work began",
+      "resolved_with": "grove-beethoven"
+    },
+    {
+      "field": "reason.dedicatee",
+      "wikipedia": "none",
+      "grove": "none (works-list dedication column carries only a remark about the first movement)",
+      "resolution": "no dedicatee — the sources agree, and it is the interesting fact",
+      "resolved_with": "grove-beethoven"
+    }
+  ],
+  "unknowns": [
+    "Whether any of it was drafted at Teplitz or Karlsbad before Linz."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 8.md"
+}

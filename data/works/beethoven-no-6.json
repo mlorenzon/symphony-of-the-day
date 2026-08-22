@@ -1,0 +1,56 @@
+{
+  "slug": "beethoven-no-6",
+  "title_full": "Symphony No. 6 in F major, Op. 68 “Pastoral”",
+  "title_short": "Pastoral",
+  "catalogue": "Op. 68",
+  "number": "No. 6",
+  "period": "Classical",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "born": 1770,
+    "died": 1827,
+    "life": "1770–1827",
+    "nationality": "German",
+    "portrait": "data/portraits/beethoven-no-6.png",
+    "portrait_credit": "Joseph Karl Stieler, 1820 (Public domain)",
+    "wikidata": "Q255"
+  },
+  "composition": {
+    "year": 1808,
+    "age": 38,
+    "age_line": "Beethoven was 38",
+    "place": "Heiligenstadt, and Vienna",
+    "country_then": "Archduchy of Austria",
+    "lon": 16.3549,
+    "lat": 48.2538
+  },
+  "context": "Premiered beside the Fifth at the same four-hour benefit concert, Dec 1808.",
+  "context_label": "Occasion",
+  "listen_for": "Five movements, not four — and the last three run without a break.",
+  "map": {
+    "basemap_year": 1800,
+    "geojson": "data/clipped/europe_1800.geojson",
+    "half_span_lon": 6.0,
+    "clip_bbox": [
+      -35.0,
+      20.0,
+      60.0,
+      78.0
+    ],
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 18.0349,
+        "lat": 47.3229,
+        "fit": "clamped",
+        "clearance_deg": 2.5687
+      },
+      "source": "research"
+    }
+  }
+}

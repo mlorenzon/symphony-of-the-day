@@ -1,0 +1,224 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-4",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 4 in B flat major, Op. 60",
+  "title_short": "",
+  "catalogue": "Op. 60",
+  "number": "No. 4",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. Second period, but Haydnesque by design: a Romantic label would fit it worse than Classical does, whichever side of a date it fell on.",
+  "composition": {
+    "year": 1806,
+    "year_range": null,
+    "date": "1806",
+    "date_precision": "year",
+    "place": {
+      "building": "Prince Lichnowsky's country house",
+      "city": "Grätz, near Troppau",
+      "country_then": "Austrian Silesia",
+      "polity": "Austrian Empire",
+      "polity_note": "The Austrian Empire was proclaimed 11 August 1804; the Holy Roman Empire was dissolved 6 August 1806. Grätz lay in Austrian Silesia, a Habsburg crown land, so the sovereign state in 1806 is the Empire.",
+      "country_now": "Czech Republic (Hradec nad Moravicí)",
+      "granularity": "building",
+      "note": "Wikipedia places the writing at Lichnowsky's Silesian estate, the commission arising from a September visit to Count Oppersdorff at Oberglogau nearby (Prussian Silesia, now Głogówek, Poland). Grove confirms 1806 and the Oppersdorff dedication but not the estate.",
+      "lat": 49.871,
+      "lon": 17.8759,
+      "wikidata": "Q668190"
+    }
+  },
+  "reason": {
+    "summary": "Commissioned by Count Oppersdorff, written at Lichnowsky's estate in Silesia.",
+    "patron": "Count Franz von Oppersdorff",
+    "dedicatee": "Count Franz von Oppersdorff",
+    "occasion": "Oppersdorff kept a private orchestra and paid for a symphony after hearing Beethoven's Second played by it.",
+    "detail": "Grove quotes a letter to Oppersdorff revealing Beethoven's 'optimistic and resolute mood'. Grove also records the first performances: 'the Fourth Symphony and Fourth Piano Concerto were included at two concerts given at the palace of Prince Lobkowitz in March 1807, together with a new overture, to Collin's tragedy Coriolan.'"
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1807-03",
+    "city": "Vienna",
+    "venue": "Palace of Prince Lobkowitz",
+    "notes": "Grove: two private concerts at the Lobkowitz palace in March 1807, sharing the bill with the Fourth Piano Concerto and the new Coriolan overture. Wikipedia adds a first public performance at the Burgtheater in April 1808."
+  },
+  "listen_for": [
+    {
+      "hook": "A slow, groping introduction in the dark before B flat major dawns.",
+      "kind": "famous-movement",
+      "timing": "I, Adagio introduction",
+      "card": true,
+      "detail": "Bernstein described a 'mysterious introduction which hovers around minor modes, tip-toeing its tenuous weight through ambiguous unrelated keys'."
+    },
+    {
+      "hook": "Tovey thought this the work where he first mastered movement itself.",
+      "kind": "emblematic",
+      "detail": "Grove quotes Tovey: the Fourth 'is perhaps the work in which Beethoven first fully reveals his mastery of movement'. Grove also notes, after Robert Simpson, that solid dominant–tonic resolution is withheld until the second theme of the recapitulation."
+    },
+    {
+      "hook": "It sits between the Eroica and the Fifth, and gets overlooked for it.",
+      "kind": "emblematic",
+      "detail": "Wikipedia notes the lighter instrumentation 'recalls the symphonies of Joseph Haydn' and that the two weightier neighbours have historically overshadowed it."
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-4",
+      "type": "wikipedia",
+      "title": "Symphony No. 4 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._4_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "87SA262W"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven",
+      "wp-beethoven-no-4"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-4"
+    ],
+    "first_performance.date": [
+      "grove-beethoven"
+    ],
+    "first_performance.venue": [
+      "grove-beethoven",
+      "wp-beethoven-no-4"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-4"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [],
+  "unknowns": [
+    "Whether the whole symphony was written at Grätz; Grove does not name the estate at all."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 4.md"
+}

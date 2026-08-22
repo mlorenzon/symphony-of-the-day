@@ -1,0 +1,241 @@
+{
+  "schema": "sotd-research/1",
+  "slug": "beethoven-no-1",
+  "researched": "2026-08-21",
+  "title_full": "Symphony No. 1 in C major, Op. 21",
+  "title_short": "",
+  "catalogue": "Op. 21",
+  "number": "No. 1",
+  "composer": {
+    "name": "Ludwig van Beethoven",
+    "nationality": "German",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "born": 1770,
+    "died": 1827
+  },
+  "era": "Classical",
+  "era_note": "Kept Classical deliberately (decided 21 Aug 2026). periods.json buckets by year and the bucket sets the card colour; Romantic begins 1830, so all nine read Classical. The boundary is global, so moving it to split Beethoven would carry Haydn's late symphonies and the whole of Schubert across with him. Grove's three periods (first to c1802, second to c1812, third 1813-27) divide the nine 1-2 | 3-8 | 9, so the scholarly break falls at the Eroica, not at any date in the 1830s. This one sits in the first period, where the Classical label is uncontroversial.",
+  "composition": {
+    "year": 1800,
+    "year_range": [
+      1799,
+      1800
+    ],
+    "date": "1799–1800",
+    "date_precision": "range",
+    "place": {
+      "city": "Vienna",
+      "country_then": "Archduchy of Austria",
+      "polity": "Habsburg Monarchy",
+      "polity_note": "Before 11 August 1804 there is no Austrian Empire: the sovereign entity is the composite Habsburg Monarchy, and the Archduchy of Austria sits within the Holy Roman Empire. The historical basemap labels these lands “Austrian Empire” in its 1783 and 1800 snapshots regardless, which is why the card takes its wording from here and not from the map data.",
+      "country_now": "Austria",
+      "granularity": "city",
+      "note": "Grove gives 1799–1800. Wikipedia's 1795–1800 counts early sketches, including finale material from 1795 and counterpoint studies of spring 1797.",
+      "lat": 48.2083,
+      "lon": 16.3725,
+      "wikidata": "Q1741"
+    }
+  },
+  "reason": {
+    "summary": "Written for his first benefit concert, at the Vienna Burgtheater in April 1800.",
+    "dedicatee": "Baron Gottfried van Swieten",
+    "occasion": "Beethoven's first concert for his own benefit — an akademie he organised and profited from himself.",
+    "detail": "Grove: 'On 2 April 1800 Beethoven gave his first concert for his own benefit, in the Burgtheater.' The symphony was the centrepiece of a programme he assembled to present himself to Vienna as a composer of large public works rather than only as a pianist. Wikipedia reports that the dedication was first intended for Elector Maximilian Franz, Beethoven's Bonn patron, and went to van Swieten after the Elector's death; Grove does not corroborate this."
+  },
+  "first_performance": {
+    "known": true,
+    "date": "1800-04-02",
+    "city": "Vienna",
+    "venue": "Burgtheater (K.K. Hoftheater nächst der Burg)",
+    "conductor": "Ludwig van Beethoven",
+    "notes": "Grove confirms the date and the Burgtheater. Wikipedia adds that the Septet and a Mozart symphony shared the programme, and that accounts disagree over whether Haydn excerpts or one of the piano concertos followed."
+  },
+  "listen_for": [
+    {
+      "hook": "It opens off-key: twelve bars before C major finally arrives.",
+      "kind": "innovation",
+      "timing": "I, the twelve-bar Adagio molto introduction",
+      "card": true,
+      "detail": "The introduction opens on a dominant seventh resolving to the wrong chord, and withholds a plain C major cadence for twelve bars. Tovey called it 'a comedy of manners'."
+    },
+    {
+      "hook": "The third movement is a minuet in name only — it runs at scherzo speed.",
+      "kind": "structural",
+      "timing": "III, Menuetto",
+      "detail": "Marked Menuetto but taken far faster than a minuet; Wikipedia notes the chromatic lurch from C major to D flat only 36 bars in."
+    },
+    {
+      "hook": "Contemporaries heard danger in it, not charm.",
+      "kind": "emblematic",
+      "detail": "Wikipedia reports Emperor Francis II responding: 'There is something revolutionary in that music!' Grove, by contrast, notes the First 'can seem almost to wilt when commentators examine it for clues to future symphonic greatness.'"
+    }
+  ],
+  "sources": [
+    {
+      "id": "grove-beethoven",
+      "type": "grove",
+      "title": "Beethoven, Ludwig van",
+      "author": "Joseph Kerman, Alan Tyson, Scott G. Burnham, Douglas Johnson and William Drabkin",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
+      "accessed": "2026-08-22",
+      "zotero_key": "J2HF4RUA",
+      "snapshot": "5ER9GVTZ"
+    },
+    {
+      "id": "wp-beethoven-no-1",
+      "type": "wikipedia",
+      "title": "Symphony No. 1 (Beethoven)",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Symphony_No._1_(Beethoven)",
+      "accessed": "2026-08-21",
+      "zotero_key": "ATXETUW3"
+    },
+    {
+      "id": "wp-habsburg-monarchy",
+      "type": "wikipedia",
+      "title": "Habsburg monarchy",
+      "container": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Habsburg_monarchy",
+      "accessed": "2026-08-22",
+      "zotero_key": "SM5XRTMW"
+    },
+    {
+      "id": "grove-mozart",
+      "type": "grove",
+      "title": "Mozart, (Johann Chrysostom) Wolfgang Amadeus",
+      "author": "Cliff Eisen and Stanley Sadie",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278233",
+      "accessed": "2026-08-22",
+      "zotero_key": "HKMHG5EE",
+      "snapshot": "P2XCK4V4"
+    },
+    {
+      "id": "grove-mozart-leopold",
+      "type": "grove",
+      "title": "Mozart, (Johann Georg) Leopold",
+      "author": "Cliff Eisen",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-6002278234",
+      "accessed": "2026-08-22",
+      "zotero_key": "3R6WEI6K",
+      "snapshot": "DV3JMQU6"
+    },
+    {
+      "id": "grove-brahms",
+      "type": "grove",
+      "title": "Brahms, Johannes",
+      "author": "George S. Bozarth and Walter Frisch",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000051879",
+      "accessed": "2026-08-22",
+      "zotero_key": "KU62N9IU",
+      "snapshot": "5VC6C29Q"
+    },
+    {
+      "id": "grove-shostakovich",
+      "type": "grove",
+      "title": "Shostakovich, Dmitry (Dmitriyevich)",
+      "author": "David Fanning and Laurel Fay",
+      "container": "Grove Music Online",
+      "year": 2001,
+      "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000052560",
+      "accessed": "2026-08-22",
+      "zotero_key": "H39HKTPR",
+      "snapshot": "6GB9PX6G"
+    }
+  ],
+  "claims": {
+    "title_full": [
+      "grove-beethoven"
+    ],
+    "number": [
+      "grove-beethoven"
+    ],
+    "catalogue": [
+      "grove-beethoven"
+    ],
+    "composer.name": [
+      "grove-beethoven"
+    ],
+    "composer.nationality": [
+      "grove-beethoven"
+    ],
+    "composer.born": [
+      "grove-beethoven"
+    ],
+    "composer.died": [
+      "grove-beethoven"
+    ],
+    "composition.year": [
+      "grove-beethoven"
+    ],
+    "composition.date": [
+      "grove-beethoven"
+    ],
+    "composition.place": [
+      "grove-beethoven"
+    ],
+    "reason.summary": [
+      "grove-beethoven"
+    ],
+    "reason.dedicatee": [
+      "grove-beethoven",
+      "wp-beethoven-no-1"
+    ],
+    "first_performance.date": [
+      "grove-beethoven",
+      "wp-beethoven-no-1"
+    ],
+    "first_performance.venue": [
+      "wp-beethoven-no-1"
+    ],
+    "listen_for": [
+      "grove-beethoven",
+      "wp-beethoven-no-1"
+    ],
+    "era": [
+      "grove-beethoven"
+    ],
+    "composition.place.polity": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composition.place.country_then": [
+      "grove-beethoven",
+      "wp-habsburg-monarchy"
+    ],
+    "composer.nationality_note": [
+      "grove-beethoven",
+      "grove-mozart",
+      "grove-mozart-leopold",
+      "grove-brahms",
+      "grove-shostakovich"
+    ]
+  },
+  "conflicts": [
+    {
+      "field": "composition.year_range",
+      "wikipedia": "1795–1800",
+      "grove": "1799–1800",
+      "resolution": "1799–1800 recorded; the 1795 and 1797 material noted as sketches in place.note",
+      "resolved_with": "grove-beethoven"
+    },
+    {
+      "field": "reason.dedicatee",
+      "wikipedia": "first intended for Elector Maximilian Franz, then van Swieten",
+      "grove": "Baron Gottfried van Swieten",
+      "resolution": "van Swieten recorded as dedicatee; the Maximilian Franz claim kept in reason.detail as Wikipedia-only",
+      "resolved_with": "grove-beethoven"
+    }
+  ],
+  "unknowns": [
+    "The rest of the 2 April 1800 programme — sources disagree over which concerto and whether Haydn was played."
+  ],
+  "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 1.md"
+}
