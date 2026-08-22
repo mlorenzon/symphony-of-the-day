@@ -53,8 +53,23 @@ var SOTD = (function () {
         // Bands down each face, top to bottom, in card pixels. They tile the
         // interior exactly (588 px), so changing one height moves everything
         // below it and nothing has to be re-measured by hand.
-        front: { strap: 78, portrait: 262, rule: 5, stats: 70, title: 124, life: 44 },
-        back:  { strap: 76, region: 38, rule: 5, map: 214, slab: 250 },
+        // `front.rule` matches the 2 px hairlines that divide the stat columns,
+        // so the band reads as one ruled table rather than a heavy sandwich.
+        // The 6 px that came off the two rules went to the portrait, which
+        // keeps everything from the stats down at the y it was already at.
+        front: { strap: 78, portrait: 268, rule: 2, stats: 70, title: 124, life: 44 },
+        // Card 2's strap is taller than card 1's because it carries two runs
+        // that are not the same size: a "PLACE OF COMPOSITION" heading in the
+        // slab-label style, and the place itself under it, on up to two lines.
+        // It absorbed the old 38 px `region` band when the country stopped
+        // being a separate line — see buildCardBack.
+        //
+        // The 6 px the rules gave up went to the strap and NOT to the map, on
+        // purpose: `map` is the height the frozen sequence in data/maps/<slug>/
+        // was baked at, so changing it turns a rebuild into a re-bake of every
+        // frozen work. Leaving it at 214 also keeps `slab` starting at the same
+        // y, which is where buildStorySlab's offsets are measured from.
+        back:  { strap: 120, rule: 2, map: 214, slab: 250 },
 
         // The three stats under the portrait, top-trumps style. Columns are
         // weighted, not thirds: at a size anyone can read, "NATIONALITY" is
@@ -82,22 +97,36 @@ var SOTD = (function () {
             statValue: 30,
             title:     40,
             life:      28,
-            place:     46,   // the loudest thing on card 2
-            region:    24,
-            slabLabel: 18,
-            body:      26    // occasion and listen-out-for
+            place:     40,   // the loudest thing on card 2
+            slabLabel: 18,   // every heading: OCCASION, LISTEN OUT FOR, PLACE OF COMPOSITION
+            body:      26,   // occasion and listen-out-for
+            mapLabel:  20    // the focus country, printed on the map
         },
 
+        // Cambria for text, Trajan Pro 3 for caps.
+        //
+        // Trajan is an Adobe Fonts activation, not a Windows font, and it went
+        // missing once: AE substituted a placeholder sans and said nothing, and
+        // a week of cards shipped with the wrong face on the loudest line of
+        // both. api.fontCheck() now asks AE outright whether each of these is
+        // real, and buildWork refuses to run if any is not — so if the
+        // activation lapses again the build stops instead of quietly changing
+        // the typeface.
+        //
+        // `capsBold` is Trajan Regular deliberately, not a mistake: Trajan Pro
+        // 3 ships Regular ALONE. There is no TrajanPro3-Bold to ask for, and
+        // asking is worse than useless — AE would substitute for it silently.
+        // The runs that want extra weight get it from size and tracking.
+        //
+        // The `upper` flag on a cardStrap run is redundant under Trajan, which
+        // has no lowercase to draw, and load-bearing under anything else. It
+        // stays either way.
         font: {
-            serif:  "Cambria",
-            bold:   "Cambria-Bold",
-            italic: "Cambria-Italic",
-            // Trajan Pro 3 ships Regular only. Asking for TrajanPro3-Bold does
-            // not error — AE resolves it to a placeholder family called
-            // "TrajanPro3" and quietly renders a mixed-case substitute, which
-            // is obvious only in a render. The surname carries its weight with
-            // a drop shadow instead.
-            caps:   "TrajanPro3-Regular"
+            serif:    "Cambria",
+            bold:     "Cambria-Bold",
+            italic:   "Cambria-Italic",
+            caps:     "TrajanPro3-Regular",
+            capsBold: "TrajanPro3-Regular"
         },
 
         col: {
@@ -112,6 +141,114 @@ var SOTD = (function () {
         // Duotone strength. The map basemap is far lighter than any portrait,
         // so it needs less lifting or the panel goes chalky.
         duotone: { portraitLift: 16, mapLift: 10 },
+
+        // How the historical borders are inked, and how the one country that
+        // matters is picked out of them. api.mapFinish paints both.
+        //
+        // **Contrast here has to be tonal, not chromatic.** The MAP sub-comp
+        // desaturates the map and then multiplies the period colour over it, so
+        // every hue set on the geometry is thrown away before a viewer sees a
+        // frame — a focus colour that differs from its neighbours only in hue
+        // arrives on the card identical to them. The two differ in *value*
+        // instead, which survives any period colour the card is painted in.
+        //
+        // **And the focus country is the one that gets left alone.** The
+        // obvious way round — a strong wash on the focus, neighbours untouched
+        // — was built first and is wrong, for a reason only a render shows: the
+        // move ends at a 6° half-span, and at that width the focus country
+        // usually fills the whole frame. A wash heavy enough to read at the
+        // continental end then flattens every trace of terrain out of the final
+        // frame, which is the frame the viewer actually dwells on. Dimming the
+        // neighbours instead gives the same separation while the map is wide,
+        // and costs nothing at the end, when there are no neighbours in shot.
+        mapInk: {
+            // The context: pushed back with a dark wash.
+            fill: [0.16, 0.13, 0.11], fillOpacity: 34,
+            stroke: [0.24, 0.21, 0.19], strokeOpacity: 88,
+            // Border weight at the reference half-span of 6°. fitViewAtTime
+            // zooms by rescaling the anchor layer, which scales strokes with
+            // it, so mapFinish scales this the other way.
+            strokeWidth: 2.0,
+            focus: {
+                // A lift barely heavier than nothing — enough to separate it
+                // from the dimmed neighbours, light enough that the shaded
+                // relief still reads through it at full zoom.
+                fill: [0.98, 0.96, 0.91], fillOpacity: 16,
+                stroke: [0.10, 0.09, 0.08], strokeOpacity: 100,
+                strokeScale: 1.8          // × the ordinary border weight
+            }
+        },
+
+        // The focus country's name, printed ON the map — a GEOlayers label,
+        // pinned to a point inside the territory and scaling with the zoom, so
+        // it reads as cartography rather than as a caption laid over the top.
+        //
+        // This is a deliberate reversal of an earlier design that put the label
+        // in the MAP sub-comp at a constant size. Two consequences follow from
+        // it being inside the mapcomp, and both are the price of the effect:
+        // the label is **baked** into a frozen map, so re-wording one means
+        // re-baking that work; and it moves with the territory rather than
+        // staying put, so where it sits is a computed anchor, not a corner.
+        mapLabel: {
+            template: "05 Region",   // GEOlayers label template comp
+            // The one place the caps face is NOT Trajan, and it is measured,
+            // not a preference. "HABSBURG MONARCHY" is 281 px of the panel's
+            // 412 in Trajan and 217 px in Cambria, and the room between the
+            // territory's western border and the card edge is about 300 px.
+            // In Trajan the name spills over the border and prints across a
+            // neighbour the highlight has deliberately dimmed; only shrinking
+            // it to the point of illegibility fits, and this label already
+            // renders at about 11 phone px.
+            //
+            // It reads as cartography rather than as part of the card's own
+            // typography anyway — black on the land, the only mark on the
+            // design that is not cream. Set this to CFG.font.caps to unify
+            // them, then look at a render before believing it fits.
+            font:     "Cambria",
+            // Type size in the template's own 1000×600 comp, shrunk to fit if
+            // the polity's name is long. Measured, not guessed — see fitLabel.
+            size:     60,
+            minSize:  30,
+            fitMargin: 60,           // px of the template comp to keep clear
+            // One line, always. The stock template's plate is cut from a
+            // Minimax-dilated copy of the text, and it only bridges a single
+            // line: a wrapped name comes out with its second line unplated and
+            // floating. A country name printed right across its territory is
+            // the atlas look anyway.
+            wrapOver: 999,
+            leading:  1.15,          // × size; the template's own is set for 35 pt
+            tracking: 30,
+            // How big the label is, in percent, at the END of the move.
+            //
+            // The layer's own scale is solved backwards from this, because
+            // GEOlayers' "Scale with Map" expression multiplies by the map's
+            // scale using a `scaleFactor` it bakes in when the label is created
+            // — from whatever view the comp was sitting on at the time. So the
+            // raw number on the property is not meaningful and is never set by
+            // hand; mapLabel probes the expression and solves for it.
+            //
+            // The label is then locked to the land: over a 30° → 6° move it is
+            // exactly a fifth of this at the continental opening, and nothing
+            // can change that ratio without breaking the lock. If the opening
+            // needs a bigger label, shorten the move with CFG.map.startSpan.
+            // The label has to fit *inside the bright country*, not merely
+            // inside the frame: spilling past a border prints the name over a
+            // neighbour the highlight has deliberately dimmed. At 92,
+            // "HABSBURG MONARCHY" measures 221 of the panel's 412 px, which
+            // leaves room on both sides once the anchor is nudged off the pin.
+            // It was 281 px in Trajan — the caps are Cambria now, ~15%
+            // narrower, so this got easier when the type changed.
+            endScale: 92,
+            // Black type straight onto the land, no plate. The focus country is
+            // the brightest thing in frame by construction, so the name reads
+            // against it without a box — and the template's box is cut from a
+            // Minimax dilation of the text that does not keep pace with type
+            // this large, so it came out narrower than the word it was behind.
+            // This is the one mark on the design that is not cream, because
+            // here the map is the light ground.
+            color:  [0.078, 0.067, 0.059],
+            plate:  false
+        },
 
         // The reveal, and the card-turn sound cued off it. These seed the CTRL
         // sliders AND place the two audio layers, so the sound stays with the
@@ -191,7 +328,6 @@ var SOTD = (function () {
                     "life",     CFG.front.life]);
 
     var BB = bands(["strap",  CFG.back.strap,
-                    "region", CFG.back.region,
                     "ruleA",  CFG.back.rule,
                     "map",    CFG.back.map,
                     "ruleB",  CFG.back.rule,
@@ -418,9 +554,17 @@ var SOTD = (function () {
                 // Glue "No. 36", "K. 425", "Op. 98" with a non-breaking space,
                 // so a wrap never orphans the number from its abbreviation.
                 't = t.replace(/\\. (\\d)/g, ".\\u00A0$1");\n' +
+                // Size on the LONGEST line, not the whole string. A field that
+                // sets its own break — the place line breaks itself at the
+                // comma — is as wide as its widest line, and measuring the
+                // total instead shrinks it for length it never puts on a line.
+                // Fields with no break in them split to one element, so this is
+                // the character count it always was.
+                'var ln = t.split("\\r"), n = 0;\n' +
+                'for (var i = 0; i < ln.length; i++) if (ln[i].length > n) n = ln[i].length;\n' +
                 'var size = ' + steps[0].size + ';\n';
         for (var i = 1; i < steps.length; i++) {
-            s += 'if (t.length > ' + steps[i].over + ') size = ' + steps[i].size + ';\n';
+            s += 'if (n > ' + steps[i].over + ') size = ' + steps[i].size + ';\n';
         }
         // Leading has to follow the size down, or shrunk text keeps the loose
         // line spacing that was set for the largest step.
@@ -676,6 +820,20 @@ var SOTD = (function () {
         fl.property("ADBE Vector Fill Color").setValue(CFG.col.ink.concat([1]));
     }
 
+    /**
+     * Is this font really installed, or will AE quietly substitute for it?
+     * The FontObject's own `isSubstitute` — see api.fontCheck for why the two
+     * more obvious tests both pass for a font that does not exist.
+     */
+    function fontResolves(postScriptName) {
+        try {
+            var hits = app.fonts.getFontsByPostScriptName(postScriptName);
+            return !!(hits && hits.length && !hits[0].isSubstitute);
+        } catch (e) {
+            return false;
+        }
+    }
+
     /** Everything on this design is cream on the period colour. */
     function poster(o) {
         o.color = CFG.col.cream;
@@ -695,6 +853,11 @@ var SOTD = (function () {
      * line can only be about 25 px before it runs out of card, which is
      * invisible on a phone. Split off the given names small and the surname
      * gets to be 46 px — and the surname is what a viewer actually reads.
+     *
+     * Per run: `bold` picks the heavy face, `boxH` buys room for a second
+     * line, and `upper` uppercases the string. `upper` is not decoration —
+     * the caps face is Cambria now, which has a lowercase and will happily
+     * draw it, so a run that must read as capitals has to say so.
      */
     function cardStrap(c, band, runs) {
         addRect(c, {
@@ -703,13 +866,17 @@ var SOTD = (function () {
         });
         for (var i = 0; i < runs.length; i++) {
             var r = runs[i];
+            var bh = r.boxH || (r.size + 14);
+            var body = r.upper ? '(' + r.body + ').toUpperCase()' : r.body;
             var L = addText(c, poster({
-                name: r.name, box: [I.w - 20, r.size + 14],
-                topLeft: [I.x + 10, r.centreY - (r.size + 14) / 2],
-                font: CFG.font.caps, size: r.size, tracking: r.tracking,
+                name: r.name, box: [I.w - 20, bh],
+                topLeft: [I.x + 10, r.centreY - bh / 2],
+                font: r.bold ? CFG.font.capsBold : CFG.font.caps,
+                size: r.size, tracking: r.tracking,
                 centerY: r.centreY,
-                justify: ParagraphJustification.CENTER_JUSTIFY, text: r.text,
-                expr: bindFitted(r.body, "", r.steps)
+                justify: ParagraphJustification.CENTER_JUSTIFY,
+                text: r.upper ? String(r.text).toUpperCase() : r.text,
+                expr: r.body ? bindFitted(body, "", r.steps) : null
             }));
             if (r.opacity !== undefined) fade(L, r.opacity);
         }
@@ -809,16 +976,20 @@ var SOTD = (function () {
 
         cardStrap(c, FB.strap, [
             { name: "GIVEN NAMES", size: T.given, tracking: 120, centreY: FB.strap.y + 18,
-              opacity: 76, text: "GIVEN NAMES",
+              opacity: 76, text: "GIVEN NAMES", upper: true,
               body: 'D.composer.name.split(" ").slice(0, -1).join(" ")',
               steps: [{ size: T.given }, { over: 18, size: 17 }] },
             { name: "SURNAME", size: T.surname, tracking: 20, centreY: FB.strap.y + 52,
-              text: "SURNAME",
+              text: "SURNAME", upper: true, bold: true,
               body: '(D.composer.surname || D.composer.name.split(" ").pop())',
               steps: [{ size: T.surname }, { over: 12, size: 40 },
                       { over: 15, size: 34 }, { over: 19, size: 26 }] }
         ]);
 
+        // Same weight as the STAT dividers between the columns, so the three
+        // stats read as one ruled table. They stay at full cream while the
+        // dividers sit back at 45%: these two close the band, the dividers
+        // only subdivide it.
         addRect(c, { name: "RULE above stats", topLeft: [I.x, FB.ruleA.y],
                      size: [I.w, FB.ruleA.h], fill: CFG.col.cream });
         addRect(c, { name: "RULE below stats", topLeft: [I.x, FB.ruleB.y],
@@ -863,6 +1034,40 @@ var SOTD = (function () {
 
     // ------------------------------------------------------------ card: back
 
+    /**
+     * The card's answer to "where was this written": city and polity as one
+     * address. Either half can be missing — a work with no `country_then` still
+     * prints its city, and drops the comma with it.
+     *
+     * When it is too long for one line the string breaks ITSELF, at the comma,
+     * so the polity starts the second line. Left to wrap on its own AE breaks
+     * wherever the box runs out — "VIENNA, ARCHDUCHY OF / AUSTRIA" — which
+     * splits the country's name across two lines and reads as two facts again,
+     * which is the thing this line exists to stop.
+     */
+    /**
+     * How the place line shrinks, keyed on its LONGEST line. One definition,
+     * because api.measurePlaces has to measure the same steps buildCardBack
+     * draws — they were duplicated for one build and the copy went stale the
+     * moment the caps face changed, which is how "ARCHDUCHY OF AUSTRIA" lost
+     * "AUSTRIA" off the bottom of its box.
+     *
+     * The numbers are for Trajan Pro 3, which is appreciably wider than
+     * Cambria. Re-measure with SOTD.measurePlaces() after ANY change to
+     * CFG.font.capsBold or the strap's box, and read the `lines` column: the
+     * box holds two, and a third is clipped rather than overflowing.
+     */
+    var PLACE_STEPS = [{ size: 40 }, { over: 12, size: 36 },
+                       { over: 15, size: 28 }, { over: 18, size: 26 },
+                       { over: 20, size: 22 }, { over: 26, size: 18 }];
+
+    var PLACE_LINE =
+        '(function () {\n' +
+        '  var P = D.composition.place, C = D.composition.country_then;\n' +
+        '  var one = [P, C].filter(function (s) { return s; }).join(", ");\n' +
+        '  return (P && C && one.length > 16) ? (P + ",\\r" + C) : one;\n' +
+        '})()';
+
     function buildCardBack(slug, mapComp, work, worksFolder) {
         var c = makeComp("CARD BACK · " + slug, CFG.card.w, CFG.card.h,
                          CFG.reel.dur, worksFolder);
@@ -872,29 +1077,30 @@ var SOTD = (function () {
         cardGround(c);
 
         // Card 2 is the context card: where, why, and what to listen for. The
-        // year and the composer are card 1's job, so the place gets the strap
-        // at the same size the surname gets on card 1.
-        // The strap is one band high, so a place that wraps has to be small
-        // enough for TWO lines to sit inside it: 76 px at leading 1.2 caps the
-        // wrapping sizes at 31. There is no 34 tier for that reason — at 34 a
-        // 19-character place wrapped and the second line vanished under the
-        // region plate, so "Grätz, near Troppau" read as "GRÄTZ, NEAR". Past
-        // about 14 characters the line no longer fits the 356 px box at 40
-        // either, so that is where it drops straight to 28.
+        // year and the composer are card 1's job, so the place gets the strap.
+        //
+        // City and polity used to be two runs — the place in the strap, the
+        // country in italics on its own band under it. Nothing said what the
+        // pair WAS, and stacked like that they read as two unrelated facts
+        // rather than one address. So they are one string now, "Vienna,
+        // Archduchy of Austria", under a heading set exactly like OCCASION and
+        // LISTEN OUT FOR at the bottom of the same card: same face, same 18 px,
+        // same 200 tracking, same 78% — three headings, one system.
+        //
+        // That string is long, and it is allowed TWO lines. `boxH` is 84, which
+        // holds two lines at any size the steps can choose (32 × 1.2 × 2 = 77);
+        // a third line would be clipped below the box rather than overflow it,
+        // so the steps have to keep it to two. They were measured, not guessed
+        // — see api.measurePlaces.
         cardStrap(c, BB.strap, [
-            { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.mid,
-              text: "PLACE", body: 'D.composition.place',
-              steps: [{ size: T.place }, { over: 11, size: 40 },
-                      { over: 14, size: 28 }, { over: 30, size: 24 }] }
+            { name: "PLACE label", size: T.slabLabel, tracking: 200,
+              centreY: BB.strap.y + 27, opacity: 78, text: "PLACE OF COMPOSITION" },
+            { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.y + 77,
+              boxH: 84, bold: true, upper: true, text: "PLACE",
+              body: PLACE_LINE,
+              // Thresholds are the LONGEST line, not the whole string.
+              steps: PLACE_STEPS }
         ]);
-        fade(addText(c, poster({
-            name: "REGION", box: [I.w - 16, 32], topLeft: [I.x + 8, BB.region.y + 3],
-            font: CFG.font.italic, size: T.region, centerY: BB.region.mid,
-            justify: ParagraphJustification.CENTER_JUSTIFY, text: "region",
-            expr: bindFitted('D.composition.country_then', "", [
-                { size: T.region }, { over: 26, size: 21 }, { over: 34, size: 18 }
-            ])
-        })), 88);
 
         // Cream rules top and bottom rather than a frame: the map bleeds the
         // full interior width, so the only edges it needs are horizontal.
@@ -1191,6 +1397,144 @@ var SOTD = (function () {
     var api = {};
     api.CFG = CFG;
 
+    /**
+     * Does every font in CFG.font actually exist on this machine?
+     *
+     * This is here because it already went wrong once and shipped. Trajan Pro 3
+     * stopped being activated, and AE did not error, warn, or log: it resolved
+     * TrajanPro3-Regular to a placeholder family and drew a sans instead. On a
+     * caps-only face the tell was lowercase letters in a render — nothing in
+     * the DOM said anything was wrong — so a week of cards went out with the
+     * wrong typography on the loudest line of both faces.
+     *
+     * The test that WORKS is `app.fonts` and the FontObject's `isSubstitute`.
+     * Two plausible tests do not, and both were tried here first:
+     *
+     *  - Setting `td.font` and reading it back. AE echoes the name you asked
+     *    for, verbatim, even for "NoSuchFontAtAll-Regular". Always passes.
+     *  - `getFontsByPostScriptName` returning a hit. AE fabricates a
+     *    placeholder FontObject for a name it has never seen, so this also
+     *    always passes — and `fontFamily` on it is just your string parsed,
+     *    which is why the old "is the family name spaced?" tell was so fragile.
+     *
+     * `isSubstitute` says so outright. A real font also reports a `location`
+     * you can look at; the placeholder points into Adobe's livetype cache.
+     * Returns one row per font; `ok` false on any of them means do not build.
+     */
+    api.fontCheck = function () {
+        var out = [];
+        // Every face the design actually asks AE for. CFG.mapLabel.font is in
+        // here because it is allowed to differ from CFG.font.caps, and a face
+        // that is only ever used inside the map is exactly the one a silent
+        // substitution would survive longest in — it is baked, so it stops
+        // being re-rendered as soon as the work is frozen.
+        var faces = {};
+        for (var k in CFG.font)
+            if (CFG.font.hasOwnProperty(k)) faces[k] = CFG.font[k];
+        if (CFG.mapLabel.font) faces["mapLabel"] = CFG.mapLabel.font;
+
+        for (var key in faces) {
+            if (!faces.hasOwnProperty(key)) continue;
+            var want = faces[key], row = { key: key, want: want };
+            var hits = app.fonts.getFontsByPostScriptName(want);   // see fontResolves
+            if (!hits || !hits.length) {
+                row.ok = false;
+                row.why = "no such font";
+            } else {
+                var f = hits[0];
+                row.family = f.familyName;
+                row.style = f.styleName;
+                row.location = String(f.location);
+                row.ok = !f.isSubstitute;
+                if (!row.ok) row.why = "substituted";
+            }
+            out.push(row);
+        }
+        return out;
+    };
+
+    /** Throw with a readable list if any font in CFG.font is being substituted. */
+    function assertFonts() {
+        var rows = api.fontCheck(), bad = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!rows[i].ok)
+                bad.push(rows[i].key + " (" + rows[i].want + "): " + rows[i].why);
+        }
+        if (bad.length)
+            throw new Error("Font not installed, AE would substitute silently — " +
+                            bad.join("; ") + ". Activate it and restart AE; " +
+                            "do not render until SOTD.fontCheck() is clean.");
+    }
+
+    /**
+     * What card 2's place line actually measures, per work, at the size its
+     * steps pick for it.
+     *
+     * Estimating this is how a digit got clipped once before: AE wraps box text
+     * on ADVANCE width, but sourceRectAtTime reports INK width, so a string that
+     * measures inside the box can still wrap.
+     *
+     * And measuring in the REAL box cannot detect the failure either, which is
+     * the subtle part and cost a bad build: a third line does not overflow the
+     * box, it is clipped by it, so sourceRectAtTime returns a height that still
+     * fits and a line count that still says two. The overflow is invisible to
+     * exactly the measurement you would reach for.
+     *
+     * So the probe uses a box of the real WIDTH but a huge height, where the
+     * third line has somewhere to go and therefore shows up. `lines` is then
+     * the true count and `fits` compares against the real 84 px.
+     */
+    api.measurePlaces = function (slugs) {
+        slugs = slugs || CFG.works;
+        var boxW = I.w - 20, boxH = 84, tallH = 600;
+        var steps = PLACE_STEPS;
+        var probe = app.project.items.addComp("__placeprobe", 800, 700, 1, 1, 25);
+        var out = [];
+        try {
+            for (var i = 0; i < slugs.length; i++) {
+                var w = api.readWork(slugs[i]);
+                var P = w.composition.place, C = w.composition.country_then;
+                var one = [];
+                if (P) one.push(P);
+                if (C) one.push(C);
+                one = one.join(", ");
+                var t = ((P && C && one.length > 16) ? (P + ",\r" + C) : one)
+                        .toUpperCase();
+
+                var ln = t.split("\r"), n = 0;
+                for (var k = 0; k < ln.length; k++)
+                    if (ln[k].length > n) n = ln[k].length;
+                var size = steps[0].size;
+                for (var s = 1; s < steps.length; s++)
+                    if (n > steps[s].over) size = steps[s].size;
+
+                // Real width, huge height — see above.
+                var L = probe.layers.addBoxText([boxW, tallH], t);
+                var P = L.property("ADBE Text Properties").property("ADBE Text Document");
+                var td = P.value;
+                td.font = CFG.font.capsBold;   // same face as the strap run
+                td.fontSize = size;
+                td.tracking = 20;
+                td.autoLeading = false;
+                td.leading = size * 1.2;
+                td.boxTextSize = [boxW, tallH];
+                P.setValue(td);
+
+                var r = L.sourceRectAtTime(0, false);
+                var lines = Math.round(r.height / (size * 1.2));
+                out.push({
+                    slug: slugs[i], text: t, longest: n, size: size,
+                    inkW: Math.round(r.width), boxW: boxW,
+                    lines: lines, height: Math.round(r.height),
+                    fits: (lines <= 2 && r.height <= boxH)
+                });
+            }
+        } finally {
+            probe.remove();
+        }
+        return out;
+    };
+
     api.workPath = function (slug) {
         return CFG.root + "/data/works/" + slug + ".json";
     };
@@ -1209,6 +1553,7 @@ var SOTD = (function () {
      * quietly and opens nothing.
      */
     api.buildWork = function (slug, quiet) {
+        assertFonts();
         var work = api.readWork(slug);
         var dataF   = folder(CFG.folders.data);
         var assetsF = folder(CFG.folders.assets);
@@ -1255,6 +1600,14 @@ var SOTD = (function () {
     };
 
     // ------------------------------------------------------------------- map
+
+    /**
+     * What GEOlayers calls a drawn feature whose geojson NAME is null — and it
+     * calls every one of them that, thirty-nine of them in the 1815 snapshot.
+     * So this is the one group name that must never be used to target a
+     * country. map_focus.py refuses to write it; this refuses to act on it.
+     */
+    var UNNAMED_GROUP = "Feature";
 
     function mapcomp() {
         var c = findItem(CFG.mapcomp, CompItem);
@@ -1328,24 +1681,53 @@ var SOTD = (function () {
                  drawnLayers: drawnLayers(c).length, layers: c.numLayers };
     };
 
-    /** Restyle the drawn borders, then aim the view at the city. */
+    /**
+     * The name of the shape group to highlight, or "" for none.
+     *
+     * GEOlayers names every drawn group verbatim from the geojson `NAME`, so
+     * this is a plain string match — but two things make it worth a function.
+     * A feature with no NAME draws as a group called "Feature", and *every*
+     * unnamed feature shares that name, so matching it would light up thirty
+     * or forty unrelated polities at once. And the name has to come from
+     * map_focus.py reading the same geojson the map was drawn from; anything
+     * hand-typed is a guess at the dataset's spelling.
+     */
+    function focusName(work) {
+        var f = work.map && work.map.focus;
+        if (!f || !f.name) return "";
+        var name = String(f.name);
+        if (name === UNNAMED_GROUP || !name.replace(/^\s+|\s+$/g, "")) return "";
+        return name;
+    }
+
+    /** Restyle the drawn borders, pick out the focus country, aim at the city. */
     api.mapFinish = function (slug) {
         var work = api.readWork(slug);
         var c = mapcomp();
         var layers = drawnLayers(c);
-        var groups = 0;
+        var groups = 0, hit = 0;
+        var K = CFG.mapInk, F = K.focus;
 
         // fitViewAtTime zooms by rescaling the mapcomp's anchor layer, which
         // scales the border strokes with it. Scale the width the other way so
         // borders land at the same apparent weight whatever the zoom.
         var span = work.map.half_span_lon || 6;
-        var strokeWidth = 2.0 * (span / 6);
+        var strokeWidth = K.strokeWidth * (span / 6);
+
+        var focus = focusName(work);
 
         for (var n = 0; n < layers.length; n++) {
             var contents = layers[n].property("ADBE Root Vectors Group");
             for (var g = 1; g <= contents.numProperties; g++) {
-                var vg = contents.property(g).property("ADBE Vectors Group");
+                var group = contents.property(g);
+                var vg = group.property("ADBE Vectors Group");
                 if (!vg) continue;
+                // A polity split across several features — Prussia is four in
+                // 1815 — is several groups under one name, and all of them
+                // have to light up or the country comes out in pieces.
+                var isFocus = (focus !== "" && group.name === focus);
+                if (isFocus) hit++;
+
                 var fill = null, stroke = null;
                 for (var v = 1; v <= vg.numProperties; v++) {
                     var pr = vg.property(v);
@@ -1353,15 +1735,23 @@ var SOTD = (function () {
                     if (pr.matchName === "ADBE Vector Graphic - Stroke") stroke = pr;
                 }
                 // Drawn features default to opaque white, invisible on this
-                // basemap. Parchment wash plus a dark warm border.
+                // basemap. Parchment wash plus a dark warm border — and for the
+                // one country the work belongs to, a near-white wash instead,
+                // which is a difference in value rather than in hue and so
+                // survives the card's duotone. See CFG.mapInk.
                 if (fill) {
-                    fill.property("ADBE Vector Fill Color").setValue([0.80, 0.76, 0.68, 1]);
-                    fill.property("ADBE Vector Fill Opacity").setValue(14);
+                    fill.property("ADBE Vector Fill Color")
+                        .setValue((isFocus ? F.fill : K.fill).concat([1]));
+                    fill.property("ADBE Vector Fill Opacity")
+                        .setValue(isFocus ? F.fillOpacity : K.fillOpacity);
                 }
                 if (!stroke) stroke = vg.addProperty("ADBE Vector Graphic - Stroke");
-                stroke.property("ADBE Vector Stroke Color").setValue([0.24, 0.21, 0.19, 1]);
-                stroke.property("ADBE Vector Stroke Width").setValue(strokeWidth);
-                stroke.property("ADBE Vector Stroke Opacity").setValue(88);
+                stroke.property("ADBE Vector Stroke Color")
+                      .setValue((isFocus ? F.stroke : K.stroke).concat([1]));
+                stroke.property("ADBE Vector Stroke Width")
+                      .setValue(strokeWidth * (isFocus ? F.strokeScale : 1));
+                stroke.property("ADBE Vector Stroke Opacity")
+                      .setValue(isFocus ? F.strokeOpacity : K.strokeOpacity);
                 groups++;
             }
         }
@@ -1373,8 +1763,316 @@ var SOTD = (function () {
             geolayers3.fitViewAtTime(CFG.mapcomp, view);
         }
 
+        // The count is the check. map_focus.py already counted how many
+        // features carry this name, so the two numbers have to agree — a
+        // highlight that hit nothing, or hit half a country, is otherwise
+        // invisible until somebody looks at a finished render.
+        var want = (work.map.focus && work.map.focus.groups) || 0;
+        var declared = (work.map.focus && work.map.focus.name) || "";
+        var report = { name: focus, expected: want, matched: hit,
+                       ok: (focus !== "" && hit === want && hit > 0) };
+        if (focus === "" && declared === UNNAMED_GROUP)
+            report.warning = "this work's focus is '" + UNNAMED_GROUP + "', which "
+                           + "every unnamed polity draws as — refused rather than "
+                           + "highlighting the whole continent. Name the polity by "
+                           + "hand in map.focus.name, or leave it empty.";
+        else if (focus === "")
+            report.warning = "no focus country on this work — run "
+                           + "scripts/map_focus.py " + slug;
+        else if (hit === 0)
+            report.warning = "focus '" + focus + "' matched no drawn group; the "
+                           + "geojson drawn into the mapcomp is probably not this "
+                           + "work's. Re-run SOTD.mapDraw(\"" + slug + "\").";
+        else if (hit !== want)
+            report.warning = "focus '" + focus + "' matched " + hit + " group(s), "
+                           + "expected " + want + ". Re-run scripts/map_focus.py "
+                           + slug + " — the work and the geojson disagree.";
+
         return { restyledGroups: groups, layers: layers.length, bbox: view,
+                 focus: report,
                  next: "SOTD.mapFinalize() for full-resolution tiles" };
+    };
+
+    // ------------------------------------------------------------ map: label
+
+    /**
+     * The country's name, printed on the map as a GEOlayers label.
+     *
+     * GEOlayers already solves the hard parts, and it is worth knowing which:
+     * the label layer lands in the CONTAINING comp carrying a Mercator position
+     * expression driven by `Latitude`/`Longitude` effects, so it tracks its
+     * geographic point through the whole move; and a `Scale with Map` checkbox
+     * decides whether it grows with the zoom. All this does is create one,
+     * point it at the anchor map_focus.py computed, and dress it in the card's
+     * type instead of the stock Verdana.
+     *
+     * The label is inside the mapcomp's world, so it is **baked** — a work
+     * frozen before this existed has no label until it is re-baked, and
+     * re-wording one is a re-bake, not a rebuild.
+     */
+
+    /** Every label GEOlayers has put on the mapcomp, and its source comp. */
+    function clearMapLabels() {
+        var removed = 0;
+        var layers = geolayers3.getLabelLayersOfMapcomp(mapcomp());
+        for (var i = 0; i < layers.length; i++) {
+            var src = layers[i].source;
+            layers[i].remove();
+            // The per-label comp is a duplicate of the template made just for
+            // this label, so it goes with it rather than accumulating.
+            try { if (src && src.usedIn.length === 0) src.remove(); } catch (e) {}
+            removed++;
+        }
+        return removed;
+    }
+
+    /**
+     * Break a long name onto two lines, at the space nearest the middle.
+     *
+     * A one-line "HABSBURG MONARCHY" is 840 px of a 1000 px template, and at
+     * the end of the move that is most of the map's width — it runs off both
+     * sides of a 412 px panel whatever the anchor does. Two lines roughly halve
+     * it, which is what makes a readable size and an on-screen label possible
+     * at the same time. Single words are left alone; nothing can help them.
+     */
+    function wrapLabel(caps, maxChars) {
+        if (caps.length <= maxChars) return caps;
+        var mid = Math.floor(caps.length / 2), best = -1;
+        for (var i = 0; i < caps.length; i++) {
+            if (caps.charAt(i) !== " ") continue;
+            if (best < 0 || Math.abs(i - mid) < Math.abs(best - mid)) best = i;
+        }
+        if (best < 0) return caps;
+        return caps.substring(0, best) + "\r" + caps.substring(best + 1);
+    }
+
+    /**
+     * Style one label in the card's type, the way the template expects.
+     *
+     * The template is built to be restyled and it is worth knowing how, because
+     * guessing here cost a rewrite. Everything visible is parented to a null
+     * called SCALE, the two text layers already carry continuous rasterisation,
+     * and the colour layers are swatch comps blown up to 1,000,000% so they can
+     * never run out of coverage. So the supported moves are: set the type, and
+     * scale the SCALE null. Nothing needs rebuilding.
+     */
+    function styleLabel(labelComp, text) {
+        var M = CFG.mapLabel;
+        var caps = wrapLabel(String(text).toUpperCase(), M.wrapOver);
+        var name = null, mask = null, scaleNull = null;
+        for (var i = 1; i <= labelComp.numLayers; i++) {
+            var L = labelComp.layer(i);
+            if (L.name === "Feature Name") name = L;
+            if (L.name === "Textlength mask") mask = L;
+            if (L.name === "SCALE") scaleNull = L;
+            // A region label wants no pointer tail, and this design wants no
+            // plate. Both are drawn as a coloured layer matted by a hidden
+            // shape layer, so switching off the pair is what removes them —
+            // a disabled matte layer still mattes.
+            if (/Pointer/.test(L.name)) { L.locked = false; L.enabled = false; }
+            if (!M.plate && /Background/.test(L.name)) {
+                L.locked = false;
+                L.enabled = false;
+            }
+        }
+        if (!name) return { styled: false, reason: "no 'Feature Name' layer" };
+
+        function type(layer, size) {
+            layer.locked = false;
+            var P = layer.property("ADBE Text Properties").property("ADBE Text Document");
+            var td = P.value;
+            td.font = M.font || CFG.font.caps;
+            td.fontSize = size;
+            td.tracking = M.tracking;
+            // Leading has to follow the size. The template's is set for its own
+            // 35 pt, so two lines at anything larger overlap each other — the
+            // same trap as the card's shrink steps, in the other direction.
+            td.autoLeading = false;
+            td.leading = size * M.leading;
+            td.text = caps;
+            P.setValue(td);
+            return td;
+        }
+
+        var size = M.size;
+        var td = type(name, size);
+        var room = labelComp.width - M.fitMargin;
+        var w = name.sourceRectAtTime(0, false).width;
+        if (w > room) {
+            size = Math.max(M.minSize, Math.floor(size * room / w));
+            td = type(name, size);
+            w = name.sourceRectAtTime(0, false).width;
+        }
+        // The plate is cut from this layer, so it has to carry the same type or
+        // it is sized for a different string. Its own sourceText is expression-
+        // linked to Feature Name, so only the metrics matter here.
+        if (mask) type(mask, size);
+
+        return { styled: true, size: size, lines: caps.split("\r").length,
+                 widthPx: Math.round(w), roomPx: room, clipped: w > room,
+                 // A font that is not installed substitutes rather than errors.
+                 // This used to ask whether the family name had a space in it,
+                 // which was only ever a proxy for "Trajan Pro 3" and reports a
+                 // false alarm for any genuine one-word family — Cambria among
+                 // them. api.fontCheck asks AE outright.
+                 fontFamily: td.fontFamily,
+                 fontOk: fontResolves(M.font || CFG.font.caps) };
+    }
+
+    /**
+     * Paint GEOlayers' shared LabelColors comp in the card's palette.
+     *
+     * It is a 200x100 grid of swatches — Background, Text, Pointer, Anchor
+     * Point — that every label samples one cell of through a track matte, which
+     * makes it the single place a label's colours live. Shared across labels by
+     * design, which suits a project with one house palette.
+     */
+    function styleLabelColors() {
+        var comp = findItem("LabelColors", CompItem);
+        if (!comp) return { styled: false, reason: "no LabelColors comp" };
+        var M = CFG.mapLabel;
+        // Only "Text" is actually on screen — the other three are the plate,
+        // the pointer tail and the anchor dot, all switched off. Painted the
+        // same colour anyway, so turning one back on cannot surprise anyone.
+        var want = { "Background": M.color, "Text": M.color,
+                     "Pointer": M.color, "Anchor Point": M.color };
+        var done = [], missed = [];
+        for (var i = 1; i <= comp.numLayers; i++) {
+            var L = comp.layer(i);
+            var key = L.name.replace(/ 2$/, "");
+            if (!want[key]) continue;
+            L.locked = false;
+            // Shape layers, not solids, so the colour is a fill inside a vector
+            // group — reached the way mapFinish reaches the border fills.
+            var hit = 0;
+            var root = L.property("ADBE Root Vectors Group");
+            for (var g = 1; g <= root.numProperties; g++) {
+                var vg = root.property(g).property("ADBE Vectors Group");
+                if (!vg) continue;
+                for (var v = 1; v <= vg.numProperties; v++) {
+                    var pr = vg.property(v);
+                    if (pr.matchName !== "ADBE Vector Graphic - Fill") continue;
+                    pr.property("ADBE Vector Fill Color").setValue(want[key].concat([1]));
+                    hit++;
+                }
+            }
+            (hit ? done : missed).push(L.name);
+        }
+        return { styled: done.length > 0, swatches: done, missed: missed };
+    }
+
+    /**
+     * Put this work's country label on the map. Run it after mapFinish (which
+     * decides what is highlighted) and before the bake.
+     */
+    api.mapLabel = function (slug) {
+        var work = api.readWork(slug);
+        var focus = (work.map && work.map.focus) || {};
+        var cleared = clearMapLabels();
+
+        var text = focus.label || "";
+        if (!text)
+            return { labelled: false, cleared: cleared,
+                     warning: "this work has no map.focus.label — run "
+                            + "scripts/map_focus.py " + slug };
+
+        var anchor = focus.anchor;
+        if (!anchor || anchor.lon === undefined)
+            return { labelled: false, cleared: cleared,
+                     warning: "no map.focus.anchor — re-run scripts/map_focus.py "
+                            + slug + " to compute where on the territory it sits" };
+
+        var mc = mapcomp();
+        var tpl = findItem(CFG.mapLabel.template, CompItem);
+        if (!tpl) throw new Error("No label template comp named '"
+                                  + CFG.mapLabel.template + "'");
+
+        // The documented public call: geolayers3.addLabel(comp, templateComp,
+        // labelData), where labelData wants lat/lon plus whatever string
+        // properties the template asks for. The internal hostInterface.addLabel
+        // does the same job through a much longer argument list — this is the
+        // supported path and needs no ids.
+        geolayers3.addLabel(mc, tpl, { lat: anchor.lat, lon: anchor.lon,
+                                       name: text });
+
+        var layers = geolayers3.getLabelLayersOfMapcomp(mc);
+        if (!layers.length)
+            return { labelled: false, warning: "addLabel returned but no label "
+                                             + "layer appeared" };
+        var L = layers[layers.length - 1];
+
+        var type = styleLabel(L.source, text);
+        var colors = styleLabelColors();
+
+        // The native lock: GEOlayers' own Scale expression multiplies the label
+        // by the map's scale when this is on, so the label is fixed to the land
+        // rather than merely near it. `size` above sets how big that is.
+        var fx = L.property("ADBE Effect Parade");
+        fx.property("Scale with Map").property(1).setValue(1);
+        var S = L.property("ADBE Transform Group").property("ADBE Scale");
+        // setValue only — GEOlayers' own expression IS the lock, and it reads
+        // this as its `value` and multiplies by the map's scale. Clearing the
+        // expression first (the obvious thing to do before setting a value)
+        // deletes the mechanism and leaves a label that sits in the right place
+        // at a constant size, which looks close enough to right to be missed.
+        //
+        // The multiplier is not 1.0 anywhere predictable: GEOlayers bakes a
+        // `scaleFactor` into the expression when the label is created, from
+        // whatever view the comp happened to be sitting on. So rather than
+        // guess a base, probe it — set 100, read what the expression makes of
+        // that at the end of the move, and solve for the base that lands on the
+        // size we actually want there.
+        S.setValue([100, 100, 100]);
+        if (!S.expressionEnabled)
+            throw new Error("the label's Scale expression is gone — 'Scale with "
+                          + "Map' has nothing to act on and the label will not "
+                          + "track the zoom");
+        var atEnd = S.valueAtTime(zoomEnd(), false)[0];
+        var atStart = S.valueAtTime(zoomStart(), false)[0];
+        var base = CFG.mapLabel.endScale * 100 / atEnd;
+        S.setValue([base, base, 100]);
+
+        return { labelled: true, text: String(text).toUpperCase(),
+                 anchor: [anchor.lon, anchor.lat], anchorFit: anchor.fit,
+                 cleared: cleared, type: type, colors: colors,
+                 scaleWithMap: true, endScale: CFG.mapLabel.endScale,
+                 scaleAtStart: Math.round(base * atStart / 100),
+                 scaleAtEnd: Math.round(base * atEnd / 100),
+                 next: "bake it: freezeMapRender then freezeMapAttach" };
+    };
+
+    /**
+     * What the focus name would match, without changing anything.
+     *
+     * Worth running before a draw is committed to: it reports the near-misses
+     * too, which is how a dataset spelling drift ("Austria Hungary" becoming
+     * "Austria-Hungary" in a later snapshot) shows up as a diagnosis instead of
+     * as a country that quietly failed to light up.
+     */
+    api.mapFocusCheck = function (slug) {
+        var work = api.readWork(slug);
+        var focus = focusName(work);
+        var layers = drawnLayers(mapcomp());
+        var exact = 0, near = [], all = 0;
+        var key = focus.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        for (var n = 0; n < layers.length; n++) {
+            var contents = layers[n].property("ADBE Root Vectors Group");
+            for (var g = 1; g <= contents.numProperties; g++) {
+                var name = contents.property(g).name;
+                all++;
+                if (focus === "") continue;
+                if (name === focus) exact++;
+                else if (key && name.toLowerCase().replace(/[^a-z0-9]/g, "") === key)
+                    near.push(name);
+            }
+        }
+        return { slug: slug, name: focus,
+                 declared: (work.map.focus && work.map.focus.name) || "",
+                 match: (work.map.focus && work.map.focus.match) || "",
+                 expected: (work.map.focus && work.map.focus.groups) || 0,
+                 exact: exact, nearMisses: near, groupsInComp: all,
+                 ok: focus !== "" && exact > 0 };
     };
 
     // ------------------------------------------------------------- map: move
@@ -1696,10 +2394,13 @@ var SOTD = (function () {
         for (var i = 1; i <= comp.numLayers; i++) {
             var L = comp.layer(i);
             if (L.name === "MAP") live = L;
-            // Pin and duotone stay live on top of the bake rather than being
-            // burnt into it: the tint is bound to the work, and baking it in
-            // would tint the frames twice on the next rebuild.
-            else if (/^PIN |^DUOTONE /.test(L.name)) hide.push(L);
+            // Pin, label and duotone stay live on top of the bake rather than
+            // being burnt into it: the tint is bound to the work, and baking it
+            // in would tint the frames twice on the next rebuild. The country
+            // label is on this list for a second reason — it is bound to the
+            // work JSON, and a baked-in copy could not be re-worded without a
+            // re-render, which is the whole reason it lives outside the map.
+            else if (/^PIN |^DUOTONE |^MAP label/.test(L.name)) hide.push(L);
         }
         if (!live) return { rendered: false, reason: "already frozen" };
 

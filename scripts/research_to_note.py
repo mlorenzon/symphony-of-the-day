@@ -45,6 +45,16 @@ def fmt(rec):
           "composer: %s" % c["name"],
           "year: %s" % (comp.get("year") or "unknown"),
           "era: %s" % rec["era"],
+          # The country of composition, in the frontmatter as well as the body:
+          # it is the field the card prints on the map, so it wants to be
+          # queryable across the vault rather than buried in a paragraph.
+          "country_of_composition: %s"
+          % json.dumps(place.get("polity") or "unknown", ensure_ascii=False),
+          # Queryable for the same reason: it is the one identity claim the card
+          # makes about the person rather than the piece, and the set has to
+          # agree with itself about it across composers.
+          "composer_nationality: %s"
+          % json.dumps(c.get("nationality") or "unknown", ensure_ascii=False),
           "slug: %s" % rec["slug"],
           "research: %s" % os.path.join("data", "research", rec["slug"] + ".json").replace("\\", "/"),
           "zotero: Symphony of the day",
@@ -55,10 +65,23 @@ def fmt(rec):
     # Where and when.
     when = comp.get("date") or (str(comp.get("year")) if comp.get("year") else "date unknown")
     L.append("**%s, %s.**" % (place_line(place), when))
+    # Named separately from the place line because it is the one the card acts
+    # on: the map highlights this polity and prints this name. The alternative
+    # is the historical basemap's own wording, which nobody checked.
+    if place.get("polity"):
+        L.append("Country of composition: **%s**." % place["polity"])
+    if place.get("polity_note"):
+        L.append(place["polity_note"])
     if place.get("note"):
         L.append(place["note"])
     if comp.get("year") and c.get("born"):
         L.append("%s was %d." % (surname, comp["year"] - c["born"]))
+    # The nationality is a label the card prints and readers argue about, so the
+    # note carries the reasoning next to it rather than leaving the bare word.
+    if c.get("nationality"):
+        L += ["", "Nationality: **%s**." % c["nationality"]]
+        if c.get("nationality_note"):
+            L.append(c["nationality_note"])
     if rec.get("era_note"):
         L += ["", "*Era: %s. %s*" % (rec["era"], rec["era_note"])]
     L.append("")

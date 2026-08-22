@@ -20,7 +20,7 @@
     "age": 36,
     "age_line": "Beethoven was 36",
     "place": "Grätz, near Troppau",
-    "country_then": "Habsburg monarchy",
+    "country_then": "Austrian Silesia",
     "lon": 17.8759,
     "lat": 49.871
   },
@@ -37,6 +37,20 @@
       60.0,
       78.0
     ],
-    "has_place": true
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 19.5559,
+        "lat": 48.2491,
+        "fit": "clamped",
+        "clearance_deg": 2.5687
+      },
+      "source": "research"
+    }
   }
 }

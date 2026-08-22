@@ -209,6 +209,133 @@ Drawn shapes land **above** the tiles and **below** MapPivot. `fitViewAtTime`
 works by rescaling the `<name> Anchor` layer in the *containing* comp — a fit
 from world to Europe moved scale `3.48 → 1.70`.
 
+### How the drawn geometry is named
+
+A whole geojson becomes **one shape layer**, not one per feature. Its layer name
+is the first few feature names run together (`"Luxembourg, Ottoman Empire,
+United Kingdom of Great Britain and Ireland..."`), and inside it each feature is
+a top-level `ADBE Vector Group`. With `{namingProp: "NAME"}` those groups take
+the geojson `NAME` **verbatim** — accents, en-dashes and all. The 1815 Europe
+clip gave 112 groups.
+
+That makes an individual country restylable by a plain string match, which is
+how `SOTD.mapFinish` picks out the work's own polity. Three facts about those
+names decide whether the match is safe:
+
+- **A feature whose `NAME` is null becomes a group called `Feature`** — and so
+  does every other unnamed feature. There were **39** of them in the 1815 clip,
+  all identical. Matching `Feature` therefore recolours a third of the
+  continent, which looks like a rendering bug rather than a lookup mistake. It
+  is the one name that has to be refused outright, at both ends: the resolver
+  will not write it and the restyle will not act on it.
+- **Names repeat legitimately.** Prussia is four groups in 1815, Germany two in
+  1880 — one polity drawn as several features. All of them have to be restyled
+  together, so the match cannot stop at the first hit, and the count is worth
+  asserting against a count taken from the geojson itself.
+- **The dataset's spelling is the only one that matches.** 1880 calls it
+  `Austria Hungary`, with a space and no hyphen. Anything typed from memory is a
+  guess, so the name is read out of the same file that gets drawn —
+  `scripts/map_focus.py` does it by point-in-polygon on the city coordinates.
+
+One oddity seen in the wild: a group named `"       "`, seven spaces, from a
+feature carrying whitespace as its `NAME`. Trim before comparing.
+
+### Labels — `addLabel`, and the checkbox that matters
+
+Labels are fully scriptable through the **public** API, and that is the call to
+use:
+
+```js
+geolayers3.addLabel(mapcomp, templateComp, { lat: 47.4, lon: 16.9,
+                                             name: "HABSBURG MONARCHY" });
+```
+
+`labelData` wants `lat`/`latitude` and `lon`/`longitude` plus whatever string
+properties the template asks for. The internal
+`hostInterface.addLabel({mapcompId, labelCompId, data, coordinates,
+netCoordTimes, additionalOptions})` does the same job and its shape is
+recoverable from `main.js` (§2) — but it needs comp *ids* and adds nothing, so
+reaching for it is a workaround for documentation you have not read yet.
+
+Twelve templates ship; `05 Region` is the one meant for a territory rather than
+a point. `getLabelTemplates()` lists them with their comp ids, and
+`geolayers3.getLabelLayersOfMapcomp(comp)` gives back what you have created.
+
+#### The anchor is a point; the label is not
+
+`map_focus.py` picks the anchor by pole of inaccessibility — the point furthest
+from any boundary, which is where a cartographer prints a name — and then clamps
+it back toward the city so it is still on screen when the zoom finishes. All of
+that reasons about a **point**. The thing actually drawn is a wide piece of type
+*centred* on that point, and nothing in the calculation knows how wide.
+
+So a perfectly interior anchor can still print the first letters of the name
+across the border it was clamped back from, onto a neighbour the highlight
+exists to dim. That is what happened to Beethoven 1: the anchor was pinned to
+its longitude limit, which put "HABSBURG MONARCHY" centred under the pin — the
+pin marks the *city*, so the country's name sat on top of it — with the "H" over
+the Bavarian border.
+
+`map_focus.py` now prints a **`LOOK`** line whenever the anchor lands on that
+longitude limit, which is 11 of the 12 works built so far. It is a prompt to
+look at a render, not an error. When the name does clash, nudge it by hand:
+
+```bash
+python scripts/map_focus.py beethoven-no-1 --nudge-lon 1.10
+```
+
+The nudge is recorded on the work as `map.focus.anchor.nudge` and **survives
+later re-runs**, exactly like a hand-set `--label` — and, like the label, only
+while the polity underneath is unchanged, because re-clipping onto a different
+basemap year can put a different country under the city. `describe()` prints
+both the nudged value and the automatic one it replaced.
+
+Changing the anchor means re-running `mapLabel` and re-baking the work: the
+label lives inside the map, so it is baked with it.
+
+Facts worth having before you use it:
+
+- **The label layer lands in the CONTAINING comp, not the mapcomp**, and is not
+  parented to the anchor. Its `Position` carries a Mercator expression reading
+  `Latitude` / `Longitude` effects on the layer itself, so it tracks its
+  geographic point through any move at no cost.
+- **`addLabel` duplicates the template into a new comp per label**, named
+  `Label '<text>'`. So the template is safe to leave alone, and restyling one
+  label cannot leak into the next. It also means the comps accumulate — remove
+  the source comp along with the layer.
+- **`Scale with Map` is a checkbox, but the mechanism is the expression.** The
+  checkbox is read by the stock expression *on the layer's Scale property*,
+  which multiplies the layer's own `value` by the map's scale. So size a label
+  with `setValue` and leave the expression alone. **Clearing the expression
+  before setting a value silently removes the lock** — the label stays in
+  exactly the right place and simply stops changing size, which a single frame
+  cannot reveal. Compare two frames, or check `expressionEnabled`.
+- **The multiplier is not 1.0 at any predictable moment.** GEOlayers bakes a
+  `scaleFactor` into that expression when the label is created, from whatever
+  view the comp was on at the time. The same `value` therefore means different
+  sizes run to run. Probe it instead: set 100, read `valueAtTime` at the moment
+  you care about, and solve for the base you want there.
+- **The stock templates are built to be restyled, and have their own controls.**
+  Everything visible is parented to a null called `SCALE` — scaling that is the
+  intended way to resize a label. The text layers ship with continuous
+  rasterisation already on, which is the documented fix for labels going blurry
+  when scaled up. And the `LabelColors` swatch layers are scaled to
+  **1,000,000%**, so they cannot run out of coverage however large the type
+  gets. Recolour that 200×100 comp to restyle every label at once.
+- **The plate is cut from a Minimax-dilated copy of the text**, and the dilation
+  does not scale with the type. Past the shipped size it comes out *narrower
+  than the word it sits behind*, and it never bridges two lines. Either keep
+  labels near the stock size, or switch the plate off and set the type in a
+  colour that reads against the map.
+- **Switching off a plate or a pointer means disabling both layers of the pair**
+  — the coloured one and the shape layer that mattes it. A disabled matte layer
+  still mattes, so hiding only the shape changes nothing visible.
+- Setting a larger `fontSize` on the template's text **does not update the
+  leading**, which is set for the shipped 35 pt — two lines then overlap. The
+  same trap as any auto-shrinking text, in the other direction.
+- `getMapcompLabelTemplateSpecs({mapcompName})` returns `status: 2`. Argument
+  shape still unknown; `getLabelTemplates()` gives what is needed anyway.
+
 ---
 
 ## 5. Recipes that work
@@ -551,9 +678,12 @@ been real and re-clipping would have achieved nothing.
 
 1. **Panel:** create the mapcomp, pick the style, set size and frame rate.
    (Frame rate defaults to 25 — set it at creation to match the edit.)
-2. Script: `clip_region.py <year>` to prepare geometry.
+2. Script: `clip_region.py <year>` to prepare geometry, and `map_focus.py <slug>`
+   to read the focus polity's exact `NAME` back out of the clipped file.
 3. Script: `geolayers3.draw(...)`, then poll for the callback.
-4. Script: restyle fills and strokes — the defaults are always wrong.
+4. Script: restyle fills and strokes — the defaults are always wrong — and
+   check that the focus country matched as many groups as the geojson says it
+   should. This is the last cheap moment to catch it; everything after is slow.
 5. Script: `fitViewAtTime` to a bbox inside the clip bbox.
 6. Script: keyframe the **`Zoom` control** for the move — clearing stale view
    keys first, and never `MapPivot` (§5). Check that `MapPivot`'s scale now

@@ -18,6 +18,7 @@ self-contained and can be uploaded or pasted anywhere.
 """
 
 import base64
+import glob
 import io
 import json
 import os
@@ -33,18 +34,21 @@ SLUGS = ["mozart-linz", "brahms-no-4", "shostakovich-leningrad"]
 
 CARD = {"w": 440, "h": 616}
 FRAME = {"edge": 7, "round": 20, "inner": 11, "innerWeight": 1.5, "pad": 14}
-FRONT = {"strap": 78, "portrait": 262, "rule": 5, "stats": 70, "title": 124, "life": 44}
-BACK = {"strap": 76, "region": 38, "rule": 5, "map": 214, "slab": 250}
+FRONT = {"strap": 78, "portrait": 268, "rule": 2, "stats": 70, "title": 124, "life": 44}
+BACK = {"strap": 120, "rule": 2, "map": 214, "slab": 250}
 # Weighted, not thirds: "NATIONALITY" is twice the word "ERA" is.
-STATS = [{"label": "ERA", "w": 0.38},
-         {"label": "YEAR", "w": 0.20},
+STATS = [{"label": "ERA", "w": 0.36},
+         {"label": "YEAR", "w": 0.22},
          {"label": "NATIONALITY", "w": 0.42}]
 # Type sizes in card pixels. One card pixel is about 0.63 phone pixels at
 # REEL["scale"], so nothing here goes below 18.
 TYPE = {"given": 20, "surname": 46, "number": 84, "numLabel": 22,
         "statLabel": 18, "statValue": 30, "title": 40, "life": 28,
-        "place": 46, "region": 24, "slabLabel": 18, "body": 26}
+        "place": 40, "slabLabel": 18, "body": 26}
 DUOTONE = {"portraitLift": 16, "mapLift": 10}
+# The focus country's name is no longer a card layer: it is a GEOlayers label
+# inside the mapcomp, so it arrives baked into the map still and the mirror
+# shows it without drawing anything. See docs/reel-cards.md.
 
 I = {"x": FRAME["pad"], "y": FRAME["pad"],
      "w": CARD["w"] - FRAME["pad"] * 2, "h": CARD["h"] - FRAME["pad"] * 2}
@@ -64,7 +68,7 @@ FB = bands([("strap", FRONT["strap"]), ("portrait", FRONT["portrait"]),
             ("ruleA", FRONT["rule"]), ("stats", FRONT["stats"]),
             ("ruleB", FRONT["rule"]), ("title", FRONT["title"]),
             ("life", FRONT["life"])])
-BB = bands([("strap", BACK["strap"]), ("region", BACK["region"]),
+BB = bands([("strap", BACK["strap"]),
             ("ruleA", BACK["rule"]), ("map", BACK["map"]),
             ("ruleB", BACK["rule"]), ("slab", BACK["slab"])])
 
@@ -143,8 +147,9 @@ def text_layer(layer, x, y, w, h, s, size, font, tracking=0, align="center",
         style += "opacity:%g;" % opacity
     if shadow:
         style += "text-shadow:0 3px 10px rgba(0,0,0,.55);"
+    # A field may set its own break — the place line breaks at its comma.
     return (box(layer, x, y, w, h, style=style)
-            + '<span>' + esc(s) + '</span></div>')
+            + '<span>' + esc(s).replace("\n", "<br>") + '</span></div>')
 
 
 def rect(layer, x, y, w, h, fill, radius=0):
@@ -187,10 +192,15 @@ def card_chrome():
 
 
 def fit_size(text, steps):
-    """Mirrors bindFitted: first size that the length has not outgrown."""
+    """
+    Mirrors bindFitted: first size the length has not outgrown, measured on the
+    LONGEST line — a field that sets its own break is only as wide as its widest
+    line. Fields with no break are one line, so this is the old count.
+    """
+    n = max(len(line) for line in text.split("\n"))
     size = steps[0][1]
     for over, s in steps[1:]:
-        if len(text) > over:
+        if n > over:
             size = s
     return size
 
@@ -198,6 +208,19 @@ def fit_size(text, steps):
 def nbsp(s):
     """Mirrors the bindFitted non-breaking-space glue for 'No. 36' etc."""
     return re.sub(r"\. (\d)", ". \\1", s)
+
+
+def place_line(work):
+    """
+    City and polity as one address — mirrors PLACE_LINE in sotd.jsx, including
+    the self-imposed break at the comma once it is too long for one line.
+    """
+    c = work["composition"]
+    p, country = c.get("place"), c.get("country_then")
+    one = ", ".join([x for x in (p, country) if x])
+    if p and country and len(one) > 16:
+        return p + ",\n" + country
+    return one
 
 
 def surname(work):
@@ -214,11 +237,12 @@ def card_strap(band, runs):
     """
     out = [rect("STRAP plate", I["x"], band["y"], I["w"], band["h"], "var(--ink)")]
     for r in runs:
-        size = fit_size(r["text"], r["steps"])
-        h = r["size"] + 14
+        text = r["text"].upper() if r.get("upper") else r["text"]
+        size = fit_size(text, r["steps"]) if r.get("steps") else r["size"]
+        h = r.get("boxH") or (r["size"] + 14)
         out.append(text_layer(r["layer"], I["x"] + 10, r["centre"] - h / 2.0,
-                              I["w"] - 20, h, r["text"], size, "var(--caps)",
-                              tracking=r["tracking"],
+                              I["w"] - 20, h, text, size, "var(--caps)",
+                              tracking=r["tracking"], bold=r.get("bold", False),
                               opacity=r.get("opacity")))
     return "\n".join(out)
 
@@ -268,10 +292,11 @@ def front(work, color, portrait_uri):
     out.append(card_strap(FB["strap"], [
         {"layer": "GIVEN NAMES", "text": given, "size": TYPE["given"],
          "tracking": 120, "centre": FB["strap"]["y"] + 18, "opacity": .76,
-         "steps": [(0, TYPE["given"]), (18, 17)]},
+         "upper": True, "steps": [(0, TYPE["given"]), (18, 17)]},
         {"layer": "SURNAME", "text": sur, "size": TYPE["surname"],
          "tracking": 20, "centre": FB["strap"]["y"] + 52,
-         "steps": [(0, TYPE["surname"]), (10, 40), (14, 34), (19, 28)]},
+         "upper": True, "bold": True,
+         "steps": [(0, TYPE["surname"]), (12, 40), (15, 34), (19, 26)]},
     ]))
 
     out.append(rect("RULE above stats", I["x"], FB["ruleA"]["y"], I["w"],
@@ -357,15 +382,14 @@ def back(work, color, map_uri):
 
     out = [rect("CARD ground", 0, 0, CARD["w"], CARD["h"], color)]
     out.append(card_strap(BB["strap"], [
-        {"layer": "PLACE", "text": work["composition"]["place"],
-         "size": TYPE["place"], "tracking": 20, "centre": BB["strap"]["mid"],
-         "steps": [(0, TYPE["place"]), (10, 40), (14, 34), (19, 28)]},
+        {"layer": "PLACE label", "text": "PLACE OF COMPOSITION",
+         "size": TYPE["slabLabel"], "tracking": 200,
+         "centre": BB["strap"]["y"] + 27, "opacity": .78},
+        {"layer": "PLACE", "text": place_line(work), "upper": True, "bold": True,
+         "size": TYPE["place"], "tracking": 20, "boxH": 84,
+         "centre": BB["strap"]["y"] + 77,
+         "steps": [(0, TYPE["place"]), (12, 36), (15, 28), (18, 26), (20, 22), (26, 18)]},
     ]))
-    out.append(text_layer("REGION", I["x"] + 8, BB["region"]["y"] + 3, I["w"] - 16,
-                          32, work["composition"]["country_then"],
-                          fit_size(work["composition"]["country_then"],
-                                   [(0, TYPE["region"]), (26, 21), (34, 18)]),
-                          "var(--serif)", italic=True, opacity=.88))
 
     if map_uri or work["map"].get("has_place"):
         out.append(rect("MAP rule top", I["x"], BB["ruleA"]["y"], I["w"],
@@ -386,7 +410,9 @@ CSS = """
 :root {
   --cream:%(cream)s; --ink:%(ink)s; --bg:%(bg)s;
   /* Windows/Adobe stock only — see the constraints note. Trajan Pro 3 ships
-     Regular alone, so there is no bold caps face to ask for. */
+     Regular alone, so there is no bold caps face to ask for. The caps runs are
+     also uppercased in the content, which is redundant under Trajan and
+     load-bearing under any substitute. */
   --serif: Cambria, "Times New Roman", Georgia, serif;
   --caps: "Trajan Pro 3", Cinzel, Optima, Palatino, "Palatino Linotype", serif;
 }
@@ -488,7 +514,9 @@ AE shape and box-text layers — not exported from a browser. So:
 <ul>
 <li><b>Fonts are Windows/Adobe stock only</b>, so the project opens on any machine:
 <code>Cambria</code> (regular/bold/italic) and <code>Trajan&nbsp;Pro&nbsp;3</code> for
-caps — <b>Regular only</b>, there is no bold Trajan to ask for. No webfonts.</li>
+caps — <b>Regular only</b>, there is no bold Trajan to ask for. Trajan is an
+Adobe&nbsp;Fonts activation rather than a Windows font, so it can lapse; the build
+script refuses to run when it has. No webfonts.</li>
 <li><b>Cheap:</b> rounded rectangles (one radius for all four corners), ellipses,
 strokes, solid fills, opacity, blend modes, drop shadows, Black&nbsp;&amp;&nbsp;White.</li>
 <li><b>Expensive or impossible:</b> per-corner radii, <code>backdrop-filter</code>,
@@ -525,7 +553,8 @@ def main():
     blocks = []
     reel_cards = None
 
-    for slug in SLUGS:
+    slugs = sys.argv[1:] or SLUGS
+    for slug in slugs:
         wpath = os.path.join(ROOT, "data", "works", slug + ".json")
         work = json.load(open(wpath, encoding="utf-8"))
         color = period_color(work, table)
@@ -535,7 +564,13 @@ def main():
         purl = data_uri(ppath, (PORTRAIT_PANEL["w"], PORTRAIT_PANEL["h"])) \
             if ppath and os.path.exists(ppath) else ""
 
+        # A frozen work's map is a baked sequence in data/maps/<slug>/, not one
+        # still. The last frame is the one the move settles on, which is the
+        # frame a viewer dwells on — so that is the one the mirror shows.
         mpath = os.path.join(ROOT, "data", "maps", slug + ".png")
+        if not os.path.exists(mpath):
+            seq = sorted(glob.glob(os.path.join(ROOT, "data", "maps", slug, "*.png")))
+            mpath = seq[-1] if seq else mpath
         murl = data_uri(mpath, (MAP_PANEL["w"], MAP_PANEL["h"])) \
             if os.path.exists(mpath) else ""
 
@@ -548,7 +583,7 @@ def main():
         if reel_cards is None:
             reel_cards = (f, b)
 
-    cards = ('<h2>The three built works &mdash; front and back</h2>'
+    cards = ('<h2>Front and back</h2>'
              '<div class="grid" style="flex-direction:column">%s</div>'
              % "\n".join(blocks))
 

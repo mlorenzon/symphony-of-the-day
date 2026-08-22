@@ -51,11 +51,54 @@ fact-checks every field**, sources go to the Zotero *Symphony of the day*
 collection, and a readable note goes in the Obsidian vault. Grove needs Claude
 in Chrome — the in-app Browser pane has no Sydney University session.
 
+Every Grove page consulted is also **stored as a PDF on its Zotero item**, and
+its attachment key recorded in `sources[].snapshot`. Grove sits behind that
+login and Oxford revises articles in place, so the URL alone will not let anyone
+re-check the claim later. `--check` warns until the copy exists.
+
 The record then feeds the card:
 
 ```bash
 python scripts/research_to_work.py <slug> --dry-run
 ```
+
+## The country in focus
+
+The card highlights the polity the work was written in and prints its name on
+the map. These are two questions, not one:
+
+- **Which shape to highlight** is **read, never typed** — `map_focus.py` does
+  point-in-polygon on the composition coordinates against the clipped geojson,
+  because After Effects matches the dataset's own spelling verbatim.
+- **What to call it** is scholarship, and lives in the research record as
+  `composition.place.polity` — the authoritative country of composition. The
+  basemap's own wording is the last resort and is often anachronistic (it calls
+  the Habsburg lands the "Austrian Empire" two decades early), so `map_focus.py`
+  flags any work still relying on it.
+
+```bash
+python scripts/map_focus.py <slug>            # prepare_work.py already calls this
+python scripts/map_focus.py --all --dry-run   # audit every work
+```
+
+A `match` other than `contains` in that output means a human has to look.
+
+So does a **`LOOK`** line, which fires when the anchor is pinned to its
+longitude limit — the anchor is a point, the label is wide type centred on it,
+and nothing in the calculation knows the width, so the name can print across the
+border it was clamped back from. Currently 11 of 12 works. Bake, look at the map
+panel, and nudge if it clashes:
+
+```bash
+python scripts/map_focus.py <slug> --nudge-lon 1.10
+```
+
+The nudge is stored on the work and survives re-runs, like a hand-set `--label`.
+It is inside the map, so changing it costs a re-bake, not a rebuild.
+
+Details — the nudge, and why the highlight contrasts by *value* rather than by
+hue — are in [`docs/reel-cards.md`](docs/reel-cards.md) and
+[`docs/geolayers-3-via-mcp.md`](docs/geolayers-3-via-mcp.md).
 
 ## Making a change
 
@@ -63,6 +106,11 @@ python scripts/research_to_work.py <slug> --dry-run
    all in the `CFG` block at the top.
 2. Rebuild every affected work:
    `["mozart-linz","brahms-no-4","shostakovich-leningrad"]` → `SOTD.buildWork`.
+   A change to the **map** — the focus-country highlight, the country label,
+   the border ink — is not a rebuild: all of it is baked into frozen works and
+   needs the whole
+   `mapDraw → mapFinish → mapLabel → mapZoom → mapFinalize → freeze`
+   cycle per work.
 3. Verify with a render. Do not trust the DOM alone; text overflow, clipped
    layers and paint-order mistakes only show up in a picture.
 
@@ -101,7 +149,34 @@ Frozen works are immune to later map changes and stay frozen across rebuilds.
 
 Twelve works are built and frozen, each with a real 136-frame map move baked to
 `data/maps/<slug>/`: `mozart-linz`, `brahms-no-4`, `shostakovich-leningrad`, and
-Beethoven 1–9. The live mapcomp last held 1815 borders aimed at Vienna.
+Beethoven 1–9. The live mapcomp last held 1800 borders aimed at Vienna, with the
+Austrian Empire highlighted.
+
+All twelve carry a `map.focus`, so they know which country to highlight and what
+to call it. But the highlight AND the label are both drawn inside the mapcomp
+and therefore baked, so neither reaches a work until it is re-baked.
+
+**Only `beethoven-no-1` has the current map** (highlight + label, the label
+nudged east off the pin and re-baked). `shostakovich-leningrad` was baked with
+the highlight but before the label existed. **The other ten have neither** — and
+since the old card-space label was removed, they currently show no country name
+at all. Each needs the full map cycle — but `mapDraw` only has to be repeated
+when the **basemap year** changes, so the remaining eleven group into four
+draws:
+
+| Basemap | Works still to re-bake |
+|---|---|
+| 1783 | `mozart-linz` |
+| 1800 | `beethoven-no-2` … `beethoven-no-8` (seven) |
+| 1815 | `beethoven-no-9` |
+| 1880 | `brahms-no-4` |
+| 1938 | `shostakovich-leningrad` (highlight only — needs the label) |
+
+**Only `beethoven-no-1` has the current card design too.** The thin stat rules,
+the thin map rules, and card 2's "PLACE OF COMPOSITION" heading over a single
+"Vienna, Archduchy of Austria" address all landed after the other eleven were
+last built. That part is a plain `SOTD.buildAll()` — it is a rebuild, not a
+re-bake, and it leaves every frozen map alone.
 
 ## Conventions
 
@@ -112,5 +187,10 @@ Beethoven 1–9. The live mapcomp last held 1815 borders aimed at Vienna.
 - Python is stdlib plus `requests` and `Pillow`, and `yt-dlp` + `ffmpeg` for
   `fetch_sfx.py`. ExtendScript is ES3: no `let`, no arrow functions, no
   template literals.
-- Fonts are Windows/Adobe stock only (Cambria, Trajan Pro 3) so the project
-  opens anywhere.
+- Fonts are Cambria for text and Trajan Pro 3 for caps — **Regular only**, so
+  `CFG.font.capsBold` is Trajan Regular too. Trajan is an Adobe Fonts
+  activation, not a Windows font: it lapsed once and AE substituted a sans for a
+  week of cards without a word. `buildWork` now runs `assertFonts()` first and
+  refuses to build on a substitution — the test is the FontObject's
+  `isSubstitute`, because the two obvious tests both pass for a font that does
+  not exist. `CFG.mapLabel.font` is Cambria on purpose; see `docs/reel-cards.md`.

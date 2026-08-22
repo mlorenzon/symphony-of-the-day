@@ -52,7 +52,9 @@
             "building":    { "type": "string", "description": "Finest grain, e.g. Thun-Hohenstein palace." },
             "city":        { "type": "string" },
             "region":      { "type": "string" },
-            "country_then":{ "type": "string", "description": "The polity at the time — Archduchy of Austria, not Austria. Drives the historical basemap." },
+            "country_then":{ "type": "string", "description": "The CONSTITUENT LAND at the time and nothing above it — Archduchy of Austria, Kingdom of Bohemia, Duchy of Styria, Austrian Silesia, Russian SFSR. Printed on card 2 under the place name, where it sits directly beneath a map already printing the sovereign state, so naming the sovereign here too (or appending it: 'Duchy of Styria, Austria-Hungary') just says it twice. Where the place had no land between it and the sovereign, leave it empty rather than repeating `polity`." },
+            "polity":      { "type": "string", "description": "THE COUNTRY OF COMPOSITION: the sovereign state the place belonged to in the year of composition, named as a historian would name it that year. This is the authoritative one — it is printed on the map and is the label the card shows, so it must be fact-checked against Grove like any other field and must appear in `claims`. Distinct from country_then, which may name a constituent duchy or kingdom (Archduchy of Austria) rather than the sovereign entity above it (Habsburg Monarchy). Watch the anachronisms: no Austrian Empire before August 1804, no Austria-Hungary before 1867, no Italy or Germany before 1861 and 1871. Keep it short enough to print — over about 34 characters it wraps to a third line on the card." },
+            "polity_note": { "type": "string", "description": "Why this polity and not another: a contested case, a succession in the year of composition, or a place whose sovereign changed between the sketches and the finished work." },
             "country_now": { "type": "string" },
             "granularity": { "enum": ["building", "city", "region", "country", "unknown"] },
             "note":        { "type": "string", "description": "For works written in more than one place, or where the attribution is disputed." },
@@ -130,7 +132,8 @@
           "url":      { "type": "string" },
           "doi":      { "type": "string" },
           "accessed": { "type": "string" },
-          "zotero_key": { "type": "string", "description": "Filled in once saved to the Symphony of the day collection." }
+          "zotero_key": { "type": "string", "description": "Filled in once saved to the Symphony of the day collection." },
+          "snapshot":   { "type": "string", "description": "Zotero attachment key of the stored copy of the page as consulted. Expected on every `grove` source: Grove sits behind the Sydney University login and Oxford revises articles in place, so the URL alone proves nothing later. See scripts/grove_snapshot.py." }
         }
       }
     },

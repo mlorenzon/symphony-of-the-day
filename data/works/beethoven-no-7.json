@@ -20,7 +20,7 @@
     "age": 42,
     "age_line": "Beethoven was 42",
     "place": "Teplitz",
-    "country_then": "Kingdom of Bohemia, Habsburg monarchy",
+    "country_then": "Kingdom of Bohemia",
     "lon": 13.8167,
     "lat": 50.6333
   },
@@ -37,6 +37,20 @@
       60.0,
       78.0
     ],
-    "has_place": true
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 15.4967,
+        "lat": 49.0371,
+        "fit": "clamped",
+        "clearance_deg": 2.5687
+      },
+      "source": "research"
+    }
   }
 }

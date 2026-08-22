@@ -1,6 +1,6 @@
 ---
 name: symphony-research
-description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection, and written up as a note in the Obsidian vault. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
+description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection with a stored PDF of every Grove page consulted, and written up as a note in the Obsidian vault. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
 ---
 
 # Researching a symphony
@@ -59,11 +59,57 @@ things that most often differ:
   Grove gives a span, or repeats a 19th-century attribution Grove has revised.
 - **Place** — Wikipedia tends to name the city; Grove often knows the house, the
   patron's estate, or that the work moved between two places.
+- **The country of composition** — `composition.place.polity`, the sovereign
+  state the place belonged to *in that year*. This is card text: the map
+  highlights that polity and prints this name. Establish it deliberately rather
+  than reaching for the modern country or the duchy — they are three different
+  answers, and `country_then` already holds the duchy. Vienna in 1803 is the
+  Archduchy of Austria, within the Holy Roman Empire, under the Habsburg
+  Monarchy; the card wants the sovereign one. **Check the date against the
+  state's own dates**: no Austrian Empire before August 1804, no Austria-Hungary
+  before 1867, no unified Italy before 1861 or Germany before 1871, no Soviet
+  Union before 1922. Anything contested or mid-succession goes in `polity_note`.
 - **Patron vs dedicatee** — routinely conflated on Wikipedia. They are often
   different people, and the difference is usually the interesting part.
 - **Premiere** — date, venue, conductor, and whether the premiere was public,
   private, or partial. Partial premieres are widely reported as complete ones.
 - **Nationality** — anachronistic on Wikipedia more often than not.
+
+### Save the page before you leave it
+
+**Every Grove article you consult gets a stored copy — no exceptions.** Grove is
+behind the Sydney University login and Oxford revises articles in place, so a
+URL in `sources` is not a citation anyone can follow later: not without the
+session, and not with any guarantee the wording you checked survived. The copy
+is private, one article at a time, and only of pages actually opened.
+
+Do it *while you are on the page* — the browser is the only thing that has the
+session. In Claude in Chrome, on the article:
+
+```js
+const h = '<!-- Consulted via Oxford Music Online ' + new Date().toISOString()
+        + ' -- ' + location.href + ' -->
+' + document.documentElement.outerHTML;
+const b = new Blob([h], {type: 'text/html'});
+const a = document.createElement('a');
+a.href = URL.createObjectURL(b); a.download = 'snap.html';
+document.body.appendChild(a); a.click(); a.remove();
+```
+
+It lands in Downloads under a temporary name; the URL comment on line 1 is what
+identifies it. Then print and verify it:
+
+```bash
+python scripts/grove_snapshot.py <saved.html> --expect "<a phrase from the article>"
+```
+
+Pass `--expect`. Chrome reports a clean print for a PDF that has silently lost
+all its text, so reading the text back out is the only real check.
+
+**One download per tab** — Chrome blocks a tab's second automatic download
+without asking and without an error, so open a fresh tab per article. **Never
+click Grove's own PDF button**: it opens a native print dialog that freezes the
+tab's renderer, and the tab has to be closed to recover.
 
 Where Grove and Wikipedia disagree, Grove wins unless a more specific scholarly
 source says otherwise. **Record the disagreement in `conflicts` either way** —
@@ -115,6 +161,12 @@ duplicate. Tag each item with the slug.
 Write the returned item keys back into the record's `sources[].zotero_key` — the
 validator warns until every source has one.
 
+Then attach each Grove snapshot PDF to its item with `zotero_attach_file`, set
+the item's **Accessed** date to the day you consulted it, and record the
+returned attachment key in `sources[].snapshot`. The validator warns until every
+`grove` source has one of those too. Zotero rejects `.html` attachments, which
+is why the snapshot is printed to PDF rather than filed as the saved page.
+
 ## 6. Write the Obsidian note
 
 Set `obsidian_note` to `Symphony of the day/<Composer> — <Work>.md`, then:
@@ -145,11 +197,23 @@ python scripts/research_to_work.py <slug> --dry-run
 - **Grove needs Claude in Chrome.** The in-app Browser pane has no Sydney
   University session. If Chrome is not connected, say so and stop rather than
   quietly shipping an unchecked Wikipedia record.
-- **A record with no `grove` source is not finished**, whatever else is in it.
+- **A record with no `grove` source is not finished**, whatever else is in it —
+  and a `grove` source with no `snapshot` is a citation that will not survive
+  the year. Both are validator warnings; neither is optional.
+- **Chrome allows one automatic download per tab**, then blocks the rest
+  silently. Four captures in one tab produce one file and no error. Fresh tab
+  each time.
+- **Grove's own PDF button freezes the tab.** It opens a native print dialog the
+  renderer waits on; screenshots time out and only closing the tab recovers it.
 - **The card is lossy on purpose.** Resist trimming the research to fit it —
   put the full account in the record and let `reason.summary` and the card hook
   be the short forms.
 - **`prepare_work.py` geocodes one place string**, so a building-level place
   still hands it the city. The building lives in the record and the note.
+- **Leaving `polity` out does not leave the map blank — it prints the basemap's
+  guess.** aourednik's snapshots are a drawing dataset, not a reference work,
+  and its 1783 and 1800 files both label the Habsburg lands "Austrian Empire",
+  two decades before that state existed. A record with no polity therefore ships
+  an unchecked claim onto the card rather than an obvious gap.
 - **Numbering schemes are traps, not trivia.** Where a work has two numbers,
   put both in the record and say which the card uses.

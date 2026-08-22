@@ -153,6 +153,29 @@ def review(rec):
                             "deliberately, or say why in era_note." % (era, year, bucket))
 
     place = rec.get("composition", {}).get("place", {})
+
+    # The country of composition is card text, and the only alternative to it is
+    # the basemap's own wording, which is unverified and sometimes anachronistic
+    # — aourednik calls the Habsburg lands the "Austrian Empire" in 1783 and
+    # 1800, twenty years early. So a record without a polity does not merely
+    # lack a field; it hands the card to a source nobody checked.
+    if place.get("granularity") != "unknown" and not place.get("polity"):
+        warnings.append("no composition.place.polity — the map label will fall back to "
+                        "the basemap's own wording, which is unverified and anachronistic "
+                        "for anything before 1804. Name the sovereign state.")
+    year = rec.get("composition", {}).get("year")
+    polity = (place.get("polity") or "").lower()
+    for since, anachronism in ((1804, "austrian empire"), (1867, "austria-hungary"),
+                               (1867, "austria hungary"), (1871, "german empire"),
+                               (1861, "kingdom of italy"), (1922, "soviet union"),
+                               (1922, "ussr")):
+        if year and polity == anachronism and year < since:
+            warnings.append("polity '%s' did not exist in %d — it dates from %d."
+                            % (place["polity"], year, since))
+    if len(place.get("polity") or "") > 34:
+        warnings.append("polity is %d chars — over about 34 it wraps to a third line "
+                        "on the map. Shorten it." % len(place["polity"]))
+
     if place.get("granularity") != "unknown" and (place.get("lat") is None or place.get("lon") is None):
         warnings.append("place has no lat/lon — prepare_work.py will geocode the name, and a "
                         "bare city name lands on the wrong continent often enough to matter. "
@@ -160,6 +183,7 @@ def review(rec):
 
     claims = rec.get("claims", {})
     for field in ("title_full", "composition.year", "composition.place",
+                  "composition.place.polity",
                   "reason.summary", "composer.nationality", "listen_for"):
         if not any(k == field or k.startswith(field + ".") for k in claims):
             warnings.append("no source recorded in claims for '%s'." % field)
@@ -172,6 +196,18 @@ def review(rec):
     unfiled = [s["id"] for s in sources if not s.get("zotero_key")]
     if unfiled:
         warnings.append("not yet in Zotero: %s" % ", ".join(unfiled))
+
+    # A Grove URL is not a citation anybody can follow: the article sits behind
+    # the Sydney University login, and Oxford revises in place, so next year's
+    # page may not say what was checked today. The stored copy is the claim's
+    # only durable backing — see scripts/grove_snapshot.py.
+    unsnapped = [s["id"] for s in sources
+                 if s.get("type") == "grove" and not s.get("snapshot")]
+    if unsnapped:
+        warnings.append("no stored copy of the Grove page for: %s. Capture the page, "
+                        "run scripts/grove_snapshot.py, attach the PDF to the Zotero "
+                        "item and record the attachment key in sources[].snapshot."
+                        % ", ".join(unsnapped))
 
     if not rec.get("conflicts") and "conflicts" not in rec:
         warnings.append("no `conflicts` key — an empty list means checked and clean; "
@@ -212,6 +248,10 @@ def command_for(rec):
     opt("--listen", hook.get("hook"))
     opt("--nationality", rec["composer"].get("nationality"))
     opt("--country-then", place.get("country_then"))
+    # The country of composition, printed on the map. Passed explicitly rather
+    # than left to map_focus.py's own lookup so that a --dry-run shows exactly
+    # what the card will say.
+    opt("--polity", place.get("polity"))
     opt("--born", rec["composer"].get("born"))
     opt("--died", rec["composer"].get("died"))
     return argv

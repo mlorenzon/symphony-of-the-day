@@ -37,6 +37,20 @@
       60.0,
       78.0
     ],
-    "has_place": true
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Austrian Empire",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 15.9664,
+        "lat": 47.3759,
+        "fit": "clamped",
+        "clearance_deg": 2.5687
+      },
+      "source": "research"
+    }
   }
 }

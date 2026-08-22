@@ -20,7 +20,7 @@
     "age": 52,
     "age_line": "Brahms was 52",
     "place": "Mürzzuschlag",
-    "country_then": "Duchy of Styria, Austria-Hungary",
+    "country_then": "Duchy of Styria",
     "lon": 15.673055555556,
     "lat": 47.6075
   },
@@ -37,6 +37,20 @@
       60.0,
       78.0
     ],
-    "has_place": true
+    "has_place": true,
+    "focus": {
+      "name": "Austria Hungary",
+      "label": "Austria-Hungary",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 16.1531,
+        "lat": 46.3468,
+        "fit": "clamped",
+        "clearance_deg": 2.6036
+      },
+      "source": "given"
+    }
   }
 }

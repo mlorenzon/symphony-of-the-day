@@ -28,6 +28,8 @@ import subprocess
 import sys
 import unicodedata
 
+import map_focus
+
 try:
     import requests
 except ImportError:
@@ -287,7 +289,12 @@ def main():
     ap.add_argument("--lon", type=float, help="Override place longitude")
     ap.add_argument("--lat", type=float, help="Override place latitude")
     ap.add_argument("--country-then", default="",
-                    help="Polity the place belonged to at the time, e.g. Archduchy of Austria")
+                    help="Polity the place belonged to at the time, e.g. Archduchy of Austria. "
+                         "Printed under the place name on card 2")
+    ap.add_argument("--polity", default="",
+                    help="Country of composition — the sovereign state, e.g. Habsburg "
+                         "Monarchy. Printed on the map. Normally comes from the research "
+                         "record; this flag is for works that have none")
 
     ap.add_argument("--map-half-span", type=float, default=DEFAULT_MAP_HALF_SPAN,
                     help="Degrees of longitude either side of the city (default %.0f)"
@@ -427,6 +434,28 @@ def main():
         },
     }
 
+    # --- focus country ------------------------------------------------------
+    # Which polity the city sat inside. Read off the very geojson the map will
+    # be drawn from, never typed: the card highlights a shape group that
+    # GEOlayers names verbatim from that file's NAME field, so the dataset's
+    # own spelling is the only one that matches. Has to happen down here rather
+    # than in the assembly above, because it needs the finished clip on disk.
+    # The highlight key comes from the geometry; the printed label comes from
+    # the research record if there is one, and only falls back to the basemap's
+    # own wording when nothing better exists. See map_focus.apply_focus.
+    focus = map_focus.apply_focus(work, map_focus.focus_for_work(work),
+                                  args.polity or None)
+    report.append("focus      : %s (%s, %d group%s)"
+                  % (focus["name"] or "—", focus["match"], focus["groups"],
+                     "" if focus["groups"] == 1 else "s"))
+    report.append("label      : %s (source: %s)"
+                  % (focus["label"] or "—", focus.get("source", "?")))
+    if focus["note"]:
+        report.append("           : %s" % focus["note"])
+    if focus.get("source") == "dataset" and focus["label"]:
+        report.append("           : unverified — the basemap's own wording. Give the "
+                      "work a research record, or pass --polity.")
+
     print("\n".join(report))
     if args.dry_run:
         print("\n--- would write ---")
@@ -438,6 +467,9 @@ def main():
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(work, fh, indent=2, ensure_ascii=False)
     print("written    : %s" % os.path.relpath(out, ROOT))
+    if focus["match"] != "contains":
+        print("\nThe focus country is a guess — check it before building:")
+        print("  python scripts/map_focus.py %s --dry-run" % slug)
     print("\nNext:  build it in After Effects with")
     print('  SOTD.buildWork("%s")' % slug)
 

@@ -37,6 +37,28 @@
       60.0,
       78.0
     ],
-    "has_place": true
+    "has_place": true,
+    "focus": {
+      "name": "Austrian Empire",
+      "label": "Habsburg Monarchy",
+      "match": "contains",
+      "groups": 1,
+      "note": "",
+      "anchor": {
+        "lon": 17.9525,
+        "lat": 46.9622,
+        "fit": "nudged",
+        "clearance_deg": 2.5687,
+        "auto": {
+          "lon": 16.8525,
+          "lat": 46.9622
+        },
+        "nudge": {
+          "lon": 1.1,
+          "lat": 0.0
+        }
+      },
+      "source": "research"
+    }
   }
 }

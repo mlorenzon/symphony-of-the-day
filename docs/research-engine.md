@@ -95,6 +95,42 @@ whole point.
 **`unknowns`** states what is genuinely not known. A gap that is stated is
 usable; a gap that is silent gets filled by the next person with a guess.
 
+## The country of composition
+
+Card 2 highlights one polity on the map and prints its name. That name is
+`composition.place.polity` — **the authoritative country of composition**, and
+the one field on the record whose only alternative is a source nobody checked.
+
+There are three different answers to "where was it written", and the record
+holds all three because they are all true at once:
+
+| Field | Beethoven 3, 1803 | What it is |
+|---|---|---|
+| `place.region` / `city` | Oberdöbling, Vienna | where he sat |
+| `place.country_then` | Archduchy of Austria | the constituent land — printed under the place name |
+| **`place.polity`** | **Habsburg Monarchy** | **the sovereign state — printed on the map** |
+
+Getting this from the map data instead is the trap. The historical basemap is a
+drawing dataset, not a reference work: aourednik's 1783 *and* 1800 snapshots both
+call the Habsburg lands "Austrian Empire", a state not proclaimed until 11 August
+1804. So an absent `polity` does not leave a gap on the card — it prints that.
+`--check` warns when the field is missing, when the polity postdates the year
+(the validator knows the dates of a handful of the usual offenders), and when it
+is too long to print.
+
+**`polity` and the highlight are deliberately decoupled.** The shape After
+Effects lights up is matched on the basemap's own `NAME`, warts included, and
+`map_focus.py` records that separately as `map.focus.name`. Correcting the
+history therefore cannot break the highlight, and a card can — correctly — read
+"Habsburg Monarchy" while matching a shape the dataset calls "Austrian Empire".
+`map.focus.source` records which of `research`, `given` or `dataset` supplied
+the printed name, so an unchecked label is visible rather than assumed.
+
+Watch the dates: no Austrian Empire before August 1804, no Austria-Hungary
+before 1867, no unified Italy before 1861 or Germany before 1871, no Soviet
+Union before 1922. Anything contested, or mid-succession in the year of
+composition, goes in `polity_note`.
+
 ## Card constraints the record has to respect
 
 Measured, in `docs/reel-cards.md`:
@@ -172,6 +208,58 @@ if nothing was corrected, but only after checking.
 - <author>, "<title>", <container> — Zotero `<key>`
 ```
 
+## Keeping the Grove page
+
+Grove sits behind the Sydney University login and Oxford revises articles in
+place, so a bare URL in `sources` promises nothing: nobody can open it later
+without the session, and even with it the wording you checked may be gone. So
+keep the page you actually consulted, attached to its Zotero item — one article
+at a time, only ones genuinely opened. Private, and the same thing a reader has
+always done with a photocopier.
+
+Capture happens in the browser, because only the browser has the session. On the
+article page in Claude in Chrome:
+
+```js
+const h = '<!-- Consulted via Oxford Music Online ' + new Date().toISOString()
+        + ' -- ' + location.href + ' -->
+' + document.documentElement.outerHTML;
+const b = new Blob([h], {type: 'text/html'});
+const a = document.createElement('a');
+a.href = URL.createObjectURL(b); a.download = 'snap.html';
+document.body.appendChild(a); a.click(); a.remove();
+```
+
+Then print it and attach it:
+
+```bash
+python scripts/grove_snapshot.py <saved.html> --expect "German composer"
+```
+
+`--expect` is worth passing. Chrome reports a successful print for a PDF that
+has lost all its text, so the only real check is reading the text back out,
+which is what the script does.
+
+Attach the PDF to the article's Zotero item, set the item's **Accessed** date,
+and put the same date on the `sources` entry in the record — then record the
+attachment key in that entry's **`snapshot`** field. Grove stamps "Subscriber:
+University of Sydney; date: ..." into its own page furniture, so the PDF carries
+its provenance internally as well.
+
+`snapshot` is what makes this a step rather than a good intention:
+`research_to_work.py --check` warns for every `grove` source without one, the
+same way it warns for a source that never reached Zotero. A record is not
+finished while that warning stands.
+
+**One download per tab.** Chrome blocks a tab's second automatic download
+without asking and without any visible error — the file simply never appears.
+Open a fresh tab per article. The download lands in Downloads under a temporary
+name, so the URL comment on line 1 is what tells you which article you got.
+
+**Do not use Grove's own PDF button.** It opens a native print dialog that
+freezes the tab's renderer; screenshots time out and the tab has to be closed to
+recover.
+
 ## Traps
 
 - **Grove needs Claude in Chrome**, the real browser with the Sydney University
@@ -191,11 +279,21 @@ if nothing was corrected, but only after checking.
   hands it the city — Wikidata will not resolve a palace to a coordinate. The
   building lives in the record and the note.
 - **Nationality is anachronistic more often than not.** Use the identity Grove
-  uses and put the complication in `nationality_note`.
+  uses and put the complication in `nationality_note`. Grove's own labels track
+  the modern state holding the birthplace — Bonn and Hamburg give German,
+  Salzburg Austrian, St Petersburg Russian — but that is an observed pattern,
+  not a stated policy, and Grove sometimes assigns no nationality at all
+  (Leopold Mozart is just "Composer, violinist and theorist"). Quote what the
+  article actually says; do not reason from what it ought to say.
+- **Omitting `place.polity` ships an unchecked claim, not a blank.** The map
+  label falls back to the basemap's wording, which is wrong by two decades for
+  anything Habsburg before 1804. A missing field that fails loudly would be
+  safer; this one fails by printing something plausible.
 
 ## Commands
 
 ```bash
+python scripts/grove_snapshot.py <saved.html> --expect "<phrase>"   # print + verify
 python scripts/research_to_work.py <slug> --check     # validate the record
 python scripts/research_to_work.py <slug> --dry-run   # ...and show the build command
 python scripts/research_to_work.py <slug>             # ...and run it
