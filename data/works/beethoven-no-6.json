@@ -24,9 +24,13 @@
     "lon": 16.3549,
     "lat": 48.2538
   },
-  "context": "Premiered beside the Fifth at the same four-hour benefit concert, Dec 1808.",
-  "context_label": "Occasion",
-  "listen_for": "Five movements, not four — and the last three run without a break.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Theater an der Wien, Vienna, 22 December 1808",
+    "occasion": "Premiered beside the Fifth at the same four-hour benefit concert, Dec 1808.",
+    "listen_for": "Five movements, not four — and the last three run without a break."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",

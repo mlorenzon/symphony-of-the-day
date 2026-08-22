@@ -35,7 +35,7 @@ SLUGS = ["mozart-linz", "brahms-no-4", "shostakovich-leningrad"]
 CARD = {"w": 440, "h": 616}
 FRAME = {"edge": 7, "round": 20, "inner": 11, "innerWeight": 1.5, "pad": 14}
 FRONT = {"strap": 78, "portrait": 268, "rule": 2, "stats": 70, "title": 124, "life": 44}
-BACK = {"strap": 120, "rule": 2, "map": 214, "slab": 250}
+BACK = {"strap": 96, "rule": 2, "map": 214, "slab": 274}
 # Weighted, not thirds: "NATIONALITY" is twice the word "ERA" is.
 STATS = [{"label": "ERA", "w": 0.36},
          {"label": "YEAR", "w": 0.22},
@@ -44,7 +44,17 @@ STATS = [{"label": "ERA", "w": 0.36},
 # REEL["scale"], so nothing here goes below 18.
 TYPE = {"given": 20, "surname": 46, "number": 84, "numLabel": 22,
         "statLabel": 18, "statValue": 30, "title": 40, "life": 28,
-        "place": 40, "slabLabel": 18, "body": 26}
+        "place": 24, "placeLabel": 15, "factLabel": 16, "factBody": 18}
+
+# Mirrors CFG.facts / CFG.fact in sotd.jsx.
+# The first fact's label can be overridden per work (facts.scored_for_label);
+# the other three are fixed. See CFG.facts in sotd.jsx.
+FACTS = [("scored_for", "SCORED FOR", "scored_for_label"),
+         ("first_performance", "FIRST PERFORMANCE", None),
+         ("occasion", "OCCASION", None),
+         ("listen_for", "LISTEN OUT FOR", None)]
+FACT = {"gap": 9, "padTop": 14, "pad": 14}
+DIM_LABEL = "#c3bcaf"          # CFG.col.dimLabel: cream at 78% over ink
 DUOTONE = {"portraitLift": 16, "mapLift": 10}
 # The focus country's name is no longer a card layer: it is a GEOlayers label
 # inside the mapcomp, so it arrives baked into the map still and the mirror
@@ -325,70 +335,60 @@ def front(work, color, portrait_uri):
     return "\n".join(out)
 
 
-def story_slab(work):
+def fact_list(work):
     """
-    Why it was written, and what to listen for. Both optional, which is four
-    states — the slab is pinned to the bottom and grows to fit what it holds.
+    Card 2's labelled facts, stacked and centred in the slab.
+
+    In After Effects each fact is one text layer with two styled character
+    ranges, which is what lets the label and the fact share a line. Here that
+    is one flex column of divs with a span per range — the same picture by
+    different means, so this file cannot mirror the AE layer names exactly for
+    this block. An empty fact is skipped, as it closes up on the card.
     """
     S = BB["slab"]
-    ctx = work.get("context") or ""
-    hook = work.get("listen_for") or ""
-    both = bool(ctx and hook)
-    tx, tw = I["x"] + 14, I["w"] - 28
-    solo_h = 150
-    solo_mid = S["y"] + S["h"] - solo_h / 2.0
-    divider_y, hook_y = S["y"] + 136, S["y"] + 152
+    facts = work.get("facts") or {}
+    tx, tw = I["x"] + FACT["pad"], I["w"] - FACT["pad"] * 2
+    out = [rect("FACT slab", I["x"], S["y"], I["w"], S["h"], "var(--ink)")]
 
-    slab_h = S["h"] if both else (solo_h if (ctx or hook) else 0)
-    out = [rect("STORY slab", I["x"], S["y"] + S["h"] - slab_h, I["w"], slab_h,
-                "var(--ink)")]
+    rows = []
+    for key, label, label_key in FACTS:
+        value = (facts.get(key) or "").strip()
+        if not value:
+            continue
+        if label_key:
+            label = (facts.get(label_key) or "").strip() or label
+        rows.append(
+            '<div style="margin:0">'
+            '<span style="font-family:var(--caps);font-size:%gpx;'
+            'letter-spacing:%gem;color:%s">%s&nbsp;</span>'
+            '<span>%s</span></div>'
+            % (TYPE["factLabel"], 200 / 1000.0, DIM_LABEL, esc(label), esc(value)))
 
-    def para(layer, text, steps, share_mid, alone_mid, h):
-        size = fit_size(text, steps)
-        centre = share_mid if both else alone_mid
-        return text_layer(layer, tx, centre - h / 2.0, tw, h, text, size,
-                          "var(--serif)", align="left", leading=size * 1.24,
-                          italic=True)
-
-    def label(layer, text, share_mid, alone_mid):
-        centre = share_mid if both else alone_mid
-        return text_layer(layer, tx, centre - 12, tw, 24, text,
-                          TYPE["slabLabel"], "var(--caps)", tracking=200,
-                          opacity=.78)
-
-    if ctx:
-        out.append(label("OCCASION label", work["context_label"].upper(),
-                         S["y"] + 18, solo_mid - 42))
-        out.append(para("OCCASION", ctx,
-                        [(0, TYPE["body"]), (85, 23), (120, 20), (150, 18)],
-                        S["y"] + 80, solo_mid + 14, 100))
-    if both:
-        out.append('<div class="ly" data-layer="STORY divider" '
-                   'style="left:%gpx;top:%gpx;width:%gpx;height:1.5px;'
-                   'background:var(--cream);opacity:.4"></div>'
-                   % (tx + 40, divider_y, tw - 80))
-    if hook:
-        out.append(label("LISTEN label", "LISTEN OUT FOR",
-                         hook_y + 12, solo_mid - 42))
-        out.append(para("LISTEN", hook,
-                        [(0, TYPE["body"]), (60, 23), (95, 20)],
-                        hook_y + 62, solo_mid + 14, 78))
+    if rows:
+        style = ("display:flex;flex-direction:column;justify-content:center;"
+                 "gap:%gpx;font-family:var(--serif);font-size:%gpx;"
+                 "line-height:%gpx;color:var(--cream);text-align:left;"
+                 "padding:%gpx 0"
+                 % (FACT["gap"], TYPE["factBody"], TYPE["factBody"] * 1.28,
+                    FACT["padTop"]))
+        out.append(box("FACTS", tx, S["y"], tw, S["h"], style=style)
+                   + "".join(rows) + '</div>')
     return "\n".join(out)
 
 
 def back(work, color, map_uri):
-    """Card 2 — the context card: where, why, and what to listen for."""
+    """Card 2 — the fact card: where it was written, then the labelled facts."""
     p = MAP_PANEL
 
     out = [rect("CARD ground", 0, 0, CARD["w"], CARD["h"], color)]
     out.append(card_strap(BB["strap"], [
         {"layer": "PLACE label", "text": "PLACE OF COMPOSITION",
-         "size": TYPE["slabLabel"], "tracking": 200,
-         "centre": BB["strap"]["y"] + 27, "opacity": .78},
+         "size": TYPE["placeLabel"], "tracking": 200,
+         "centre": BB["strap"]["y"] + 22, "opacity": .78},
         {"layer": "PLACE", "text": place_line(work), "upper": True, "bold": True,
-         "size": TYPE["place"], "tracking": 20, "boxH": 84,
-         "centre": BB["strap"]["y"] + 77,
-         "steps": [(0, TYPE["place"]), (12, 36), (15, 28), (18, 26), (20, 22), (26, 18)]},
+         "size": TYPE["place"], "tracking": 20, "boxH": 62,
+         "centre": BB["strap"]["y"] + 64,
+         "steps": [(0, TYPE["place"]), (25, 21), (29, 19), (34, 17)]},
     ]))
 
     if map_uri or work["map"].get("has_place"):
@@ -400,7 +400,7 @@ def back(work, color, map_uri):
         out.append(rect("MAP rule bottom", I["x"], BB["ruleB"]["y"], I["w"],
                         BB["ruleB"]["h"], "var(--cream)"))
 
-    out.append(story_slab(work))
+    out.append(fact_list(work))
     out.append(card_chrome())
     return "\n".join(out)
 

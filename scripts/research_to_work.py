@@ -22,6 +22,7 @@ the mechanical year bucket in periods.json, card fields with no entry in
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -109,6 +110,119 @@ def period_for(year):
     return periods[-1]["name"] if year >= periods[-1]["to"] else periods[0]["name"]
 
 
+MONTHS = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"]
+
+
+def long_date(iso):
+    """1824-05-07 -> 7 May 1824. A partial date degrades to what it knows."""
+    if not iso:
+        return ""
+    bits = str(iso).split("-")
+    try:
+        year = int(bits[0])
+    except (ValueError, IndexError):
+        return str(iso)
+    if len(bits) == 1:
+        return str(year)
+    try:
+        month = MONTHS[int(bits[1]) - 1]
+    except (ValueError, IndexError):
+        return str(year)
+    if len(bits) < 3:
+        return "%s %d" % (month, year)
+    try:
+        return "%d %s %d" % (int(bits[2]), month, year)
+    except ValueError:
+        return "%s %d" % (month, year)
+
+
+def premiere_line(rec):
+    """FIRST PERFORMANCE as one line: venue, city, date.
+
+    A datum, not a sentence — that is what makes it affordable on a card that
+    also carries three other facts. Whatever the record knows, in that order;
+    the conductor, the soloists and the reception stay in the record and in the
+    Obsidian note, because they will not fit and are not what a viewer needs
+    in the two seconds the card is up.
+    """
+    fp = rec.get("first_performance") or {}
+    if not fp.get("known", False):
+        return ""
+    # `venue` is the scholarly name and some of them carry a parenthetical -
+    # "Burgtheater (K.K. Hoftheater nachst der Burg)" - which is right in the
+    # record and clumsy on a card. `venue_short` wins when the record has one;
+    # the parenthetical is never dropped silently.
+    venue = fp.get("venue_short") or fp.get("venue")
+    bits = [venue, fp.get("city"), long_date(fp.get("date"))]
+    return ", ".join(b for b in bits if b)
+
+
+SCORED_FOR = "SCORED FOR"
+PREMIERE_ORCHESTRA = "PREMIERE ORCHESTRA"
+
+# Card 2's first fact, in priority order. Three different questions, and the
+# card answers whichever is best attested — so the LABEL has to move with the
+# answer, or the card claims more than its source supports. "SCORED FOR 69
+# players" asserts the composer asked for 69; "PREMIERE ORCHESTRA 69 players"
+# asserts only that 69 turned up. The other three facts keep fixed labels.
+SCORING_PRIORITY = [
+    ("specified",       SCORED_FOR,         "players",     "players"),
+    ("premiere",        PREMIERE_ORCHESTRA, "players",     "players"),
+    ("instrumentation", SCORED_FOR,         "instruments", "instruments"),
+]
+
+
+def voices_phrase(rec):
+    v = (rec.get("scoring") or {}).get("voices") or {}
+    chorus, soloists = v.get("chorus"), v.get("soloists")
+    if chorus and soloists:
+        return "a chorus of %d and %d soloists" % (chorus, soloists)
+    if chorus:
+        return "a chorus of %d" % chorus
+    if soloists:
+        return "%d soloists" % soloists
+    return ""
+
+
+def scoring_fact(rec):
+    """(label, text) for card 2's first fact, or ("", "") if nothing is known.
+
+    Walks SCORING_PRIORITY and takes the first block that carries a count. The
+    unit matters as much as the number: an instrumentation count is instruments,
+    never players, because the strings are not in the score to be counted.
+    """
+    sc = rec.get("scoring") or {}
+    label, text = "", ""
+    for key, lab, field, unit in SCORING_PRIORITY:
+        block = sc.get(key) or {}
+        n = block.get(field)
+        if n:
+            label, text = lab, "%d %s" % (n, unit)
+            break
+
+    voices = voices_phrase(rec)
+    if not text:
+        # Voices alone are still a fact worth printing — a work can be known to
+        # need a chorus long before anybody has counted the orchestra.
+        if not voices:
+            return "", ""
+        return SCORED_FOR, voices[0].upper() + voices[1:]
+    if voices:
+        text += ", with " + voices
+
+    if sc.get("label"):
+        label = sc["label"]
+    if sc.get("line"):
+        text = sc["line"]
+    return label, text
+
+
+def scoring_line(rec):
+    """Just the text, for callers that do not need the label."""
+    return scoring_fact(rec)[1]
+
+
 def card_hook(rec):
     """The listening line that goes on the card: the one flagged, else the first."""
     hooks = rec.get("listen_for") or []
@@ -130,6 +244,63 @@ def review(rec):
         warnings.append("occasion is %d chars — over the %d-char comfort line, but "
                         "within what other works carry. Check the render."
                         % (n, OCCASION_COMFORT))
+
+    # OCCASION means why the work exists — commission, patron, dedicatee,
+    # purpose. The premiere is its own fact now, and several records were
+    # written when this field carried premiere news instead.
+    if occasion and re.search(r"premier", occasion, re.I):
+        warnings.append("occasion mentions the premiere. OCCASION is now why the "
+                        "work EXISTS (commission, patron, dedicatee); the venue "
+                        "and date belong to FIRST PERFORMANCE, which the card "
+                        "prints separately. Rewrite reason.summary.")
+
+    sc = rec.get("scoring") or {}
+    scored_label, scored_text = scoring_fact(rec)
+    if not scored_text:
+        warnings.append("no scoring recorded — the card's first fact will be blank "
+                        "and the list will close up over it. Fill whichever you "
+                        "can source, best first: scoring.specified.players (what "
+                        "the composer asked for), scoring.premiere.players (who "
+                        "played it), scoring.instrumentation.instruments (what the "
+                        "parts add up to).")
+    else:
+        won = [k for k, _lab, f, _u in SCORING_PRIORITY if (sc.get(k) or {}).get(f)]
+        if won and won[0] == "instrumentation":
+            warnings.append("scoring falls back to instrumentation, so the card "
+                            "says '%s' — instruments, not players, because the "
+                            "score does not number the strings. That is correct "
+                            "and it is the weakest of the three: if the premiere "
+                            "roster is documented anywhere, record it under "
+                            "scoring.premiere and the card upgrades itself."
+                            % scored_text)
+        if len(won) > 1:
+            warnings.append("scoring carries %s; the card uses %s and labels it "
+                            "%s. Nothing is lost — the others stay in the record."
+                            % (" and ".join(won), won[0], scored_label))
+        for key, _lab, field, _unit in SCORING_PRIORITY:
+            block = sc.get(key) or {}
+            if block and not block.get("source"):
+                warnings.append("scoring.%s has no source recorded." % key)
+
+    fp = rec.get("first_performance") or {}
+    if fp.get("known") and not premiere_line(rec):
+        warnings.append("first_performance is marked known but has no venue, city "
+                        "or date, so the card's FIRST PERFORMANCE line is blank.")
+
+    if fp.get("venue") and "(" in fp["venue"] and not fp.get("venue_short"):
+        warnings.append("venue carries a parenthetical, which reads badly on the "
+                        "card: %s. Add a venue_short." % fp["venue"])
+
+    # The two facts sit one under the other, so anything the occasion repeats
+    # from the premiere is visibly repeated.
+    if occasion and fp.get("known"):
+        year = str(fp.get("date", ""))[:4]
+        venue_word = (fp.get("venue") or "").split()[0].strip("(,") if fp.get("venue") else ""
+        echoes = [w for w in (fp.get("city"), venue_word, year) if w and w in occasion]
+        if echoes:
+            warnings.append("occasion repeats the premiere (%s), which now sits "
+                            "directly above it. Say why the work EXISTS instead."
+                            % ", ".join(echoes))
 
     hooks = rec.get("listen_for") or []
     flagged = [h for h in hooks if h.get("card")]
@@ -244,6 +415,12 @@ def command_for(rec):
     opt("--short-title", rec.get("title_short"))
     opt("--catalogue", rec.get("catalogue"))
     opt("--number", rec.get("number"))
+    scored_label, scored_text = scoring_fact(rec)
+    opt("--scored-for", scored_text)
+    # The label travels with the value: see SCORING_PRIORITY.
+    if scored_text and scored_label != SCORED_FOR:
+        opt("--scored-for-label", scored_label)
+    opt("--first-performance", premiere_line(rec))
     opt("--context", rec.get("reason", {}).get("summary"))
     opt("--listen", hook.get("hook"))
     opt("--nationality", rec["composer"].get("nationality"))

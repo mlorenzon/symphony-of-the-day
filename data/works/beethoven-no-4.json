@@ -24,9 +24,13 @@
     "lon": 17.8759,
     "lat": 49.871
   },
-  "context": "Commissioned by Count Oppersdorff, written at Lichnowsky's estate in Silesia.",
-  "context_label": "Occasion",
-  "listen_for": "A slow, groping introduction in the dark before B flat major dawns.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Palace of Prince Lobkowitz, Vienna, March 1807",
+    "occasion": "Commissioned by Count Oppersdorff, written at Lichnowsky's estate in Silesia.",
+    "listen_for": "A slow, groping introduction in the dark before B flat major dawns."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",

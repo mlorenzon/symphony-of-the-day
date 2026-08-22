@@ -1,22 +1,23 @@
 # The symphony-of-the-day overlay cards
 
 A reel is a 1080×1920 comp showing **one card at a time**: card 1 gives the
-details, then the card turns over and card 2 gives the context. They never share
+details, then the card turns over and card 2 gives the facts. They never share
 the screen, so each gets the full width instead of half of it.
 
-| | Card 1 · details | Card 2 · context |
+| | Card 1 · details | Card 2 · facts |
 |---|---|---|
 | | Composer name, in a strap across the top | **PLACE OF COMPOSITION**, and the city and polity as one address, in the strap |
 | | Portrait, full bleed and duotoned | |
 | | The symphony number, stamped over the art | An animated map of the place, continent to city, with the country it was written in picked out and named |
-| | **ERA · YEAR · NATIONALITY** | Why it was written |
-| | Full title | What to listen out for |
-| | Composer dates, and his age that year | |
+| | **ERA · YEAR · NATIONALITY** | **SCORED FOR** / **PREMIERE ORCHESTRA** — how many players |
+| | Full title | **FIRST PERFORMANCE** — venue, city, date |
+| | Composer dates, and his age that year | **OCCASION** — why it exists |
+| | | **LISTEN OUT FOR** — what to listen for |
 
 The comps are still named `CARD FRONT` and `CARD BACK`, because that is what they
 are: front and back of the same imaginary card, and the transition is literally
 it being turned over. In the reel they are labelled `CARD 1 · details` and
-`CARD 2 · context`.
+`CARD 2 · facts`.
 
 Cards are 440×616, which is 5:7, the standard trading-card ratio.
 
@@ -80,24 +81,38 @@ Two consequences worth knowing:
   "NATIONALITY" is twice the width of "ERA", so equal thirds clip it. The weights
   in `CFG.stats` come from the widest string each column has to hold.
 
-### Keep the paragraphs short
+### Keep the facts short
 
-The occasion and the listen-out-for note are the only paragraphs on either card,
-and they are the first thing to become unreadable on a phone. They auto-shrink to
-fit, which means **a long string silently costs itself legibility** rather than
-overflowing:
+Card 2's four facts are the only prose on either card, and they are the first
+thing to become unreadable on a phone. Unlike the titles and the place line they
+**do not auto-shrink** — there are no size steps, so a long fact costs *lines*,
+not type size, and the bill lands on whatever is below it.
 
-| occasion length | renders at | on a phone |
-|---|---|---|
-| up to 85 chars | 26 px | 16 px — comfortable |
-| up to 120 | 23 px | 15 px |
-| up to 150 | 20 px | 13 px — marginal |
-| over 150 | 18 px | 11 px — pause-and-read only |
+The whole slab is 274 px and a line is 23 px, so with the three gaps between
+facts the budget is about **ten lines for all four facts together**. Overrun it
+and the last fact is clipped below the slab rather than resized — silently.
 
-Aim for **90 characters or fewer** for each. The three listening hooks are
-64–71 characters and sit at 23 px; `mozart-linz` and
-`shostakovich-leningrad` carry 148- and 139-character occasions and drop to
-20 px, which is the weakest text on either card.
+How much fits on a line depends on the label, because the label eats the first
+one. At 18 px in a 384 px box a line holds roughly 44 characters, less whatever
+the caps heading takes:
+
+| Fact | Label costs | First line then holds | Later lines |
+|---|---|---|---|
+| `OCCASION` | ~117 px | ~31 chars | ~44 |
+| `SCORED FOR` | ~143 px | ~28 | ~44 |
+| `LISTEN OUT FOR` | ~195 px | ~22 | ~44 |
+| `FIRST PERFORMANCE` | ~234 px | ~17 | ~44 |
+
+`FIRST PERFORMANCE` is wide enough that a long venue leaves the label alone on
+its line — `beethoven-no-9` does exactly that. It reads acceptably; it is not a
+bug, and it is the reason `venue_short` exists.
+
+Aim for **80 characters or fewer per fact**. As measured: `beethoven-no-9`'s
+79-character occasion takes two lines, and `shostakovich-leningrad`'s
+139-character one takes four — which fits today only because that work has two
+of the four facts filled. When its scoring and premiere are researched, it will
+need cutting. `research_to_work.py` warns on a long occasion before it ever
+reaches a card.
 
 ### The focus country
 
@@ -255,9 +270,36 @@ python scripts/prepare_work.py \
   --listen "The finale is a passacaglia: the same eight-bar bass line, over and over."
 ```
 
-`--context` says why it was written, `--listen` gives a viewer who has never
-heard the piece something to hang onto. Both are optional and both live in one
-ink slab at the bottom of the back card — see §3.
+`--context` is the **OCCASION**: why the work exists — commission, patron,
+dedicatee, purpose. It is *not* the premiere, which is its own fact:
+`--first-performance` takes venue, city and date as one line. `--scored-for`
+takes the forces as a short phrase, and `--listen` gives a viewer who has never
+heard the piece something to hang onto. All four are optional, all four live in
+one ink slab at the bottom of the back card, and any that is missing closes up
+rather than leaving a hole — see §3.
+
+In practice you do not type these: `research_to_work.py` derives
+`--first-performance` and `--scored-for` from the research record's
+`first_performance` and `scoring` blocks and passes them through, along with
+`--scored-for-label` when the number comes from the premiere rather than the
+score.
+
+The `scoring` block is a **cascade**, not a single figure. Fill in whichever
+levels you can source and the derivation takes the best one:
+
+```json
+"scoring": {
+  "specified":       { "players": 110, "source": "grove-mahler" },
+  "premiere":        { "players": 69,  "source": "grove-beethoven" },
+  "instrumentation": { "instruments": 67, "shorthand": "3.2.2.3 - 2.2.3.0 - timp - str" },
+  "voices":          { "chorus": 64, "soloists": 4 }
+}
+```
+
+`specified` beats `premiere` beats `instrumentation`, and the card's label
+follows: `SCORED FOR` for the first and third, `PREMIERE ORCHESTRA` for the
+second. Nothing recorded is wasted — the losing levels stay in the record and in
+the Obsidian note.
 
 That one command looks the composer up on Wikidata for birth and death years and
 a public-domain portrait (P18), downloads the portrait from Wikimedia Commons
@@ -267,8 +309,8 @@ historical basemap snapshot at or before the year, clips it, and writes
 
 Anything it gets wrong can be overridden with a flag — `--born`, `--died`,
 `--nationality`, `--lon`, `--lat`, `--slug`. Add `--dry-run` to see what it
-would find without writing. Omit `--context` and the whole occasion block,
-including its rule, hides itself.
+would find without writing. Omit any of the four facts and its line
+closes up, and the rest re-centre in the slab.
 
 It also resolves the **focus country** — the next section — so for a new work
 there is nothing extra to run.
@@ -492,7 +534,7 @@ Inside the reel comp:
 | `CAMERA` | Long lens, zoom 4600, so the card does not shear as it turns |
 | `CTRL` | Sliders: Reveal Start, Reveal Duration, **Turn At**, **Turn Duration**, Overlay Y, Overlay Scale |
 | `RIG` | 3D null both cards hang off; driven by Overlay Y and Overlay Scale |
-| `CARD 1 · details` / `CARD 2 · context` | The two faces, stacked in the same spot |
+| `CARD 1 · details` / `CARD 2 · facts` | The two faces, stacked in the same spot |
 | `STAGE` | Guide layer marking where your video goes. Does not render |
 | `SFX · card 1 in` / `SFX · turn over` | A card-turn sound on each move |
 | `BG` | Dark solid |
@@ -703,20 +745,76 @@ midpoint and ignores the playhead — see the traps below.
 Worth re-rendering after any layout change, because they exercise different
 paths and three different card colours: `mozart-linz` (painted portrait,
 Classical crimson, title on two lines, **both** occasion and hook), `brahms-no-4`
-(photograph, Romantic indigo, short title, a hook but **no** occasion — so the
-hook takes the whole slab), `shostakovich-leningrad` (Modern teal, longest
+(photograph, Romantic indigo, short title, and **only two** of the four facts —
+so the list closes up and centres), `shostakovich-leningrad` (Modern teal, longest
 title and longest name, so both auto-shrink steps fire).
 
-### The story slab
+### The fact list
 
-The bottom of the back card carries two optional fields, which is four states,
-and it has to look deliberate in all of them. AE cannot reflow a layout, so
-rather than stacking two blocks that leave a hole when one is missing, each
-block asks whether the other is there and takes the whole slab when it is not —
-the divider and the spare label disappear with it. With neither field the slab
-is bare, and since it is the frame colour it reads as border rather than as a
-gap. Everything is driven off two `has()` flags in one shared expression
-prelude, so there is a single place where "is there a hook" is decided.
+The bottom of the back card is four labelled facts — `SCORED FOR`,
+`FIRST PERFORMANCE`, `OCCASION`, `LISTEN OUT FOR` — each a **run-in heading**:
+the label in Trajan caps, then the fact in Cambria sentence case continuing on
+the same line and wrapping flush under it. No rules between them; the labels do
+that work, and dropping the two rules the old story slab used was worth about
+40 px.
+
+**A run-in heading is one paragraph in two styles, so it is one text layer.**
+Two layers cannot do it — a second box cannot begin partway along another box's
+first line. What makes it possible is that the expression Text Style API takes a
+character range:
+
+```js
+text.sourceText.style.setText(lab + v)
+    .setFont("Cambria").setFontSize(18)
+    .setFont("TrajanPro3-Regular", 0, n)   // just the label
+    .setFontSize(16, 0, n)
+    .setTracking(200, 0, n)
+    .setFillColor([0.764, 0.736, 0.686], 0, n);
+```
+
+The range form is `(value, startIndex, count)`. It has no opacity, which is why
+the label's 78% is a **mixed colour** (`CFG.col.dimLabel`, cream at 78% over
+ink) rather than a faded layer the way every other 78% label on the cards is.
+
+The label sits at 16 px while the body sits at 18. That is not a slip: Trajan at
+200 tracking is wide, and at 18 px the four labels alone eat two thirds of every
+line and the list overflows the slab.
+
+**Stacking is a chain, and it is what handles missing facts.** Each fact sits
+under the measured bottom of the one above, so a wrapped fact pushes the rest
+down and an empty fact costs nothing — its rect measures zero-high, the gap is
+skipped, and the list closes up. The whole stack is then centred in the slab, so
+a work with only two facts researched sits in the middle rather than hanging from
+the top. Summing every fact's height from the first layer's position expression
+is safe because `sourceRectAtTime` measures a text layer in its **own** space and
+never depends on where the layer sits — so there is no loop.
+
+**One label is data, not structure.** The other three headings are fixed in
+`CFG.facts`, but the first fact's number can come from three different places and
+they are not the same claim — what the composer specified, who actually played
+the premiere, or what the score's parts add up to. So that fact carries a
+`labelKey`, and the work JSON's `facts.scored_for_label` overrides the heading
+with one of exactly two values, `SCORED FOR` or `PREMIERE ORCHESTRA`. The
+priority lives upstream in `SCORING_PRIORITY` in `research_to_work.py`.
+
+The subtlety is that the label is measured at **run** time, not baked in:
+
+```js
+var lab = "SCORED FOR";
+try { var lx = D.facts.scored_for_label; if (lx) lab = lx.toString(); } catch (e) {}
+lab = lab + " ";
+var n = lab.length;        // <- the caps range, from the runtime label
+```
+
+Bake `n` at build time and an override styles the wrong number of characters —
+`PREMIERE ORCHESTRA` is 19 characters where `SCORED FOR` is 11, so eight
+characters of the value would come out in Trajan caps. Nothing would error.
+
+**These facts do not auto-shrink.** Unlike the titles and the place line there
+are no size steps: length is a real constraint instead. Keep each under about 80
+characters, and remember the four together have to fit `CFG.back.slab` (274 px).
+Past that the last fact is clipped below the slab rather than resized.
+`research_to_work.py` warns on a long occasion before it ever reaches a card.
 
 ### Changing the periods
 

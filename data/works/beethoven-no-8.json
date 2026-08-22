@@ -24,9 +24,13 @@
     "lon": 14.2864,
     "lat": 48.3058
   },
-  "context": "Scored in Linz while lodging with his brother Johann, and dedicated to nobody.",
-  "context_label": "Occasion",
-  "listen_for": "The second movement ticks: a joke about the new metronome.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Redoutensaal, Vienna, 27 February 1814",
+    "occasion": "Scored in Linz while lodging with his brother Johann, and dedicated to nobody.",
+    "listen_for": "The second movement ticks: a joke about the new metronome."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",

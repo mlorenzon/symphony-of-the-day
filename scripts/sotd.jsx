@@ -58,18 +58,23 @@ var SOTD = (function () {
         // The 6 px that came off the two rules went to the portrait, which
         // keeps everything from the stats down at the y it was already at.
         front: { strap: 78, portrait: 268, rule: 2, stats: 70, title: 124, life: 44 },
-        // Card 2's strap is taller than card 1's because it carries two runs
-        // that are not the same size: a "PLACE OF COMPOSITION" heading in the
-        // slab-label style, and the place itself under it, on up to two lines.
-        // It absorbed the old 38 px `region` band when the country stopped
-        // being a separate line — see buildCardBack.
+        // Card 2 is the fact card. Its strap carries a "PLACE OF COMPOSITION"
+        // heading and the place itself on up to two lines; everything below the
+        // map is a list of labelled facts — see buildFactList.
         //
-        // The 6 px the rules gave up went to the strap and NOT to the map, on
-        // purpose: `map` is the height the frozen sequence in data/maps/<slug>/
-        // was baked at, so changing it turns a rebuild into a re-bake of every
-        // frozen work. Leaving it at 214 also keeps `slab` starting at the same
-        // y, which is where buildStorySlab's offsets are measured from.
-        back:  { strap: 120, rule: 2, map: 214, slab: 250 },
+        // The strap came down from 120 to 96 (place 40 px → 24 px) and the 24 px
+        // went to the slab, because four facts need the room and the address
+        // does not. 24 px is also where the set stops fighting the type: at 40
+        // every one of the twelve stepped down to fit, at 24 ten of them need no
+        // step at all and only the two "Heiligenstadt, and Vienna" works come
+        // down a size. Measured, not guessed — SOTD.measurePlaces().
+        //
+        // `map` must stay 214: it is the height the frozen sequence in
+        // data/maps/<slug>/ was baked at, so changing it turns a rebuild into a
+        // re-bake of every frozen work. Moving the map DOWN the card is free —
+        // the still is placed in card space — which is why the strap could
+        // shrink without touching a single bake.
+        back:  { strap: 96, rule: 2, map: 214, slab: 274 },
 
         // The three stats under the portrait, top-trumps style. Columns are
         // weighted, not thirds: at a size anyone can read, "NATIONALITY" is
@@ -97,11 +102,40 @@ var SOTD = (function () {
             statValue: 30,
             title:     40,
             life:      28,
-            place:     40,   // the loudest thing on card 2
-            slabLabel: 18,   // every heading: OCCASION, LISTEN OUT FOR, PLACE OF COMPOSITION
-            body:      26,   // occasion and listen-out-for
+            place:     24,   // the loudest thing on card 2 — see CFG.back
+            placeLabel: 15,  // the "PLACE OF COMPOSITION" heading over it
+            // The fact list. Label and body share a line, so they are one text
+            // layer with two styled ranges (see buildFactList) — which is why
+            // the label can sit at 16 while the body sits at 18. Trajan at 200
+            // tracking is wide: at 18 the labels alone eat two thirds of a line
+            // and the list overflows the slab.
+            factLabel: 16,
+            factBody:  18,
             mapLabel:  20    // the focus country, printed on the map
         },
+
+        // Card 2's four facts, in the order they are stacked. `key` is the field
+        // in the work JSON's `facts` object; `label` is the run-in heading, and
+        // for three of the four it is card structure rather than data — a work
+        // does not get to rename one, it only gets to leave the value out, and
+        // an empty fact closes up rather than leaving a hole.
+        //
+        // The first fact is the exception, and `labelKey` is how. Its number can
+        // come from three different places — what the composer specified, who
+        // actually played the premiere, or what the score's parts add up to —
+        // and those are not the same claim. "SCORED FOR 69 players" says the
+        // composer asked for 69; "PREMIERE ORCHESTRA 69 players" says only that
+        // 69 turned up. So the label travels with the value, chosen upstream by
+        // SCORING_PRIORITY in research_to_work.py. `label` here is the fallback
+        // when a work has no override.
+        facts: [
+            { key: "scored_for",        label: "SCORED FOR",
+              labelKey: "scored_for_label" },
+            { key: "first_performance", label: "FIRST PERFORMANCE" },
+            { key: "occasion",          label: "OCCASION" },
+            { key: "listen_for",        label: "LISTEN OUT FOR" }
+        ],
+        fact: { gap: 9, padTop: 14, pad: 14 },
 
         // Cambria for text, Trajan Pro 3 for caps.
         //
@@ -131,7 +165,12 @@ var SOTD = (function () {
 
         col: {
             cream:  [0.957, 0.925, 0.863],   // #F4ECDC — every mark on the card
-            ink:    [0.078, 0.067, 0.059],   // #14110F — the ring and the occasion slab
+            ink:    [0.078, 0.067, 0.059],   // #14110F — the ring and the fact slab
+            // Cream at 78% over ink, worked out rather than faded: the fact
+            // labels are a styled RANGE inside a text layer, and the range API
+            // can set a fill colour but has no opacity. Every other 78% label
+            // on the cards is its own layer and gets there with fade().
+            dimLabel: [0.764, 0.736, 0.686],
             bg:     [0.055, 0.051, 0.047],
             // Used only when a work's period is missing from periods.json.
             // The real palette is the "color" field on each period there.
@@ -1057,9 +1096,18 @@ var SOTD = (function () {
      * CFG.font.capsBold or the strap's box, and read the `lines` column: the
      * box holds two, and a third is clipped rather than overflowing.
      */
-    var PLACE_STEPS = [{ size: 40 }, { over: 12, size: 36 },
-                       { over: 15, size: 28 }, { over: 18, size: 26 },
-                       { over: 20, size: 22 }, { over: 26, size: 18 }];
+    // Thresholds are the LONGEST line, not the whole string, and they were
+    // measured against the real face — see api.measurePlaces. The base size is
+    // 24 rather than the old 40, so most works never step at all: only an
+    // address whose longest line runs past ~25 characters comes down.
+    // The first threshold is 21 and not something rounder because it was
+    // measured, and because nothing in the current twelve tests it: their
+    // longest lines are 12–20 characters or 26, with nothing in between. At
+    // 24 px a 20-character line already measures 350 px of the 392 px box, so
+    // 22 would sail past the edge — and the overflow would be invisible until
+    // some future work happened to land there.
+    var PLACE_STEPS = [{ size: 24 }, { over: 21, size: 21 },
+                       { over: 27, size: 19 }, { over: 32, size: 17 }];
 
     var PLACE_LINE =
         '(function () {\n' +
@@ -1076,8 +1124,9 @@ var SOTD = (function () {
 
         cardGround(c);
 
-        // Card 2 is the context card: where, why, and what to listen for. The
-        // year and the composer are card 1's job, so the place gets the strap.
+        // Card 2 is the fact card: where it was written, then a list of
+        // labelled facts. The year and the composer are card 1's job, so the
+        // place gets the strap.
         //
         // City and polity used to be two runs — the place in the strap, the
         // country in italics on its own band under it. Nothing said what the
@@ -1087,16 +1136,16 @@ var SOTD = (function () {
         // LISTEN OUT FOR at the bottom of the same card: same face, same 18 px,
         // same 200 tracking, same 78% — three headings, one system.
         //
-        // That string is long, and it is allowed TWO lines. `boxH` is 84, which
-        // holds two lines at any size the steps can choose (32 × 1.2 × 2 = 77);
+        // That string is long, and it is allowed TWO lines. `boxH` is 62, which
+        // holds two lines at any size the steps can choose (24 × 1.2 × 2 = 58);
         // a third line would be clipped below the box rather than overflow it,
         // so the steps have to keep it to two. They were measured, not guessed
         // — see api.measurePlaces.
         cardStrap(c, BB.strap, [
-            { name: "PLACE label", size: T.slabLabel, tracking: 200,
-              centreY: BB.strap.y + 27, opacity: 78, text: "PLACE OF COMPOSITION" },
-            { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.y + 77,
-              boxH: 84, bold: true, upper: true, text: "PLACE",
+            { name: "PLACE label", size: T.placeLabel, tracking: 200,
+              centreY: BB.strap.y + 22, opacity: 78, text: "PLACE OF COMPOSITION" },
+            { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.y + 64,
+              boxH: 62, bold: true, upper: true, text: "PLACE",
               body: PLACE_LINE,
               // Thresholds are the LONGEST line, not the whole string.
               steps: PLACE_STEPS }
@@ -1117,7 +1166,7 @@ var SOTD = (function () {
         ml.enabled = here;
         for (var r = 0; r < rules.length; r++) rules[r].enabled = here;
 
-        buildStorySlab(c);
+        buildFactList(c);
 
         cardChrome(c);
         addDataLayer(c, slug);
@@ -1125,102 +1174,141 @@ var SOTD = (function () {
     }
 
     /**
-     * The bottom of card 2: why it was written, and what to listen out for.
+     * The bottom of card 2: a list of labelled facts, stacked.
      *
-     * Both fields are optional, which is four states, and the slab has to look
-     * deliberate in all of them. AE cannot reflow a layout — so rather than two
-     * stacked blocks that leave a hole when one is missing, the slab is pinned
-     * to the bottom of the card and grows to fit what it holds, and each block
-     * knows whether the other is there.
+     * Each fact is ONE text layer carrying two styled ranges — the label in
+     * Trajan caps, then the fact itself in Cambria sentence case, continuing on
+     * the same line and wrapping flush under it. That is only possible because
+     * the expression Text Style API takes a character range: `setFont(f, 0, n)`
+     * styles the first n characters and leaves the rest alone. Two layers could
+     * not do it; a run-in heading is one paragraph, and a second box cannot
+     * begin partway along another box's first line.
      *
-     * These two are the only paragraphs on either card, and paragraphs are the
-     * first thing to become unreadable when a reel is watched on a phone. They
-     * step down to 18 px if they have to, but a string over ~90 characters has
-     * already cost itself a size — keep them short.
+     * The range API sets a fill colour but has no opacity, so the label's 78%
+     * is a mixed colour (CFG.col.dimLabel) rather than a faded layer.
+     *
+     * Stacking is a chain: each fact sits under the measured bottom of the one
+     * above it, so a wrapped fact pushes the rest down and an EMPTY fact costs
+     * nothing at all — its rect is zero-high, the gap is skipped, and the list
+     * closes up. There is no divider rule between them; the labels do that work,
+     * and the two rules the old design used were worth about 40 px.
+     *
+     * These are the only paragraphs on either card and they are the first thing
+     * to go unreadable on a phone. They do not step down — the size is fixed —
+     * so length is a real constraint: about 80 characters per fact, and the four
+     * of them together must fit CFG.back.slab. Longer, and the last one is
+     * clipped below the slab rather than resized.
      */
-    function buildStorySlab(c) {
-        var S = BB.slab, T = CFG.type;
-        var textX = I.x + 14, textW = I.w - 28;
-        var dividerY = S.y + 136;
-        var hookY = S.y + 152;
-
-        var bottom = S.y + S.h;
-        var soloH = 150;
-        var soloMid = bottom - soloH / 2;
-
-        var flags = bindPrelude() +
-            'function has(v) { return !(v === null || v === undefined || v === ""); }\n' +
-            'var occ = false, hook = false;\n' +
-            'try { occ = has(D.context); } catch (e) {}\n' +
-            'try { hook = has(D.listen_for); } catch (e) {}\n' +
-            'var both = occ && hook;\n' +
-            'var slabH = both ? ' + S.h + ' : ((occ || hook) ? ' + soloH + ' : 0);\n';
-
-        var slab = addRect(c, {
-            name: "STORY slab", topLeft: [I.x, S.y], size: [I.w, S.h],
+    function buildFactList(c) {
+        var S = BB.slab, T = CFG.type, F = CFG.fact;
+        var textX = I.x + F.pad, textW = I.w - F.pad * 2;
+        // The ink panel the facts sit on. Fixed, unlike the old story slab that
+        // grew and shrank: the facts centre themselves inside it instead.
+        addRect(c, {
+            name: "FACT slab", topLeft: [I.x, S.y], size: [I.w, S.h],
             fill: CFG.col.ink
         });
-        var slabRect = slab.property("ADBE Root Vectors Group").property(1)
-                           .property("ADBE Vectors Group").property(1);
-        slabRect.property("ADBE Vector Rect Size").expression =
-            flags + '[' + I.w + ', slabH];';
-        slab.property("ADBE Transform Group").property("ADBE Position").expression =
-            flags + '[' + (I.x + I.w / 2) + ', ' + bottom + ' - slabH / 2];';
 
-        /** Centre on the measured text: in its own half if sharing, else in the lot. */
-        function centreOn(layer, whenSharing, whenAlone) {
-            layer.property("ADBE Transform Group").property("ADBE Position").expression =
-                flags +
-                'var target = both ? ' + whenSharing + ' : ' + whenAlone + ';\n' +
+        var prev = null;
+        var names = [];
+        for (var n = 0; n < CFG.facts.length; n++) {
+            names.push('"FACT ' + (n + 1) + ' ' + CFG.facts[n].label + '"');
+        }
+
+        // Centre the stack in the slab rather than hanging it from the top, so
+        // a work with nothing researched for one of the facts closes up around
+        // the hole instead of leaving it at the bottom. Summing the others'
+        // heights is safe: sourceRectAtTime measures a text layer in its OWN
+        // space, so reading every layer's rect from the first layer's position
+        // cannot loop back on itself.
+        var stackTop =
+            'var names = [' + names.join(", ") + '];\n' +
+            'var total = 0, shown = 0;\n' +
+            'for (var i = 0; i < names.length; i++) {\n' +
+            '  var h = thisComp.layer(names[i]).sourceRectAtTime(time, false).height;\n' +
+            '  if (h > 1) { total += h; shown++; }\n' +
+            '}\n' +
+            'if (shown > 1) total += ' + F.gap + ' * (shown - 1);\n' +
+            'var target = ' + S.y + ' + Math.max(' + F.padTop + ', (' + S.h + ' - total) / 2);\n';
+
+        for (var i = 0; i < CFG.facts.length; i++) {
+            var f = CFG.facts[i];
+            var name = "FACT " + (i + 1) + " " + f.label;
+
+            // The box is the height of the whole slab so a long fact can wrap
+            // as far as it needs; what keeps the list tidy is the measured
+            // stacking below, not the box.
+            var L = addText(c, poster({
+                name: name, box: [textW, S.h], topLeft: [textX, S.y],
+                font: CFG.font.serif, size: T.factBody,
+                leading: T.factBody * 1.28,
+                justify: ParagraphJustification.LEFT_JUSTIFY,
+                text: f.label + " " + f.key,
+                expr: factExpr(f)
+            }));
+
+            // Sit the TEXT's top edge at `target`, not the box's: box text is
+            // top-aligned inside its box but the box is centred on the layer
+            // position, so everything here is measured off sourceRectAtTime.
+            // An empty layer measures zero-high, which makes its own bottom
+            // equal to its target and passes the position straight down the
+            // chain to the next fact.
+            var target = prev
+                ? ('var p = thisComp.layer("' + prev + '");\n' +
+                   'var pr = p.sourceRectAtTime(time, false);\n' +
+                   'var pTop = p.transform.position[1] + pr.top;\n' +
+                   'var target = pTop + pr.height + (pr.height > 1 ? ' + F.gap + ' : 0);\n')
+                : stackTop;
+
+            L.property("ADBE Transform Group").property("ADBE Position").expression =
+                target +
                 'var r = thisLayer.sourceRectAtTime(time, false);\n' +
-                '[' + (textX + textW / 2) + ', target - (r.top + r.height / 2)];';
-            return layer;
+                '[' + (textX + textW / 2) + ', target - r.top];';
+
+            prev = name;
         }
-        function showIf(layer, cond, pct) {
-            layer.property("ADBE Transform Group").property("ADBE Opacity")
-                 .expression = flags + cond + ' ? ' + pct + ' : 0;';
-            return layer;
-        }
+    }
 
-        showIf(centreOn(addText(c, poster({
-            name: "OCCASION label", box: [textW, 24], topLeft: [textX, S.y + 6],
-            font: CFG.font.caps, size: T.slabLabel, tracking: 200,
-            justify: ParagraphJustification.CENTER_JUSTIFY, text: "OCCASION",
-            expr: bindStr('(D.context ? D.context_label.toUpperCase() : "")', "")
-        })), S.y + 18, soloMid - 42), 'occ', 78);
-
-        showIf(centreOn(addText(c, poster({
-            name: "OCCASION", box: [textW, 100], topLeft: [textX, S.y + 30],
-            font: CFG.font.italic, size: T.body, leading: T.body * 1.24,
-            justify: ParagraphJustification.LEFT_JUSTIFY, text: "occasion",
-            expr: bindFitted('D.context', "", [
-                { size: T.body, leading: 1.24 }, { over: 85, size: 23 },
-                { over: 115, size: 20 }, { over: 135, size: 18 }
-            ])
-        })), S.y + 80, soloMid + 14), 'occ', 100);
-
-        showIf(addRect(c, {
-            name: "STORY divider", topLeft: [textX + 40, dividerY],
-            size: [textW - 80, 1.5], fill: CFG.col.cream, fillOpacity: 40
-        }), 'both', 100);
-
-        // With no occasion above it the hook takes the slab, and its label
-        // travels with it — parked at the top it would caption a gap.
-        showIf(centreOn(addText(c, poster({
-            name: "LISTEN label", box: [textW, 24], topLeft: [textX, hookY],
-            font: CFG.font.caps, size: T.slabLabel, tracking: 200,
-            justify: ParagraphJustification.CENTER_JUSTIFY, text: "LISTEN OUT FOR"
-        })), hookY + 12, soloMid - 42), 'hook', 78);
-
-        showIf(centreOn(addText(c, poster({
-            name: "LISTEN", box: [textW, 78], topLeft: [textX, hookY + 26],
-            font: CFG.font.italic, size: T.body, leading: T.body * 1.24,
-            justify: ParagraphJustification.LEFT_JUSTIFY, text: "listen for",
-            expr: bindFitted('D.listen_for', "", [
-                { size: T.body, leading: 1.24 }, { over: 60, size: 23 },
-                { over: 95, size: 20 }
-            ])
-        })), hookY + 62, soloMid + 14), 'hook', 100);
+    /**
+     * One fact's sourceText: "LABEL value", with the label styled as a range.
+     *
+     * Returns the empty string when the work has no value for this fact, which
+     * is what makes the layer measure zero-high and drop out of the stack.
+     */
+    function factExpr(f) {
+        // A `labelKey` fact reads its heading from the work too. The label is
+        // measured at RUN time (`n = lab.length`), not baked in, so a longer
+        // override styles the right number of characters — the whole trick here
+        // is that the caps range is the first n characters of the string.
+        var override = f.labelKey
+            ? ('try {\n' +
+               '  var lx = D.facts.' + f.labelKey + ';\n' +
+               '  if (lx !== null && lx !== undefined && lx !== "") lab = lx.toString();\n' +
+               '} catch (e) {}\n')
+            : '';
+        return bindPrelude() +
+            'var v = "";\n' +
+            'try {\n' +
+            '  var x = D.facts.' + f.key + ';\n' +
+            '  if (x !== null && x !== undefined) v = x.toString();\n' +
+            '} catch (e) {}\n' +
+            'var lab = ' + q(f.label) + ';\n' +
+            override +
+            'lab = lab + " ";\n' +
+            'var st;\n' +
+            'if (v === "") {\n' +
+            '  st = text.sourceText.style.setText("");\n' +
+            '} else {\n' +
+            '  var n = lab.length;\n' +
+            '  st = text.sourceText.style.setText(lab + v)\n' +
+            '    .setFont(' + q(CFG.font.serif) + ').setFontSize(' + CFG.type.factBody + ')\n' +
+            '    .setLeading(' + (CFG.type.factBody * 1.28) + ')\n' +
+            '    .setFont(' + q(CFG.font.caps) + ', 0, n)\n' +
+            '    .setFontSize(' + CFG.type.factLabel + ', 0, n)\n' +
+            '    .setTracking(200, 0, n)\n' +
+            '    .setFillColor([' + CFG.col.dimLabel.join(", ") + '], 0, n);\n' +
+            '}\n' +
+            'st;';
     }
 
     /**

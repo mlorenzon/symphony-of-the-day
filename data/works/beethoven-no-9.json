@@ -24,9 +24,13 @@
     "lon": 16.3725,
     "lat": 48.2083
   },
-  "context": "Commissioned by London's Philharmonic Society; the Schiller plan dated to 1793.",
-  "context_label": "Occasion",
-  "listen_for": "Voices arrive in the finale — the first time in a major symphony.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Kärntnertortheater, Vienna, 7 May 1824",
+    "occasion": "Commissioned by London's Philharmonic Society; the Schiller plan dated to 1793.",
+    "listen_for": "Voices arrive in the finale — the first time in a major symphony."
+  },
   "map": {
     "basemap_year": 1815,
     "geojson": "data/clipped/europe_1815.geojson",

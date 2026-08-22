@@ -24,9 +24,13 @@
     "lon": 16.3725,
     "lat": 48.2083
   },
-  "context": "Written for his first benefit concert, at the Vienna Burgtheater in April 1800.",
-  "context_label": "Occasion",
-  "listen_for": "It opens off-key: twelve bars before C major finally arrives.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "Burgtheater (K.K. Hoftheater nächst der Burg), Vienna, 2 April 1800",
+    "occasion": "Written for his first benefit concert, at the Vienna Burgtheater in April 1800.",
+    "listen_for": "It opens off-key: twelve bars before C major finally arrives."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",

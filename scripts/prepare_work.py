@@ -272,9 +272,29 @@ def main():
     ap.add_argument("--title", required=True, help="Full title as it should read on the card")
     ap.add_argument("--year", required=True, type=int, help="Year of composition")
     ap.add_argument("--place", default="", help="Place of composition; omit if unknown")
+    # Card 2's four facts. Each is one run-in line: a fixed caps label from
+    # CFG.facts in sotd.jsx, then this text in sentence case. Keep each under
+    # about 80 characters — they do NOT step down to fit, and the four together
+    # have to sit inside the slab.
+    ap.add_argument("--scored-for", default="",
+                    help="The forces, as one short phrase, e.g. "
+                         "\"67 instruments\" or \"69 players\". Normally derived from "
+                         "the research record's scoring block. Left blank if not given.")
+    ap.add_argument("--scored-for-label", default="SCORED FOR",
+                    choices=["SCORED FOR", "PREMIERE ORCHESTRA"],
+                    help="Which claim the number makes. PREMIERE ORCHESTRA when it "
+                         "counts the people who actually played it; SCORED FOR when "
+                         "it comes from the score. This is the one card label that "
+                         "moves with the data — see SCORING_PRIORITY in "
+                         "research_to_work.py.")
+    ap.add_argument("--first-performance", default="",
+                    help="Venue, city and date as one line, e.g. "
+                         "\"Kärntnertortheater, Vienna, 7 May 1824\". Normally derived "
+                         "from the research record. Left blank if not given.")
     ap.add_argument("--context", default="",
-                    help="Patron, dedication or occasion. Left blank if not given.")
-    ap.add_argument("--context-label", default="Occasion")
+                    help="OCCASION: why the work exists — commission, patron, "
+                         "dedicatee, purpose. NOT the premiere, which is its own "
+                         "fact. Left blank if not given.")
     ap.add_argument("--listen", default="",
                     help="One thing to listen out for — the hook for a viewer "
                          "who has never heard the piece. Left blank if not given.")
@@ -419,9 +439,19 @@ def main():
             "lon": lon,
             "lat": lat,
         },
-        "context": args.context,
-        "context_label": args.context_label,
-        "listen_for": args.listen,
+        # Card 2's fact list, in sotd.jsx's CFG.facts order. The keys are the
+        # contract: the card has one text layer per key and an empty value
+        # closes its line up rather than leaving a hole, so a work with no
+        # scoring researched yet simply shows three facts.
+        "facts": {
+            "scored_for": args.scored_for,
+            # The only label a work gets to set. Blank or absent and the card
+            # falls back to CFG.facts[0].label in sotd.jsx.
+            "scored_for_label": args.scored_for_label if args.scored_for else "",
+            "first_performance": args.first_performance,
+            "occasion": args.context,
+            "listen_for": args.listen,
+        },
         "map": {
             "basemap_year": basemap_year,
             "geojson": os.path.relpath(geojson_path, ROOT).replace("\\", "/") if geojson_path else "",

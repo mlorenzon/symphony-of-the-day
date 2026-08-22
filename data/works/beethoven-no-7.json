@@ -24,9 +24,13 @@
     "lon": 13.8167,
     "lat": 50.6333
   },
-  "context": "Premiered at a charity concert for soldiers wounded at the Battle of Hanau.",
-  "context_label": "Occasion",
-  "listen_for": "The Allegretto: one rhythm, repeated, thickening every time round.",
+  "facts": {
+    "scored_for": "",
+    "scored_for_label": "",
+    "first_performance": "University of Vienna festival hall, Vienna, 8 December 1813",
+    "occasion": "Premiered at a charity concert for soldiers wounded at the Battle of Hanau.",
+    "listen_for": "The Allegretto: one rhythm, repeated, thickening every time round."
+  },
   "map": {
     "basemap_year": 1800,
     "geojson": "data/clipped/europe_1800.geojson",
