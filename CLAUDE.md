@@ -62,6 +62,40 @@ The record then feeds the card:
 python scripts/research_to_work.py <slug> --dry-run
 ```
 
+## The era is the colour
+
+The card *is* its period colour, edge to edge, and `data/periods.json` is the
+only place that colour lives — one hex per period, read live by expression, so
+changing one is a JSON edit and a rebuild, never a code edit.
+
+| Period | Colour | |
+|---|---|---|
+| Baroque | `#75550C` | dark gold |
+| Classical | `#254A85` | blue |
+| Romantic | `#932823` | red |
+| Modern | `#12554F` | teal |
+
+**Hue is the easy half; value is the constraint.** Every mark on a card is cream
+(`#F4ECDC`) straight onto the period colour, and the strap and fact plates are
+ink (`#14110F`) on it. So a period colour has to be dark enough to carry cream
+type and light enough for the plates to read as panels — the four are held at
+cream 5.8–7.5:1 and ink 2.1–2.7:1. **That is why Baroque is a dark gold and not
+a bright yellow:** at any lightness a viewer would actually call yellow, cream
+type on it fails.
+
+Run the checker after any edit to the file. It prints the table and fails on a
+colour outside the band, a gap in the boundaries, or two periods a viewer could
+not tell apart:
+
+```bash
+python scripts/check_palette.py
+```
+
+A period with **no** colour falls back to graphite, deliberately a colour no
+period owns — it used to fall back to crimson, which was safe only until
+Romantic went red, at which point an unfiled work would have painted itself
+Romantic and looked entirely correct.
+
 ## Card 2 is four facts
 
 Card 2's lower half is a list of labelled facts, each a run-in heading — the
@@ -179,8 +213,12 @@ comps wholesale.
 moment to the midpoint (e.g. shift the `Reveal Start` slider) and restore it
 afterwards.
 
-`see-frame` also sometimes returns a stale or unreadable image. When it does, or
-when a render looks surprising, read the newest bridge PNG directly:
+**`see-frame` returns a stale image often enough that you should not read the
+image it hands back at all.** Three of four calls in one session returned a
+different comp from a previous day — a request for `CARD BACK` came back as the
+front face, a request for `CARD FRONT` as a 1080×1920 reel frame. Call it to
+trigger the render, then open the newest bridge PNG yourself; the mtime is the
+only proof of what you are looking at:
 
 ```bash
 ls -t "C:/Users/mlorenzon/AppData/Local/ae-mcp-bridge/"*.png | head -1
@@ -233,10 +271,30 @@ and listening paragraphs became two of four run-in facts. `SCORED FOR` is blank
 on all twelve until the `scoring` research is done, and blank facts close up, so
 the Beethovens currently show three facts and the other three show two.
 
+**All twelve were rebuilt on 23 Aug 2026** for two changes. Neither is a
+re-bake, so every frozen map came through untouched:
+
+1. **The palette was reassigned** to Baroque gold, Classical blue, Romantic red,
+   Modern teal. Nine of the twelve are Classical and went from crimson to blue;
+   `brahms-no-4` keeps red as Romantic and `shostakovich-leningrad` keeps teal
+   as Modern, so those two are unchanged by it. **No work is Baroque yet** —
+   nothing in the set predates 1750 — so the gold is still untested in a render.
+2. **Card 2's strap is stacked, not pinned.** The `PLACE OF COMPOSITION` heading
+   and the address now centre on their plate as one measured block. All twelve
+   wrap to two lines, so all twelve had been sitting ~4 px low (17 px of air
+   above, 9 below) and crowding the map.
+
+Verified in renders read off disk, not from `see-frame`'s reply: blue on
+`beethoven-no-1`, red on `brahms-no-4`, teal on `shostakovich-leningrad`, and
+the strap measured at 12/12 px of air on `beethoven-no-1` and 15/15 on
+`beethoven-no-5` — whose place line steps down to 21 px, which is the case a
+pinned strap could not have centred.
+
 ## Conventions
 
 - Tracked: source, docs, `data/works/*.json`, `data/research/*.json`,
-  `data/periods.json` (which now carries the period colours) and
+  `data/periods.json` (which now carries the period colours — see
+  `scripts/check_palette.py`) and
   `data/audio/credits.json`. Not tracked: the
   `.aep`, portraits, map stills, clipped geojson, basemaps, the card-turn wav —
   all regenerable by a script.

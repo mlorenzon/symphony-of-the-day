@@ -74,7 +74,14 @@ var SOTD = (function () {
         // re-bake of every frozen work. Moving the map DOWN the card is free —
         // the still is placed in card space — which is why the strap could
         // shrink without touching a single bake.
-        back:  { strap: 96, rule: 2, map: 214, slab: 274 },
+        //
+        // `strapGap` is the gap between the measured ink of the heading and the
+        // measured ink of the place line. Card 2's strap is STACKED — the pair
+        // is centred on the plate as one block instead of each line being
+        // pinned to a fixed y — so this is the only vertical number the strap
+        // has, and it means the same thing whether the place wraps or not.
+        // See strapStackExpr.
+        back:  { strap: 96, rule: 2, map: 214, slab: 274, strapGap: 13 },
 
         // The three stats under the portrait, top-trumps style. Columns are
         // weighted, not thirds: at a size anyone can read, "NATIONALITY" is
@@ -174,7 +181,13 @@ var SOTD = (function () {
             bg:     [0.055, 0.051, 0.047],
             // Used only when a work's period is missing from periods.json.
             // The real palette is the "color" field on each period there.
-            period: [0.576, 0.157, 0.137]    // #932823
+            //
+            // Deliberately graphite and not one of the four: it used to be
+            // crimson, which was safe while no period WAS crimson, and became
+            // a silent lie the day Romantic went red — an unfiled work would
+            // have painted itself Romantic and looked entirely correct. A
+            // colour that belongs to no period is the only one that shows.
+            period: [0.227, 0.227, 0.243]    // #3A3A3E
         },
 
         // Duotone strength. The map basemap is far lighter than any portrait,
@@ -898,27 +911,74 @@ var SOTD = (function () {
      * the caps face is Cambria now, which has a lowercase and will happily
      * draw it, so a run that must read as capitals has to say so.
      */
-    function cardStrap(c, band, runs) {
+    function cardStrap(c, band, runs, stackGap) {
         addRect(c, {
             name: "STRAP plate", topLeft: [I.x, band.y],
             size: [I.w, band.h], fill: CFG.col.ink
         });
+        var names = [];
+        for (var n = 0; n < runs.length; n++) names.push(runs[n].name);
         for (var i = 0; i < runs.length; i++) {
             var r = runs[i];
             var bh = r.boxH || (r.size + 14);
             var body = r.upper ? '(' + r.body + ').toUpperCase()' : r.body;
             var L = addText(c, poster({
                 name: r.name, box: [I.w - 20, bh],
-                topLeft: [I.x + 10, r.centreY - bh / 2],
+                topLeft: [I.x + 10, (r.centreY || band.mid) - bh / 2],
                 font: r.bold ? CFG.font.capsBold : CFG.font.caps,
                 size: r.size, tracking: r.tracking,
-                centerY: r.centreY,
+                centerY: stackGap === undefined ? r.centreY : undefined,
                 justify: ParagraphJustification.CENTER_JUSTIFY,
                 text: r.upper ? String(r.text).toUpperCase() : r.text,
                 expr: r.body ? bindFitted(body, "", r.steps) : null
             }));
+            if (stackGap !== undefined)
+                L.property("ADBE Transform Group").property("ADBE Position")
+                    .expression = strapStackExpr(names, i, band, stackGap,
+                                                 I.x + I.w / 2);
             if (r.opacity !== undefined) fade(L, r.opacity);
         }
+    }
+
+    /**
+     * Position expression for one run of a STACKED strap: the runs are measured
+     * and centred on the plate as a single block, rather than each being pinned
+     * to its own y.
+     *
+     * Pinning is what card 1 does and it is right there — the given names and
+     * the surname are both always one line, so fixed centres and a centred
+     * block are the same picture. Card 2's place line is allowed two, and a
+     * pinned pair only ever grows DOWNWARD: every one of the twelve works
+     * currently wraps, so the block sat about 4 px below the middle of the
+     * plate with 9 px under it against 17 px over it, and read as crowding the
+     * map rather than sitting in its field.
+     *
+     * `stackGap` is the gap between the measured ink of one run and the next,
+     * so it means the same thing whether the place takes one line or two — the
+     * whole block just re-centres, the way an omitted fact re-centres the fact
+     * list. It is 13 px because that is what the pinned centres worked out to
+     * for a two-line place, so the spacing a viewer already knows is preserved
+     * and only the drift is corrected.
+     *
+     * Every run reads every run's sourceRect, including its own. That is safe
+     * rather than circular: sourceRectAtTime is measured in layer space and
+     * does not depend on any layer's position.
+     */
+    function strapStackExpr(names, index, band, gap, cx) {
+        var quoted = [];
+        for (var i = 0; i < names.length; i++) quoted.push(q(names[i]));
+        var NL = "\n";
+        return 'var G = ' + gap + ';' + NL +
+               'var N = [' + quoted.join(", ") + '];' + NL +
+               'var H = [], T = 0;' + NL +
+               'for (var i = 0; i < N.length; i++) {' + NL +
+               '  H[i] = thisComp.layer(N[i]).sourceRectAtTime(time, false).height;' + NL +
+               '  T += H[i] + (i ? G : 0);' + NL +
+               '}' + NL +
+               'var top = ' + band.mid + ' - T / 2;' + NL +
+               'for (var j = 0; j < ' + index + '; j++) top += H[j] + G;' + NL +
+               'var me = thisLayer.sourceRectAtTime(time, false);' + NL +
+               '[' + cx + ', top + H[' + index + '] / 2 - (me.top + me.height / 2)];';
     }
 
     /**
@@ -1141,15 +1201,20 @@ var SOTD = (function () {
         // a third line would be clipped below the box rather than overflow it,
         // so the steps have to keep it to two. They were measured, not guessed
         // — see api.measurePlaces.
+        // Stacked, not pinned: the heading and the address are centred on the
+        // plate as one measured block, so a place that wraps to two lines grows
+        // in both directions instead of only down into the map. Card 1's strap
+        // stays pinned — both of its runs are always one line, so there is
+        // nothing for a stack to fix. See strapStackExpr and CFG.back.strapGap.
         cardStrap(c, BB.strap, [
             { name: "PLACE label", size: T.placeLabel, tracking: 200,
-              centreY: BB.strap.y + 22, opacity: 78, text: "PLACE OF COMPOSITION" },
-            { name: "PLACE", size: T.place, tracking: 20, centreY: BB.strap.y + 64,
+              opacity: 78, text: "PLACE OF COMPOSITION" },
+            { name: "PLACE", size: T.place, tracking: 20,
               boxH: 62, bold: true, upper: true, text: "PLACE",
               body: PLACE_LINE,
               // Thresholds are the LONGEST line, not the whole string.
               steps: PLACE_STEPS }
-        ]);
+        ], CFG.back.strapGap);
 
         // Cream rules top and bottom rather than a frame: the map bleeds the
         // full interior width, so the only edges it needs are horizontal.

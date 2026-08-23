@@ -1,10 +1,11 @@
 {
   "_comment": "The four artistic periods. prepare_work.py files a work by year, and the card reads the colour live: on the duotone-poster design the period IS the card's colour, so this file drives the whole palette. Boundaries are the conventional teaching dates, not hard truths. Adding a period means adding a colour with it.",
+  "_palette": "Hues are Baroque gold, Classical blue, Romantic red, Modern teal — but the VALUE is the constraint, not the hue. Every mark on a card is cream (#F4ECDC) straight onto this colour, and the strap and fact plates are ink (#14110F) on it, so a period colour has to be dark enough to carry cream type and light enough for the plates to read as panels. The set is held at cream 5.8-7.5:1 and ink 2.1-2.7:1. That is why Baroque is a dark gold and not a bright yellow: at any lightness a viewer would call 'yellow', cream type on it fails. Re-check with scripts/check_palette.py after any edit.",
   "span": [1600, 2025],
   "periods": [
-    { "name": "Baroque",   "from": 1600, "to": 1750, "color": "#7A4A12" },
-    { "name": "Classical", "from": 1750, "to": 1830, "color": "#932823" },
-    { "name": "Romantic",  "from": 1830, "to": 1900, "color": "#3B2A6B" },
+    { "name": "Baroque",   "from": 1600, "to": 1750, "color": "#75550C" },
+    { "name": "Classical", "from": 1750, "to": 1830, "color": "#254A85" },
+    { "name": "Romantic",  "from": 1830, "to": 1900, "color": "#932823" },
     { "name": "Modern",    "from": 1900, "to": 2025, "color": "#12554F" }
   ]
 }

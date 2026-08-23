@@ -25,9 +25,8 @@ Cards are 440×616, which is 5:7, the standard trading-card ratio.
 
 **The card *is* its period colour**, edge to edge, and the portrait and map are
 duotoned into it — greyscale, a period-colour multiply, a cream screen to lift
-the blacks off the floor. Baroque burnt ochre, Classical crimson, Romantic
-indigo, Modern teal. A viewer reads *which era* as pure colour before reading a
-word, which is the whole point at reel size: a card is about 43% of screen
+the blacks off the floor. Baroque gold, Classical blue, Romantic red, Modern
+teal. A viewer reads *which era* as pure colour before reading a word, which is the whole point at reel size: a card is about 43% of screen
 width there, so anything under ~24 px on the artboard is texture, not
 information.
 
@@ -640,6 +639,33 @@ and refuses to build if any face fails to resolve; `SOTD.fontCheck()` prints the
 rows, including each font's file location, so you can see whether it is coming
 from `C:\windows\Fonts` or from Adobe's livetype cache.
 
+### Two straps, two ways of centring
+
+`cardStrap` draws both straps, and it has two modes.
+
+**Card 1 is pinned.** Each run gets a `centreY`, and `addText`'s `centerY`
+expression sits the run's measured ink on it. That is right there: `GIVEN NAMES`
+and `SURNAME` are both always one line, so a fixed centre and a centred block
+are the same picture.
+
+**Card 2 is stacked.** Pass a `stackGap` and the runs are instead measured and
+centred on the plate *as one block*, each sitting `stackGap` px of ink below the
+one above. Card 2 needs it because its place line is allowed **two** lines, and
+a pinned pair only ever grows *downward*: every one of the twelve works wraps,
+so the block sat about 4 px below the middle of its plate with 9 px under it
+against 17 px over it, and read as crowding the map rather than sitting in its
+field.
+
+`CFG.back.strapGap` (13 px) is the only vertical number the back strap has, and
+it means the same thing whether the address wraps or not — the block just
+re-centres, the way an omitted fact re-centres the fact list. 13 is what the old
+pinned centres worked out to for a two-line place, so the spacing is the one a
+viewer already knows; only the drift is gone.
+
+The expression each run carries reads *every* run's `sourceRectAtTime`,
+including its own. That is safe rather than circular: `sourceRectAtTime` is
+measured in layer space and does not depend on any layer's position.
+
 The `upper` flag on a `cardStrap` run uppercases the string in its own
 expression. Under Trajan that is redundant — there is no lowercase to draw —
 and under anything else it is what keeps the design's capitals capital. It stays
@@ -657,6 +683,7 @@ at a render before believing it fits.
 | Card size or ratio | `CFG.card`, and the panels and bands that sit inside it |
 | The ring and the cream hairline | `CFG.frame`, drawn in `cardChrome` |
 | Any row's height on either face | `CFG.front` / `CFG.back` — they must still tile 588 |
+| The gap inside card 2's strap | `CFG.back.strapGap` — the pair re-centres itself |
 
 | A period's colour | `data/periods.json` — not the script |
 | How strong the duotone is | `CFG.duotone` — the cream screen on each panel |
@@ -744,8 +771,8 @@ midpoint and ignores the playhead — see the traps below.
 
 Worth re-rendering after any layout change, because they exercise different
 paths and three different card colours: `mozart-linz` (painted portrait,
-Classical crimson, title on two lines, **both** occasion and hook), `brahms-no-4`
-(photograph, Romantic indigo, short title, and **only two** of the four facts —
+Classical blue, title on two lines, **both** occasion and hook), `brahms-no-4`
+(photograph, Romantic red, short title, and **only two** of the four facts —
 so the list closes up and centres), `shostakovich-leningrad` (Modern teal, longest
 title and longest name, so both auto-shrink steps fire).
 
@@ -821,7 +848,23 @@ Past that the last fact is clipped below the slab rather than resized.
 `data/periods.json` is the single source of truth for periods: `prepare_work.py`
 files a work by year against it, and the card reads the matching `color` live to
 paint itself. Adding a fifth period means adding a row **with a colour** and
-re-running `buildWork`; a period with no colour falls back to crimson.
+re-running `buildWork`; a period with no colour falls back to graphite —
+deliberately a colour no period owns, so an unfiled work cannot pass for a
+filed one. (It was crimson, which was safe only while no period was red.)
+
+**Hue is the easy half; value is the constraint.** Every mark on a card is
+cream straight onto the period colour, and the strap and fact plates are ink on
+it, so a period colour has to be dark enough to carry cream type and light
+enough for the plates to still read as panels. The shipped four sit at cream
+5.8–7.5:1 and ink 2.1–2.7:1. That is why Baroque is a dark gold rather than a
+bright yellow: at any lightness a viewer would call yellow, cream on it fails.
+`scripts/check_palette.py` prints the table and fails on anything outside the
+band, on a gap in the boundaries, and on two periods a viewer could not tell
+apart — run it after any edit to the file.
+
+```bash
+python scripts/check_palette.py
+```
 
 Boundaries shipped are the conventional teaching dates: Baroque 1600, Classical
 1750, Romantic 1830, Modern 1900–2025. They are contiguous rather than
@@ -1009,9 +1052,31 @@ after a fill sits behind it and half of it disappears.
 **`see-frame` renders the comp midpoint and ignores the playhead.** Setting
 `comp.time` changes nothing about what comes back. To inspect a specific moment
 — mid-flip, say — temporarily move the thing you want to see to the midpoint
-(shift the `Reveal Start` slider) and restore it afterwards. The stale-image
-warning in the GEOlayers notes applies here too: when a render looks wrong, read
-the newest PNG in the bridge folder directly.
+(shift the `Reveal Start` slider) and restore it afterwards.
+
+**And it returns a stale image far more often than "sometimes".** In one session
+(23 Aug 2026) three of four `see-frame` calls came back wrong — not subtly, but
+a *different comp at a different size from a previous day*: a request for
+`CARD BACK` returned the front face, and a request for `CARD FRONT` returned a
+1080×1920 reel frame. Both were crimson, which is what made them obvious, and
+which is the only reason the palette change was not "verified" against a picture
+of the old one.
+
+**So do not read the image `see-frame` hands back. Read the file.** Call it to
+trigger the render, then list the bridge folder by mtime and open the newest PNG
+yourself — the timestamp is the only thing that proves what you are looking at.
+
+```bash
+ls -t "C:/Users/mlorenzon/AppData/Local/ae-mcp-bridge/"*.png | head -1
+```
+
+Two fresh PNGs of identical byte size are the same frame, which is a useful
+cross-check when the returned images differ from each other.
+
+Better still for a geometry change, **measure the picture instead of judging
+it** — the strap centring was confirmed by classifying pixel rows as ink plate
+vs cream type and reading the air above and below (12 px and 12 px), which is a
+fact rather than an impression.
 
 **`fitViewAtTime` cannot set a keyframe, whatever its name says.** Both its
 `forceKeyframe` and `time` arguments are ignored — it applies the view
