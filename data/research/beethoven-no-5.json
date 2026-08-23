@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-5",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 5 in C minor, Op. 67",
   "title_short": "",
   "catalogue": "Op. 67",
@@ -37,9 +37,10 @@
     }
   },
   "reason": {
-    "summary": "Premiered in a four-hour all-Beethoven benefit concert in a freezing theatre.",
+    "summary": "No commission — dedicated jointly to two patrons, Lobkowitz and Rasumovsky.",
     "dedicatee": "Prince Franz Joseph von Lobkowitz and Count Andreas Rasumovsky",
     "occasion": "A benefit concert for the composer, granted him partly in recognition of his charity performances.",
+    "occasion_spoken": "a benefit concert of his own, granted him for his charity work",
     "detail": "Grove: the Theater an der Wien 'was finally put at his disposal for the night of 22 December 1808, partly in just recognition of his services to charity; so he arranged to give an enormous benefit concert.' Grove notes the Fifth was conceived around 1804 but 'work got deflected into certain other C major and minor projects, and things did not come together until late 1807 and 1808.'"
   },
   "first_performance": {
@@ -48,11 +49,21 @@
     "city": "Vienna",
     "venue": "Theater an der Wien",
     "conductor": "Ludwig van Beethoven",
-    "notes": "The same concert premiered the Sixth. Wikipedia describes a programme of Beethoven premieres running over four hours and also including the Choral Fantasy."
+    "notes": "The same concert premiered the Sixth. Wikipedia describes a programme of Beethoven premieres running over four hours and also including the Choral Fantasy. On the forces: Brown identifies the band as the Theater an der Wien orchestra, wholly professional, and reckons a moderate orchestra of 6 to 8 first violins and the rest in proportion — the normal size of the theatre orchestras — as what “would presumably have been” used. That is inference from the establishment, not a roster."
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 23,
+      "shorthand": "2+picc.2.2.2+cbsn - 2.2.3.0 - timp - strings",
+      "doublings": "None. The piccolo and contrabassoon are separate parts, not doublings: both play in the finale alongside the two flutes and two bassoons, so they are counted as the extra players they are.",
+      "note": "10 wind, 7 brass, timpani and the five string parts. Five players enter only at the finale — three trombones, contrabassoon and piccolo. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-5"
+    }
   },
   "listen_for": [
     {
       "hook": "Four notes. The whole first movement is built from almost nothing else.",
+      "spoken": "four notes, and a whole first movement built from almost nothing else",
       "kind": "structural",
       "timing": "I, from the first bar",
       "card": true,
@@ -148,6 +159,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -217,6 +240,12 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-5"
+    ],
+    "first_performance.forces_context": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -236,7 +265,8 @@
     }
   ],
   "unknowns": [
-    "Which of the two lodgings saw most of the work; the sources point in different directions."
+    "Which of the two lodgings saw most of the work; the sources point in different directions.",
+    "No roster of the 22 December 1808 benefit concert survives. Brown infers the Theater an der Wien's normal strength of 6 to 8 first violins and the rest in proportion, so the card counts the score's parts instead."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 5.md"
 }

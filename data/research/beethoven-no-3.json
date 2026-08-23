@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-3",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 3 in E flat major, Op. 55 “Eroica”",
   "title_short": "Eroica",
   "catalogue": "Op. 55",
@@ -39,6 +39,7 @@
     "patron": "Prince Franz Joseph von Lobkowitz",
     "dedicatee": "Prince Franz Joseph von Lobkowitz",
     "occasion": "Conceived as a 'Bonaparte symphony'; the published dedication went to Lobkowitz, who had bought the exclusive rights.",
+    "occasion_spoken": "a hero he called Bonaparte",
     "detail": "Grove: the decision to embark on a 'Bonaparte symphony' at just this time 'came from inner pressures', not from the theatre contracts he was then negotiating. Wikipedia gives the familiar account of the withdrawn dedication in autumn 1804, after Napoleon declared himself Emperor, and the score's publication in 1806 as Sinfonia Eroica. Grove notes more is known about this work's composition than any other of Beethoven's, thanks to Nottebohm's monograph on the sketches."
   },
   "first_performance": {
@@ -47,11 +48,20 @@
     "city": "Vienna",
     "venue": "Theater an der Wien",
     "conductor": "Ludwig van Beethoven",
-    "notes": "First public performance. Grove records a private one earlier, at the Lobkowitz palace in the summer of 1804; Wikipedia dates that 9 June 1804. Grove does not give a day, so the record keeps the season."
+    "notes": "First public performance. Grove records a private one earlier, at the Lobkowitz palace in the summer of 1804; Wikipedia dates that 9 June 1804. Grove does not give a day, so the record keeps the season. On the forces: Prince Lobkowitz's account books preserve payments to the players at both Lobkowitz performances, so these are documented numbers rather than estimates. The private play-through shortly before 9 June 1804 used about 26 players — 6 violins, 2 violas, 2 cellos, 2 basses and wind; the performance of 23 January 1805 used 12 violins, 3 violas, 4 cellos, 2 basses, timpani and the usual wind, some 35 in all. Neither is the public premiere of 7 April 1805, for which no numbers are recorded."
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 19,
+      "shorthand": "2.2.2.2 - 3.2.0.0 - timp - strings",
+      "note": "8 wind, 5 brass, timpani and the five string parts. The third horn is the novelty — Lobkowitz hired 22 extra players for the 1804 private run-through, the third horn among them. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-3"
+    }
   },
   "listen_for": [
     {
       "hook": "A horn slips in with the theme four bars early — it sounds wrong.",
+      "spoken": "the horn that slips in with the theme four bars early, sounding like a mistake",
       "kind": "famous-movement",
       "timing": "I, late in the development",
       "card": true,
@@ -147,6 +157,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -215,6 +237,12 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-3"
+    ],
+    "first_performance.forces_context": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -234,7 +262,8 @@
     }
   ],
   "unknowns": [
-    "The exact date of the private Lobkowitz performance; Grove gives only 'sum. 1804'."
+    "The exact date of the private Lobkowitz performance; Grove gives only 'sum. 1804'.",
+    "No roster of the 7 April 1805 public premiere survives. The Lobkowitz account books do document the private performances (about 26 players in June 1804, about 35 in January 1805), so a premiere-orchestra figure exists for the private first hearing but not for the premiere this record names."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 3 (Eroica).md"
 }

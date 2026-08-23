@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-2",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 2 in D major, Op. 36",
   "title_short": "",
   "catalogue": "Op. 36",
@@ -41,6 +41,7 @@
     "summary": "Written at Heiligenstadt the summer his deafness became undeniable.",
     "dedicatee": "Prince Karl von Lichnowsky",
     "occasion": "No commission. Finished in the country retreat where he wrote the Heiligenstadt Testament that October.",
+    "occasion_spoken": "nobody but himself, in the summer his deafness became undeniable",
     "detail": "Grove dates the Heiligenstadt Testament 6–10 October 1802 and reads it as 'a trough of despondency in his fluctuating moods'. The symphony is the large public work of that same summer — Grove notes it is 'among the more conservative works' despite 'its great advance in assurance over the First', and that in it 'Beethoven for the first time really engaged with the symphony orchestra'."
   },
   "first_performance": {
@@ -51,9 +52,18 @@
     "conductor": "Ludwig van Beethoven",
     "notes": "Grove gives the date. Wikipedia supplies the venue and the rest of the programme: the Third Piano Concerto and the oratorio Christus am Oelberge, both also premieres."
   },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 18,
+      "shorthand": "2.2.2.2 - 2.2.0.0 - timp - strings",
+      "note": "8 wind, 4 brass, timpani and the five string parts. Trumpets and timpani play in the first, third and fourth movements only. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-2"
+    }
+  },
   "listen_for": [
     {
       "hook": "The minuet is gone — this is his first symphonic scherzo.",
+      "spoken": "the third movement, where the minuet is gone and his first symphonic scherzo takes its place",
       "kind": "innovation",
       "timing": "III, Scherzo",
       "card": true,
@@ -218,11 +228,15 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-2"
     ]
   },
   "conflicts": [],
   "unknowns": [
-    "How much of the symphony predates the move to Heiligenstadt in spring 1802."
+    "How much of the symphony predates the move to Heiligenstadt in spring 1802.",
+    "No premiere roster survives: neither Grove nor Wikipedia gives player numbers for the 5 April 1803 Theater an der Wien concert, so the card counts the score's parts instead of the players on the platform."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 2.md"
 }

@@ -25,8 +25,8 @@
     "lat": 48.2083
   },
   "facts": {
-    "scored_for": "",
-    "scored_for_label": "",
+    "scored_for": "19 instruments",
+    "scored_for_label": "SCORED FOR",
     "first_performance": "Theater an der Wien, Vienna, 7 April 1805",
     "occasion": "Dedicated to Napoleon, then scratched out when he crowned himself Emperor.",
     "listen_for": "A horn slips in with the theme four bars early — it sounds wrong."
@@ -49,12 +49,12 @@
       "groups": 1,
       "note": "",
       "anchor": {
-        "lon": 18.0525,
-        "lat": 47.2766,
+        "lon": 16.8525,
+        "lat": 46.9622,
         "fit": "clamped",
         "clearance_deg": 2.5687
       },
-      "source": "research"
+      "source": "given"
     }
   }
 }

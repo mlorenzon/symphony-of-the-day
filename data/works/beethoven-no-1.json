@@ -25,10 +25,10 @@
     "lat": 48.2083
   },
   "facts": {
-    "scored_for": "",
-    "scored_for_label": "",
-    "first_performance": "Burgtheater (K.K. Hoftheater nächst der Burg), Vienna, 2 April 1800",
-    "occasion": "Written for his first benefit concert, at the Vienna Burgtheater in April 1800.",
+    "scored_for": "18 instruments",
+    "scored_for_label": "SCORED FOR",
+    "first_performance": "Burgtheater, Vienna, 2 April 1800",
+    "occasion": "No commission: he wrote it to launch himself as a symphonist at his own benefit.",
     "listen_for": "It opens off-key: twelve bars before C major finally arrives."
   },
   "map": {
@@ -49,20 +49,12 @@
       "groups": 1,
       "note": "",
       "anchor": {
-        "lon": 17.9525,
+        "lon": 16.8525,
         "lat": 46.9622,
-        "fit": "nudged",
-        "clearance_deg": 2.5687,
-        "auto": {
-          "lon": 16.8525,
-          "lat": 46.9622
-        },
-        "nudge": {
-          "lon": 1.1,
-          "lat": 0.0
-        }
+        "fit": "clamped",
+        "clearance_deg": 2.5687
       },
-      "source": "research"
+      "source": "given"
     }
   }
 }

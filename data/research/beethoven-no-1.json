@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-1",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 1 in C major, Op. 21",
   "title_short": "",
   "catalogue": "Op. 21",
@@ -37,9 +37,10 @@
     }
   },
   "reason": {
-    "summary": "Written for his first benefit concert, at the Vienna Burgtheater in April 1800.",
+    "summary": "No commission: he wrote it to launch himself as a symphonist at his own benefit.",
     "dedicatee": "Baron Gottfried van Swieten",
     "occasion": "Beethoven's first concert for his own benefit — an akademie he organised and profited from himself.",
+    "occasion_spoken": "the first concert he ever put on for his own benefit",
     "detail": "Grove: 'On 2 April 1800 Beethoven gave his first concert for his own benefit, in the Burgtheater.' The symphony was the centrepiece of a programme he assembled to present himself to Vienna as a composer of large public works rather than only as a pianist. Wikipedia reports that the dedication was first intended for Elector Maximilian Franz, Beethoven's Bonn patron, and went to van Swieten after the Elector's death; Grove does not corroborate this."
   },
   "first_performance": {
@@ -48,11 +49,21 @@
     "city": "Vienna",
     "venue": "Burgtheater (K.K. Hoftheater nächst der Burg)",
     "conductor": "Ludwig van Beethoven",
-    "notes": "Grove confirms the date and the Burgtheater. Wikipedia adds that the Septet and a Mozart symphony shared the programme, and that accounts disagree over whether Haydn excerpts or one of the piano concertos followed."
+    "notes": "Grove confirms the date and the Burgtheater. Wikipedia adds that the Septet and a Mozart symphony shared the programme, and that accounts disagree over whether Haydn excerpts or one of the piano concertos followed. On the forces: Brown identifies the band as the Italian Opera orchestra, wholly professional, and reckons a house complement around 1800 of about 16 violins, 4 violas, 3 or 4 cellos, 5 basses and the usual wind — some 45 players in all. He adds that a moderate orchestra of 6 to 8 first violins “would presumably have been the size” used on 2 April 1800. Both figures are his inference from the establishment, not a roster of the night.",
+    "venue_short": "Burgtheater"
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 18,
+      "shorthand": "2.2.2.2 - 2.2.0.0 - timp - strings",
+      "note": "8 wind, 4 brass, timpani and the five string parts. The second flute is silent in the slow movement but is still a part in the score. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-1"
+    }
   },
   "listen_for": [
     {
       "hook": "It opens off-key: twelve bars before C major finally arrives.",
+      "spoken": "the opening: it is twelve bars before C major finally arrives",
       "kind": "innovation",
       "timing": "I, the twelve-bar Adagio molto introduction",
       "card": true,
@@ -148,6 +159,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -216,6 +239,12 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-1"
+    ],
+    "first_performance.forces_context": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -235,7 +264,8 @@
     }
   ],
   "unknowns": [
-    "The rest of the 2 April 1800 programme — sources disagree over which concerto and whether Haydn was played."
+    "The rest of the 2 April 1800 programme — sources disagree over which concerto and whether Haydn was played.",
+    "No roster of the 2 April 1800 Burgtheater concert survives. Brown places the Italian Opera orchestra's establishment at about 45 players, but by inference from the house strength, so the card counts the score's parts instead."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 1.md"
 }

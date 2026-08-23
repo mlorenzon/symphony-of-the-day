@@ -186,6 +186,13 @@ The occasion, the patron, the dedicatee, the money if there was any. This is
 the section the card compresses to a single line, so write the version the card
 cannot hold.
 
+## Forces
+
+Generated, not written: the winning `scoring` block, the count the card prints,
+and which of the three levels supplied it. Omitted entirely when the record has
+no `scoring`. The prose comes from the blocks' own `note` and `doublings`
+fields, so that is where to explain how a count was arrived at.
+
 ## First performance
 
 Date, venue, who conducted, how it went. Say plainly if it is unknown.
@@ -206,6 +213,65 @@ if nothing was corrected, but only after checking.
 ## Sources
 
 - <author>, "<title>", <container> — Zotero `<key>`
+
+## Script
+
+The reel voice-over, fenced. Generated, never written here.
+```
+
+## The script
+
+The last section of the note is the words read over the reel — step 1.2 of the
+engine, between the research and the card. The wording is fixed for the series
+and only five slots move:
+
+> **SCRIPT**
+> Symphony of the Day
+> We're listening to *[Composer's]* *[Symphony title]*, composed in *[YEAR]* for
+> *[Occasion]* when the composer was *[AGE]* years old. Listen out for
+> *[Listening note]*. Thanks for watching. Listen to symphonies and get your
+> attention span back. See you tomorrow.
+
+Do not improve the sentences. The series works because the same words land the
+same way every day; the only thing that varies is what goes in the brackets.
+
+It is generated from the record for the same reason the rest of the note is: a
+script typed by hand is a fourth place a fact can be wrong. `[YEAR]` and `[AGE]`
+are arithmetic — `composition.year`, and that minus `composer.born`, the same
+sum the note's header prints. The title drops the opus number and says the
+nickname in words, because nobody reads "Op. 55" aloud.
+
+**The other two slots need prose written for the mouth, and the scholarly
+fields cannot do it.** `reason.occasion` is a sentence in its own right, so
+dropping it in gives "composed in 1802 for No commission. Finished in the
+country retreat…"; the card hook is one too, so "Listen out for Four notes. The
+whole first movement is built from almost nothing else." So the record carries
+a spoken wording alongside each — `reason.occasion_spoken`, and `spoken` on the
+hook flagged `card` — and the scholarly wording stays exactly as it was. They
+are the same fact twice, in two registers, not two facts.
+
+Write them to slot in: no capital, no full stop, and ending on a noun where you
+can, because the sentence continues past both of them.
+
+| Slot | Field | Good | Wrong |
+|---|---|---|---|
+| `[Occasion]` | `reason.occasion_spoken` | `a benefit concert of his own, granted him for his charity work` | `A benefit concert for the composer.` |
+| `[Listening note]` | `listen_for[].spoken` | `four notes, and a whole first movement built from almost nothing else` | `Four notes. The whole first movement is built from almost nothing else.` |
+
+A work with nothing commissioning it still has to answer "for": say so in words
+that follow the preposition — "nobody but himself, in the summer his deafness
+became undeniable" — rather than leaving the slot to fail.
+
+Anything missing stays as its own square bracket in the script and is warned
+about, at the terminal and again in the note as a callout. A placeholder read
+aloud is a wasted take, and nothing downstream will catch it.
+
+The script is checked for length as well: word count at 150 words a minute,
+warned over 60 seconds. The Beethovens run 26–30 seconds, so the ceiling is
+generous — but an occasion line written as a paragraph will find it.
+
+```bash
+python scripts/research_to_note.py <slug> --script    # just the script, writes nothing
 ```
 
 ## Keeping the Grove page
@@ -298,5 +364,6 @@ python scripts/research_to_work.py <slug> --check     # validate the record
 python scripts/research_to_work.py <slug> --dry-run   # ...and show the build command
 python scripts/research_to_work.py <slug>             # ...and run it
 python scripts/research_to_note.py <slug>             # write the vault note
+python scripts/research_to_note.py <slug> --script    # just the reel script
 python scripts/research_to_note.py --all              # rewrite every vault note
 ```

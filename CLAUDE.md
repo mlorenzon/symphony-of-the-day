@@ -56,10 +56,23 @@ its attachment key recorded in `sources[].snapshot`. Grove sits behind that
 login and Oxford revises articles in place, so the URL alone will not let anyone
 re-check the claim later. `--check` warns until the copy exists.
 
-The record then feeds the card:
+The record then feeds two things. The card:
 
 ```bash
 python scripts/research_to_work.py <slug> --dry-run
+```
+
+…and the reel's voice-over script, which is the note's last section. The
+wording is fixed for the series and only five slots move — composer, title,
+year, occasion, age, listening note — so it is generated from the record like
+the rest of the note, never typed. Two of the slots need prose written to be
+spoken rather than read: `reason.occasion_spoken` has to follow "composed in
+1808 for", and `spoken` on the card hook has to follow "Listen out for". Without
+them the script falls back to the scholarly wording and says so, loudly, at the
+terminal and in the note.
+
+```bash
+python scripts/research_to_note.py <slug> --script
 ```
 
 ## The era is the colour
@@ -274,9 +287,48 @@ draws:
 **All twelve have the current card design.** Card 2 was rebuilt as a fact list
 (22 Aug 2026): the strap came down from 120 px to 96 (place 40 px → 24), the
 24 px went to the slab, the two divider rules went entirely, and the occasion
-and listening paragraphs became two of four run-in facts. `SCORED FOR` is blank
-on all twelve until the `scoring` research is done, and blank facts close up, so
-the Beethovens currently show three facts and the other three show two.
+and listening paragraphs became two of four run-in facts.
+
+**The nine Beethovens now have all four facts** (23 Aug 2026): their `scoring`
+research is done, so `SCORED FOR` is filled and each shows the full list. It is
+level 3 on all nine — the cached Grove article carries composition dates, first
+performances, publication and dedications but **no instrumentation and no
+premiere rosters**, so levels 1 and 2 are unavailable and every count is the
+score's distinct parts, in *instruments*. The counts run 17 (No. 4, the only one
+with a single flute) to 28 (No. 9, plus 4 vocal soloists); the validator's
+"falls back to instrumentation" warning is therefore permanent and correct on
+all nine, and `research_to_work.py` needs `--force` to build past it. The count
+rests on Wikipedia alone and is recorded as uncorroborated. `mozart-linz`,
+`brahms-no-4` and `shostakovich-leningrad` have no research record at all and
+still show two facts each.
+
+**Level 2 was then hunted properly and is genuinely not there** (23 Aug 2026).
+Three performance-practice sources are now in Zotero with PDFs attached — Clive
+Brown, *Early Music* 16/1 (1988); Albrecht, *Music in Art* 34 (2009); Albrecht,
+*The Horn Call* 29/3 (1999) — and the eight relevant records carry what each
+documents. **No work upgraded**, so every card still reads `SCORED FOR`. The
+reason is worth keeping, because it stops the search being repeated:
+
+| Work | What the sources actually give |
+|---|---|
+| 1, 5, 6 | the theatre establishment, by Brown's *inference* — no roster |
+| 3 | Lobkowitz account books for the **private** 1804/1805 performances (~26 and ~35 players), not the 7 Apr 1805 public premiere |
+| 4 | a detailed list for the Jan 1808 University Hall performance (~55), a later hearing |
+| 7 | Beethoven's memorandum names the **Redoutensaal**, so it is not this premiere |
+| 8 | **Beethoven's own memorandum: 69 string players.** Recorded in `scoring.premiere.strings` with `players` left null — the wind is Brown's inference, so no total can be stated |
+| 9 | the fall 1822 Kärntnertor house roster; the premiere force was far larger |
+
+The one real prize is **Albrecht, *Beethoven's Ninth Symphony: Rehearsing and
+Performing its 1824 Premiere* (Boydell, 2024)**, whose Appendix D annotates that
+1822 roster toward 1824 and gives "possibly a total of 24 violins". **Sydney
+holds it in no form** — checked on Cambridge Core (excluded from their CUP
+deal), De Gruyter (purchase only) and JSTOR (`jj.5806809`, present but not
+subscribed), and no print copy. It needs an inter-library loan. Appendix E would
+also fill `scoring.voices.chorus`, still null.
+
+**The nine Beethoven work JSONs were regenerated on 23 Aug 2026** and so are
+ahead of the built comps: they need `SOTD.buildWork` to put the new first fact
+on a card. It is a rebuild, not a re-bake — every frozen map is untouched.
 
 **All twelve were rebuilt on 23 Aug 2026** for two changes. Neither is a
 re-bake, so every frozen map came through untouched:
