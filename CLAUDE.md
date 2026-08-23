@@ -56,11 +56,65 @@ its attachment key recorded in `sources[].snapshot`. Grove sits behind that
 login and Oxford revises articles in place, so the URL alone will not let anyone
 re-check the claim later. `--check` warns until the copy exists.
 
-The record then feeds the card:
+The record then feeds two things. The card:
 
 ```bash
 python scripts/research_to_work.py <slug> --dry-run
 ```
+
+…and the reel's voice-over script, which is the note's last section. The
+wording is fixed for the series and only five slots move — composer, title,
+year, occasion, age, listening note — so it is generated from the record like
+the rest of the note, never typed. Two of the slots need prose written to be
+spoken rather than read: `reason.occasion_spoken` has to follow "composed in
+1808 for", and `spoken` on the card hook has to follow "Listen out for". Without
+them the script falls back to the scholarly wording and says so, loudly, at the
+terminal and in the note.
+
+```bash
+python scripts/research_to_note.py <slug> --script
+```
+
+## The era is the colour
+
+The card *is* its period colour, edge to edge, and `data/periods.json` is the
+only place that colour lives — one hex per period, read live by expression, so
+changing one is a JSON edit and a rebuild, never a code edit.
+
+| Period | Colour | |
+|---|---|---|
+| Baroque | `#5E2080` | imperial purple |
+| Classical | `#254A85` | blue |
+| Romantic | `#932823` | red |
+| Modern | `#12554F` | teal |
+
+**Hue is the easy half; value is the constraint.** Every mark on a card is cream
+(`#F4ECDC`) straight onto the period colour, and the strap and fact plates are
+ink (`#14110F`) on it. So a period colour has to be dark enough to carry cream
+type and light enough for the plates to read as panels — the four are held at
+cream 6.9–9.0:1 and ink 1.8–2.3:1. **That is why Baroque is purple and not the
+yellow a hue-first reading would pick:** at any lightness a viewer would
+actually call yellow, cream type on it fails, and a yellow dark enough to carry
+cream reads as brown. Yellow would have needed black type, black type would have
+needed light plates, and that is a second card design rather than a fourth
+colour.
+
+Baroque sits at the dark end of both numbers on purpose — a purple light enough
+to reach ink 2.1 reads electric rather than rich — which is why the checker's ink
+floor is 1.75 and not the 2.1 the other three share.
+
+Run the checker after any edit to the file. It prints the table and fails on a
+colour outside the band, a gap in the boundaries, or two periods a viewer could
+not tell apart:
+
+```bash
+python scripts/check_palette.py
+```
+
+A period with **no** colour falls back to graphite, deliberately a colour no
+period owns — it used to fall back to crimson, which was safe only until
+Romantic went red, at which point an unfiled work would have painted itself
+Romantic and looked entirely correct.
 
 ## Card 2 is four facts
 
@@ -179,8 +233,12 @@ comps wholesale.
 moment to the midpoint (e.g. shift the `Reveal Start` slider) and restore it
 afterwards.
 
-`see-frame` also sometimes returns a stale or unreadable image. When it does, or
-when a render looks surprising, read the newest bridge PNG directly:
+**`see-frame` returns a stale image often enough that you should not read the
+image it hands back at all.** Three of four calls in one session returned a
+different comp from a previous day — a request for `CARD BACK` came back as the
+front face, a request for `CARD FRONT` as a 1080×1920 reel frame. Call it to
+trigger the render, then open the newest bridge PNG yourself; the mtime is the
+only proof of what you are looking at:
 
 ```bash
 ls -t "C:/Users/mlorenzon/AppData/Local/ae-mcp-bridge/"*.png | head -1
@@ -229,14 +287,74 @@ draws:
 **All twelve have the current card design.** Card 2 was rebuilt as a fact list
 (22 Aug 2026): the strap came down from 120 px to 96 (place 40 px → 24), the
 24 px went to the slab, the two divider rules went entirely, and the occasion
-and listening paragraphs became two of four run-in facts. `SCORED FOR` is blank
-on all twelve until the `scoring` research is done, and blank facts close up, so
-the Beethovens currently show three facts and the other three show two.
+and listening paragraphs became two of four run-in facts.
+
+**The nine Beethovens now have all four facts** (23 Aug 2026): their `scoring`
+research is done, so `SCORED FOR` is filled and each shows the full list. It is
+level 3 on all nine — the cached Grove article carries composition dates, first
+performances, publication and dedications but **no instrumentation and no
+premiere rosters**, so levels 1 and 2 are unavailable and every count is the
+score's distinct parts, in *instruments*. The counts run 17 (No. 4, the only one
+with a single flute) to 28 (No. 9, plus 4 vocal soloists); the validator's
+"falls back to instrumentation" warning is therefore permanent and correct on
+all nine, and `research_to_work.py` needs `--force` to build past it. The count
+rests on Wikipedia alone and is recorded as uncorroborated. `mozart-linz`,
+`brahms-no-4` and `shostakovich-leningrad` have no research record at all and
+still show two facts each.
+
+**Level 2 was then hunted properly and is genuinely not there** (23 Aug 2026).
+Three performance-practice sources are now in Zotero with PDFs attached — Clive
+Brown, *Early Music* 16/1 (1988); Albrecht, *Music in Art* 34 (2009); Albrecht,
+*The Horn Call* 29/3 (1999) — and the eight relevant records carry what each
+documents. **No work upgraded**, so every card still reads `SCORED FOR`. The
+reason is worth keeping, because it stops the search being repeated:
+
+| Work | What the sources actually give |
+|---|---|
+| 1, 5, 6 | the theatre establishment, by Brown's *inference* — no roster |
+| 3 | Lobkowitz account books for the **private** 1804/1805 performances (~26 and ~35 players), not the 7 Apr 1805 public premiere |
+| 4 | a detailed list for the Jan 1808 University Hall performance (~55), a later hearing |
+| 7 | Beethoven's memorandum names the **Redoutensaal**, so it is not this premiere |
+| 8 | **Beethoven's own memorandum: 69 string players.** Recorded in `scoring.premiere.strings` with `players` left null — the wind is Brown's inference, so no total can be stated |
+| 9 | the fall 1822 Kärntnertor house roster; the premiere force was far larger |
+
+The one real prize is **Albrecht, *Beethoven's Ninth Symphony: Rehearsing and
+Performing its 1824 Premiere* (Boydell, 2024)**, whose Appendix D annotates that
+1822 roster toward 1824 and gives "possibly a total of 24 violins". **Sydney
+holds it in no form** — checked on Cambridge Core (excluded from their CUP
+deal), De Gruyter (purchase only) and JSTOR (`jj.5806809`, present but not
+subscribed), and no print copy. It needs an inter-library loan. Appendix E would
+also fill `scoring.voices.chorus`, still null.
+
+**The nine Beethoven work JSONs were regenerated on 23 Aug 2026** and so are
+ahead of the built comps: they need `SOTD.buildWork` to put the new first fact
+on a card. It is a rebuild, not a re-bake — every frozen map is untouched.
+
+**All twelve were rebuilt on 23 Aug 2026** for two changes. Neither is a
+re-bake, so every frozen map came through untouched:
+
+1. **The palette was reassigned** to Baroque purple, Classical blue, Romantic
+   red, Modern teal. Nine of the twelve are Classical and went from crimson to blue;
+   `brahms-no-4` keeps red as Romantic and `shostakovich-leningrad` keeps teal
+   as Modern, so those two are unchanged by it. **No work is Baroque yet** —
+   nothing in the set predates 1750 — so the purple has only ever been seen in
+   the HTML mirror, never in an After Effects render.
+2. **Card 2's strap is stacked, not pinned.** The `PLACE OF COMPOSITION` heading
+   and the address now centre on their plate as one measured block. All twelve
+   wrap to two lines, so all twelve had been sitting ~4 px low (17 px of air
+   above, 9 below) and crowding the map.
+
+Verified in renders read off disk, not from `see-frame`'s reply: blue on
+`beethoven-no-1`, red on `brahms-no-4`, teal on `shostakovich-leningrad`, and
+the strap measured at 12/12 px of air on `beethoven-no-1` and 15/15 on
+`beethoven-no-5` — whose place line steps down to 21 px, which is the case a
+pinned strap could not have centred.
 
 ## Conventions
 
 - Tracked: source, docs, `data/works/*.json`, `data/research/*.json`,
-  `data/periods.json` (which now carries the period colours) and
+  `data/periods.json` (which now carries the period colours — see
+  `scripts/check_palette.py`) and
   `data/audio/credits.json`. Not tracked: the
   `.aep`, portraits, map stills, clipped geojson, basemaps, the card-turn wav —
   all regenerable by a script.

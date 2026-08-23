@@ -25,10 +25,10 @@
     "lat": 48.2538
   },
   "facts": {
-    "scored_for": "",
-    "scored_for_label": "",
+    "scored_for": "21 instruments",
+    "scored_for_label": "SCORED FOR",
     "first_performance": "Theater an der Wien, Vienna, 22 December 1808",
-    "occasion": "Premiered beside the Fifth at the same four-hour benefit concert, Dec 1808.",
+    "occasion": "Written alongside the Fifth, and dedicated jointly to Lobkowitz and Rasumovsky.",
     "listen_for": "Five movements, not four — and the last three run without a break."
   },
   "map": {
@@ -49,12 +49,12 @@
       "groups": 1,
       "note": "",
       "anchor": {
-        "lon": 18.0349,
-        "lat": 47.3229,
+        "lon": 16.8349,
+        "lat": 47.0088,
         "fit": "clamped",
         "clearance_deg": 2.5687
       },
-      "source": "research"
+      "source": "given"
     }
   }
 }

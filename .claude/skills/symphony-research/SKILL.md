@@ -1,13 +1,14 @@
 ---
 name: symphony-research
-description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection with a stored PDF of every Grove page consulted, and written up as a note in the Obsidian vault. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
+description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection with a stored PDF of every Grove page consulted, and written up as a note in the Obsidian vault that ends with the reel's voice-over script. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, the reel script, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
 ---
 
 # Researching a symphony
 
 One work in, three artefacts out: a sourced JSON record, a Zotero folder of the
 sources, and a readable note. The JSON is upstream of the card
-(`data/works/<slug>.json`); the note is what a human reads.
+(`data/works/<slug>.json`); the note is what a human reads, and its last section
+is the script read over the reel.
 
 Read `docs/research-engine.md` before the first run of a session — it carries
 the schema rationale and the failure modes. This file is the procedure.
@@ -139,6 +140,12 @@ carries the field-by-field notes; the rules that are easy to get wrong:
   hook should be actionable by someone who has never heard the piece — "the
   finale: one eight-bar bass line, over and over, rebuilt every time", not "note
   the passacaglia". 64–71 characters sits best.
+- **The two spoken fields** — `reason.occasion_spoken` and `spoken` on the card
+  hook — are the same facts worded for the mouth, for the reel script in step 6.
+  Each has to slot into a sentence already running, so: no capital, no full
+  stop, and end on a noun where you can. `occasion_spoken` follows *"composed in
+  1808 for…"*, `spoken` follows *"Listen out for…"*. Read the whole sentence
+  aloud before you write it down.
 - **`era`** is the scholarly judgment. `data/periods.json` buckets by year and
   that bucket drives the card's colour, so if the two disagree, decide it
   deliberately and write `era_note`.
@@ -182,10 +189,26 @@ the record — write those `detail` fields properly in step 4 and the note takes
 care of itself. Re-running overwrites, so fix the record and regenerate rather
 than editing the note.
 
+The note's last section is the **reel script** — the voice-over, in the series'
+fixed wording, with only the five bracketed slots filled from the record. It is
+generated too, so the same rule applies: fix the record, re-run. Read what it
+prints:
+
+```bash
+python scripts/research_to_note.py <slug> --script
+```
+
+Every warning it prints is a slot that will be read aloud wrong — a `[YEAR]`
+still in brackets, or a scholarly sentence dropped into the middle of a spoken
+one. Write the missing `occasion_spoken` or `spoken` into the record and run it
+again until it is quiet. Say the script out loud once before you report; the
+warnings catch missing fields, not clumsy ones.
+
 ## 7. Report
 
 Tell Matthew, briefly: what the work is, anything Grove corrected in Wikipedia,
-anything still unknown, and the command to build the card. Do not build the card
+anything still unknown, the reel script in full, and the command to build the
+card. Do not build the card
 unless he asks — research and build are separate steps.
 
 ```bash

@@ -35,7 +35,7 @@ SLUGS = ["mozart-linz", "brahms-no-4", "shostakovich-leningrad"]
 CARD = {"w": 440, "h": 616}
 FRAME = {"edge": 7, "round": 20, "inner": 11, "innerWeight": 1.5, "pad": 14}
 FRONT = {"strap": 78, "portrait": 268, "rule": 2, "stats": 70, "title": 124, "life": 44}
-BACK = {"strap": 96, "rule": 2, "map": 214, "slab": 274}
+BACK = {"strap": 96, "rule": 2, "map": 214, "slab": 274, "strapGap": 13}
 # Weighted, not thirds: "NATIONALITY" is twice the word "ERA" is.
 STATS = [{"label": "ERA", "w": 0.36},
          {"label": "YEAR", "w": 0.22},
@@ -89,7 +89,10 @@ COL = {
     "cream":  (0.957, 0.925, 0.863),
     "ink":    (0.078, 0.067, 0.059),
     "bg":     (0.055, 0.051, 0.047),
-    "period": (0.576, 0.157, 0.137),
+    # Graphite, matching CFG.col.period: the fallback for a work whose
+    # period is missing from periods.json, and deliberately not one of the
+    # four, so an unfiled work cannot pass for a filed one.
+    "period": (0.227, 0.227, 0.243),
 }
 
 # Reel placement, from buildReel + the CTRL slider defaults. One card at a
@@ -240,12 +243,44 @@ def surname(work):
 
 # -------------------------------------------------------------------- faces
 
-def card_strap(band, runs):
+def card_strap(band, runs, stack_gap=None):
     """
     Card 1 needs two runs: a full name on one line can only be about 25 px
     before it runs out of card. Given names small, surname large.
+
+    `stack_gap` mirrors cardStrap's STACKED mode, which card 2 uses: instead of
+    pinning each run to its own `centre`, the runs are centred on the plate as
+    one block with `stack_gap` between them. After Effects gets there with a
+    measured sourceRect; here it is a flex column, which is the same picture
+    without anything having to guess a glyph height. Either way a place line
+    that wraps to two lines grows in both directions rather than only down into
+    the map.
     """
     out = [rect("STRAP plate", I["x"], band["y"], I["w"], band["h"], "var(--ink)")]
+
+    if stack_gap is not None:
+        inner = []
+        for r in runs:
+            text = r["text"].upper() if r.get("upper") else r["text"]
+            size = fit_size(text, r["steps"]) if r.get("steps") else r["size"]
+            style = ("font-family:var(--caps);font-size:%gpx;color:var(--cream);"
+                     "letter-spacing:%gem;line-height:%gpx;text-align:center;"
+                     % (size, r["tracking"] / 1000.0, size * 1.2))
+            if r.get("bold"):
+                style += "font-weight:700;"
+            if r.get("opacity") is not None:
+                style += "opacity:%g;" % r["opacity"]
+            inner.append('<div data-layer="%s" style="%s">%s</div>'
+                         % (esc(r["layer"]), style,
+                            esc(text).replace(chr(10), "<br>")))
+        out.append(
+            '<div class="ly" data-layer="STRAP stack" style="left:%gpx;top:%gpx;'
+            'width:%gpx;height:%gpx;display:flex;flex-direction:column;'
+            'align-items:center;justify-content:center;gap:%gpx">%s</div>'
+            % (I["x"] + 10, band["y"], I["w"] - 20, band["h"], stack_gap,
+               "".join(inner)))
+        return chr(10).join(out)
+
     for r in runs:
         text = r["text"].upper() if r.get("upper") else r["text"]
         size = fit_size(text, r["steps"]) if r.get("steps") else r["size"]
@@ -383,13 +418,11 @@ def back(work, color, map_uri):
     out = [rect("CARD ground", 0, 0, CARD["w"], CARD["h"], color)]
     out.append(card_strap(BB["strap"], [
         {"layer": "PLACE label", "text": "PLACE OF COMPOSITION",
-         "size": TYPE["placeLabel"], "tracking": 200,
-         "centre": BB["strap"]["y"] + 22, "opacity": .78},
+         "size": TYPE["placeLabel"], "tracking": 200, "opacity": .78},
         {"layer": "PLACE", "text": place_line(work), "upper": True, "bold": True,
          "size": TYPE["place"], "tracking": 20, "boxH": 62,
-         "centre": BB["strap"]["y"] + 64,
          "steps": [(0, TYPE["place"]), (25, 21), (29, 19), (34, 17)]},
-    ]))
+    ], stack_gap=BACK["strapGap"]))
 
     if map_uri or work["map"].get("has_place"):
         out.append(rect("MAP rule top", I["x"], BB["ruleA"]["y"], I["w"],
@@ -553,7 +586,34 @@ def main():
     blocks = []
     reel_cards = None
 
-    slugs = sys.argv[1:] or SLUGS
+    # `--period NAME` and `--colour HEX`, both repeatable, repaint each work in
+    # something other than its own colour. One row per flag, so candidates stack
+    # in a single page and can be compared side by side.
+    #
+    # They exist because a period can hold a colour long before any work falls in
+    # it: nothing in the set predates 1750, so Baroque cannot be rendered from
+    # real data at all, and "cream on this ground" is not a judgement anyone
+    # should make from a hex code. Both override only the COLOUR — the work's own
+    # period still prints in its ERA stat, so a swatch row cannot be mistaken for
+    # a real filing.
+    args = sys.argv[1:]
+    slugs, want_periods, want_colours = [], [], []
+    i = 0
+    while i < len(args):
+        if args[i] == "--colour" and i + 1 < len(args):
+            # A bare hex, for choosing a colour BEFORE it goes in periods.json.
+            # "The era is the colour" makes that choice the loudest one on the
+            # card, and until this existed the only way to see a candidate was
+            # to commit it to the palette first and rebuild.
+            want_colours.append(args[i + 1])
+            i += 2
+        elif args[i] == "--period" and i + 1 < len(args):
+            want_periods.append(args[i + 1])
+            i += 2
+        else:
+            slugs.append(args[i])
+            i += 1
+    slugs = slugs or SLUGS
     for slug in slugs:
         wpath = os.path.join(ROOT, "data", "works", slug + ".json")
         work = json.load(open(wpath, encoding="utf-8"))
@@ -574,14 +634,29 @@ def main():
         murl = data_uri(mpath, (MAP_PANEL["w"], MAP_PANEL["h"])) \
             if os.path.exists(mpath) else ""
 
-        f, b = front(work, color, purl), back(work, color, murl)
-        blocks.append(
-            '<p class="rowlabel">%s &mdash; %s &mdash; %s</p>\n'
-            '<div class="pair"><div class="card" data-comp="CARD FRONT">%s</div>'
-            '<div class="card" data-comp="CARD BACK">%s</div></div>'
-            % (esc(slug), esc(work["title_full"]), esc(color), f, b))
-        if reel_cards is None:
-            reel_cards = (f, b)
+        # One row per requested period, or a single row in the work colour.
+        variants = []
+        for name in want_periods:
+            hexes = [q.get("color") for q in table["periods"]
+                     if q["name"].lower() == name.lower()]
+            if not hexes or not hexes[0]:
+                raise SystemExit("no period %r with a colour in periods.json" % name)
+            variants.append((hexes[0],
+                             "%s &mdash; painted %s" % (esc(slug), esc(name))))
+        for hx in want_colours:
+            variants.append((hx, "%s &mdash; %s" % (esc(slug), esc(hx))))
+        if not variants:
+            variants.append((color, esc(slug)))
+
+        for hexcolour, label in variants:
+            f, b = front(work, hexcolour, purl), back(work, hexcolour, murl)
+            blocks.append(
+                '<p class="rowlabel">%s &mdash; %s &mdash; %s</p>\n'
+                '<div class="pair"><div class="card" data-comp="CARD FRONT">%s</div>'
+                '<div class="card" data-comp="CARD BACK">%s</div></div>'
+                % (label, esc(work["title_full"]), esc(hexcolour), f, b))
+            if reel_cards is None:
+                reel_cards = (f, b)
 
     cards = ('<h2>Front and back</h2>'
              '<div class="grid" style="flex-direction:column">%s</div>'

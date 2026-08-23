@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-7",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 7 in A major, Op. 92",
   "title_short": "",
   "catalogue": "Op. 92",
@@ -37,9 +37,10 @@
     }
   },
   "reason": {
-    "summary": "Premiered at a charity concert for soldiers wounded at the Battle of Hanau.",
+    "summary": "No commission — written at the spa of Teplitz, dedicated to Count Fries.",
     "dedicatee": "Count Moritz von Fries",
-    "occasion": "A charity concert for Austrian and Bavarian soldiers wounded at Hanau, eighteen months after the symphony was finished.",
+    "occasion": "No commission. Written at Teplitz in 1811–12 while Beethoven was taking the waters, and dedicated to Count Moritz von Fries. The Hanau charity concert eighteen months later was where it was first heard, not why it was written.",
+    "occasion_spoken": "nobody in particular, at the spa of Teplitz",
     "detail": "Grove records that the piano and duet arrangements were dedicated separately to Elisabeth Aleksiev, Empress of Russia. Wikipedia describes the premiere: an orchestra led by Ignaz Schuppanzigh that included Hummel, Meyerbeer and Salieri among the players, with Wellington's Victory sharing the programme. Beethoven called it 'one of my best works' at the premiere."
   },
   "first_performance": {
@@ -50,11 +51,20 @@
     "conductor": "Ludwig van Beethoven",
     "ensemble": "Ad hoc orchestra led by Ignaz Schuppanzigh",
     "reception": "The Allegretto was encored on the spot.",
-    "notes": "Grove gives the date; the venue and the players come from Wikipedia. Wellington's Victory was the crowd-pleaser on the bill."
+    "notes": "Grove gives the date; the venue and the players come from Wikipedia. Wellington's Victory was the crowd-pleaser on the bill. On the forces: the four concerts of December 1813 and early 1814 used an orchestra of mixed professionals and amateurs, and Brown judges it certain that Beethoven used a doubled wind complement across them. A memorandum of Beethoven's, reported by Thayer, gives exact string numbers for one of the concerts, but names the large Redoutensaal — not the University Hall, where the Seventh was premiered — so it cannot be assigned to this premiere. It is also the source for the two contrabassoons added to strengthen the bass in 1814."
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 18,
+      "shorthand": "2.2.2.2 - 2.2.0.0 - timp - strings",
+      "note": "8 wind, 4 brass, timpani and the five string parts. There is no contrabassoon in the score, though a memorandum of Beethoven's shows two were added at the 1814 concert to strengthen the bass — an addition to the performance, not to the work, so it is not counted. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-7"
+    }
   },
   "listen_for": [
     {
       "hook": "The Allegretto: one rhythm, repeated, thickening every time round.",
+      "spoken": "the Allegretto: one rhythm, repeated, thickening every time round",
       "kind": "famous-movement",
       "timing": "II, Allegretto",
       "card": true,
@@ -150,6 +160,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -219,11 +241,18 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-7"
+    ],
+    "first_performance.forces_context": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [],
   "unknowns": [
-    "How much of the symphony was drafted in Vienna before the Teplitz visits."
+    "How much of the symphony was drafted in Vienna before the Teplitz visits.",
+    "No roster of the 8 December 1813 charity concert survives. Beethoven's own memorandum on string numbers from this run of concerts names the Redoutensaal, not the University Hall, so it documents a different evening; the card counts the score's parts instead."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 7.md"
 }

@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-8",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 8 in F major, Op. 93",
   "title_short": "",
   "catalogue": "Op. 93",
@@ -38,6 +38,7 @@
     "summary": "Scored in Linz while lodging with his brother Johann, and dedicated to nobody.",
     "dedicatee": "",
     "occasion": "No commission and no dedication — begun straight after the Seventh, in a summer of spa visits and a family quarrel.",
+    "occasion_spoken": "no patron and no dedicatee",
     "detail": "Grove's works list gives no dedicatee, unusually for a Beethoven symphony. Grove also notes his reason for being in Linz at all: 'to interfere in his brother's private life' — Johann was living with the woman he then married. Grove reads the work as 'a salute to the symphonic ideal of the previous age'."
   },
   "first_performance": {
@@ -46,11 +47,26 @@
     "city": "Vienna",
     "venue": "Redoutensaal",
     "conductor": "Ludwig van Beethoven",
-    "notes": "Grove gives the date; Wikipedia the venue and the programme — the Seventh, Wellington's Victory, and the premiere of the trio 'Tremate, empi, tremate'. Grove notes the Eighth 'was one of its companion pieces', the Seventh being the draw."
+    "notes": "Grove gives the date; Wikipedia the venue and the programme — the Seventh, Wellington's Victory, and the premiere of the trio 'Tremate, empi, tremate'. Grove notes the Eighth 'was one of its companion pieces', the Seventh being the draw. On the forces: see scoring.premiere — Beethoven's memorandum records 69 string players at his last concert in the large Redoutensaal, which is where this symphony was premiered."
+  },
+  "scoring": {
+    "premiere": {
+      "players": null,
+      "strings": "18 first violins, 18 seconds, 14 violas, 12 cellos, 7 basses, with 2 contrabassoons",
+      "note": "Beethoven's own memorandum, reported by Thayer and quoted by Brown: “at my last concert in the large Redoutensaal there were 18 first violins, 18 seconds, 14 violas, 12 cellos, 7 basses, 2 double bassoons”. That is 69 string players, documented in the composer's hand — the strongest performance evidence anywhere in the nine. Two cautions keep it out of the card: Brown assigns it only to “one of” the four concerts of 1813–14 without saying which, though the Redoutensaal wording fits this premiere and not the Seventh's University Hall; and the wind is Brown's inference (“it seems certain that he used a double complement”), not a count. So `players` is deliberately left null: a total would be part memorandum and part inference, and 69 alone is the strings and would understate the platform by some thirty players.",
+      "source": "brown-1988-orchestra-vienna"
+    },
+    "instrumentation": {
+      "instruments": 18,
+      "shorthand": "2.2.2.2 - 2.2.0.0 - timp - strings",
+      "note": "8 wind, 4 brass, timpani and the five string parts — the same forces as the First, twelve years later. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-8"
+    }
   },
   "listen_for": [
     {
       "hook": "The second movement ticks: a joke about the new metronome.",
+      "spoken": "the second movement, ticking like a joke about the new metronome",
       "kind": "famous-movement",
       "timing": "II, Allegretto scherzando",
       "card": true,
@@ -146,6 +162,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -214,6 +242,12 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-8"
+    ],
+    "scoring.premiere": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -233,7 +267,8 @@
     }
   ],
   "unknowns": [
-    "Whether any of it was drafted at Teplitz or Karlsbad before Linz."
+    "Whether any of it was drafted at Teplitz or Karlsbad before Linz.",
+    "No complete roster of the 27 February 1814 Redoutensaal concert survives. Beethoven's memorandum documents the strings exactly (69 players) but the wind only as a doubled complement by inference, so no player total can be stated and the card counts the score's parts instead."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 8.md"
 }

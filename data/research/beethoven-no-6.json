@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-6",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 6 in F major, Op. 68 “Pastoral”",
   "title_short": "Pastoral",
   "catalogue": "Op. 68",
@@ -34,9 +34,10 @@
     }
   },
   "reason": {
-    "summary": "Premiered beside the Fifth at the same four-hour benefit concert, Dec 1808.",
+    "summary": "Written alongside the Fifth, and dedicated jointly to Lobkowitz and Rasumovsky.",
     "dedicatee": "Prince Franz Joseph von Lobkowitz and Count Rasumovsky",
-    "occasion": "Written for, and premiered at, Beethoven's own benefit concert at the Theater an der Wien.",
+    "occasion": "Companion to the Fifth rather than a commission: the two were finished together and published together, sharing one joint dedication to Lobkowitz and Rasumovsky.",
+    "occasion_spoken": "no patron, as the companion piece to the Fifth",
     "detail": "It shares dedicatees and a premiere with the Fifth, and Grove points out how deliberately unlike its twin it is: 'the great foil to the Fifth Symphony is the Sixth (Pastoral, 1808), though here for once the first movement is made as quiet as possible.' Beethoven's own caution, quoted on Wikipedia, is that the work is 'more the expression of feeling than painting'."
   },
   "first_performance": {
@@ -45,11 +46,21 @@
     "city": "Vienna",
     "venue": "Theater an der Wien",
     "conductor": "Ludwig van Beethoven",
-    "notes": "The same marathon concert that premiered the Fifth. In that programme the Pastoral was numbered fifth and the C minor symphony sixth — the numbering we use was settled at publication."
+    "notes": "The same marathon concert that premiered the Fifth. In that programme the Pastoral was numbered fifth and the C minor symphony sixth — the numbering we use was settled at publication. On the forces: the same Theater an der Wien orchestra as the Fifth, on the same evening. Brown infers the house strength of 6 to 8 first violins and the rest in proportion; no roster of the night survives."
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 21,
+      "shorthand": "2+picc.2.2.2 - 2.2.2.0 - timp - strings",
+      "doublings": "None. The piccolo is a separate part, playing against both flutes in the storm.",
+      "note": "9 wind, 6 brass, timpani and the five string parts. Trumpets enter in the third movement, trombones and timpani only for the storm and finale. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-6"
+    }
   },
   "listen_for": [
     {
       "hook": "Five movements, not four — and the last three run without a break.",
+      "spoken": "five movements instead of four, the last three running without a break",
       "kind": "structural",
       "card": true,
       "detail": "The storm is a movement in its own right, wedged between the peasants' dance and the shepherds' song of thanks, and the three play continuously."
@@ -144,6 +155,18 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -213,6 +236,12 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-6"
+    ],
+    "first_performance.forces_context": [
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -225,7 +254,8 @@
     }
   ],
   "unknowns": [
-    "How far back the pastoral sketches genuinely run; Grove does not date them."
+    "How far back the pastoral sketches genuinely run; Grove does not date them.",
+    "No roster of the 22 December 1808 benefit concert survives. Brown infers the Theater an der Wien's normal strength of 6 to 8 first violins and the rest in proportion, so the card counts the score's parts instead."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 6 (Pastoral).md"
 }

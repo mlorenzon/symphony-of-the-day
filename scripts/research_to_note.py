@@ -13,6 +13,7 @@ The note lands in "<vault>/Symphony of the day/", at the path the record's
 import argparse
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +22,157 @@ RESEARCH_DIR = os.path.join(ROOT, "data", "research")
 VAULT = r"C:\Users\mlorenzon\Desktop\random\Elite Music\Elite Music"
 
 ERA_HINT = "periods.json buckets by year and that bucket sets the card colour"
+
+# The card's first fact is derived, not stored, and the derivation is the
+# interesting part — which of the three levels of evidence won. Import it rather
+# than reimplement it, so the note cannot claim a different number from the card.
+sys.path.insert(0, HERE)
+from research_to_work import card_hook, scoring_fact, SCORING_PRIORITY  # noqa: E402
+
+# Why each level says what it says, in the note's own words.
+FORCES_BASIS = {
+    "specified":      "the numbers the composer wrote into the score — the strongest "
+                      "claim available, and rare",
+    "premiere":       "the roster of the first performance: a fact about the evening "
+                      "rather than about the work, which is why the card says "
+                      "PREMIERE ORCHESTRA",
+    "instrumentation": "the score's distinct parts added up. It counts *instruments*, "
+                       "not players, because the string desks are almost never "
+                       "numbered in the score — the weakest of the three, and the "
+                       "usual case",
+}
+
+
+# ------------------------------------------------------------- the reel script
+# Step 1.2 of the engine: the words read over the finished reel. The wording is
+# fixed and only the bracketed slots move, so the note can carry the finished
+# script rather than a template — and because it is derived from the record, it
+# cannot drift from the card built from the same record.
+#
+# The template is verbatim. Do not improve it here: the series depends on the
+# same sentences landing the same way every day, and the only thing that varies
+# is what goes in the five slots.
+SCRIPT_TEMPLATE = (
+    "We're listening to {possessive} {title}, composed in {year} for "
+    "{occasion} when the composer was {age} years old. Listen out for "
+    "{listen}. Thanks for watching. Listen to symphonies and get your "
+    "attention span back. See you tomorrow."
+)
+
+SPEECH_WPM = 150      # an unhurried voice-over; near enough to catch a long one
+REEL_SECONDS = 60     # the format's ceiling
+
+# Two slots take prose that has to be *spoken*, and the scholarly fields cannot
+# always do it. "composed in 1802 for No commission. Finished in the country
+# retreat..." is a grammatical wreck, and so is "Listen out for Four notes. The
+# whole first movement is built from almost nothing else." So the record carries
+# a spoken phrase for each — `reason.occasion_spoken` and `spoken` on the card
+# hook — written to slot into the sentence, while the scholarly field stays as
+# it is. Falling back to the scholarly field is deliberately noisy: a sentence
+# that reads wrong in a voice-over is not a small error, and nothing downstream
+# will catch it.
+
+
+def spoken_title(rec):
+    """The title as a person says it: no opus number, the nickname in words.
+
+    'Symphony No. 3 in E flat major, Op. 55 "Eroica"' is a catalogue entry.
+    Nobody reads an opus number aloud over a reel, and nobody pronounces the
+    quotation marks — but the nickname is the half of the title a listener
+    actually uses, so it stays, in apposition, where the opus number was.
+    """
+    if rec.get("title_spoken"):
+        return rec["title_spoken"]
+    title = re.sub(r",?\s*Op\.\s*\d+[a-z]?", "", rec["title_full"])
+    title = re.sub(r'[,\s]*[“"]([^”"]+)[”"]', r", the \1", title)
+    return re.sub(r"\s{2,}", " ", title).strip().strip(",")
+
+
+def spoken_occasion(rec):
+    """The phrase after "composed in <year> for". Returns (text, warning)."""
+    reason = rec.get("reason") or {}
+    spoken = (reason.get("occasion_spoken") or "").strip()
+    if spoken:
+        return spoken.rstrip("."), None
+    fallback = (reason.get("occasion") or reason.get("summary") or "").strip()
+    if not fallback:
+        return "[Occasion]", ("nothing to say why the work exists — [Occasion] is "
+                              "still a placeholder in the script")
+    return fallback.rstrip("."), ("no reason.occasion_spoken, so the script reads "
+                                  "reason.occasion verbatim — check it follows "
+                                  '"composed in %s for"' % (rec["composition"].get("year") or "-"))
+
+
+def spoken_hook(rec):
+    """The phrase after "Listen out for". Returns (text, warning)."""
+    hook = card_hook(rec)
+    if not hook:
+        return "[Listening note]", ("no listen_for hook — [Listening note] is still "
+                                    "a placeholder in the script")
+    spoken = (hook.get("spoken") or "").strip()
+    if spoken:
+        return spoken.rstrip("."), None
+    return hook["hook"].rstrip("."), ('no `spoken` on the card hook, so the script '
+                                      'reads the card line verbatim — check it '
+                                      'follows "Listen out for"')
+
+
+def reel_script(rec):
+    """(script text, warnings) for the <60 second reel.
+
+    Everything the sentence needs comes from the record, and every gap stays
+    visible as its own square bracket rather than being papered over.
+    """
+    c, comp = rec["composer"], rec["composition"]
+    warnings = []
+    surname = c["name"].split()[-1]
+
+    year = comp.get("year")
+    if not year:
+        warnings.append("no composition.year — [YEAR] is still a placeholder")
+
+    if year and c.get("born"):
+        age = str(year - c["born"])
+    else:
+        age = "[AGE]"
+        warnings.append("no composer.born — [AGE] is still a placeholder")
+
+    occasion, w = spoken_occasion(rec)
+    if w:
+        warnings.append(w)
+    listen, w = spoken_hook(rec)
+    if w:
+        warnings.append(w)
+
+    body = SCRIPT_TEMPLATE.format(possessive=surname + "'s",
+                                  title=spoken_title(rec),
+                                  year=year or "[YEAR]",
+                                  occasion=occasion,
+                                  age=age,
+                                  listen=listen)
+    words = len(body.split())
+    seconds = words / SPEECH_WPM * 60.0
+    if seconds > REEL_SECONDS:
+        warnings.append("about %d seconds at %d words a minute — over the %d-second "
+                        "ceiling. Shorten the occasion or the listening line."
+                        % (round(seconds), SPEECH_WPM, REEL_SECONDS))
+    return "SCRIPT\nSymphony of the Day\n" + body, warnings
+
+
+def script_section(rec):
+    """The note's last section: the script, fenced so it copies out clean."""
+    text, warnings = reel_script(rec)
+    words = len(text.split()) - 1          # "SCRIPT" is a label, not a word said
+    L = ["## Script", "",
+         "*Voice-over for the reel. Generated from this record — fix the record "
+         "and re-run, do not edit it here. About %d words, %d seconds at %d wpm.*"
+         % (words, round(words / SPEECH_WPM * 60.0), SPEECH_WPM),
+         "", "```text", text, "```", ""]
+    for w in warnings:
+        L.append("> [!warning] %s" % w)
+    if warnings:
+        L.append("")
+    return L
 
 
 def place_line(place):
@@ -97,6 +249,44 @@ def fmt(rec):
         L += ["", reason["detail"]]
     L.append("")
 
+    # Forces. Between why-it-exists and the premiere: what it takes to play the
+    # work is a fact about the work, the premiere roster a fact about the night.
+    sc = rec.get("scoring") or {}
+    if sc:
+        label, text = scoring_fact(rec)
+        L += ["## Forces", ""]
+        if text:
+            won = [k for k, _l, f, _u in SCORING_PRIORITY if (sc.get(k) or {}).get(f)]
+            L.append("**%s: %s.**" % (label, text))
+            if won:
+                L.append("Card 2 prints this from `scoring.%s` — %s."
+                         % (won[0], FORCES_BASIS[won[0]]))
+        for key, heading in (("specified", "As specified in the score"),
+                             ("premiere", "At the premiere"),
+                             ("instrumentation", "Instrumentation"),
+                             ("voices", "Voices")):
+            block = sc.get(key) or {}
+            if not block:
+                continue
+            counts = []
+            if block.get("players"):
+                counts.append("%d players" % block["players"])
+            if block.get("instruments"):
+                counts.append("%d instruments" % block["instruments"])
+            if block.get("chorus"):
+                counts.append("chorus of %d" % block["chorus"])
+            if block.get("soloists"):
+                counts.append("%d soloists" % block["soloists"])
+            L += ["", "**%s.**%s" % (heading, " " + ", ".join(counts) + "." if counts else "")]
+            for field in ("shorthand", "strings"):
+                if block.get(field):
+                    L.append("- `%s`" % block[field])
+            if block.get("doublings"):
+                L.append("*Doublings:* %s" % block["doublings"])
+            if block.get("note"):
+                L.append(block["note"])
+        L.append("")
+
     # First performance.
     L += ["## First performance", ""]
     if not fp.get("known"):
@@ -162,6 +352,11 @@ def fmt(rec):
         L.append(line)
     L.append("")
 
+    # The script, last. It is the only section that is not scholarship — the
+    # words read over the finished reel — and a reader scanning the note for a
+    # fact should not have to step over it to reach the sources.
+    L += script_section(rec)
+
     return "\n".join(L)
 
 
@@ -171,6 +366,8 @@ def main():
     ap.add_argument("slug", nargs="?", help="Slug of one record")
     ap.add_argument("--all", action="store_true", help="Every record in data/research")
     ap.add_argument("--dry-run", action="store_true", help="Print instead of writing")
+    ap.add_argument("--script", action="store_true",
+                    help="Print just the reel script, and write nothing")
     args = ap.parse_args()
 
     if args.all:
@@ -182,7 +379,7 @@ def main():
         sys.exit("give a slug, or --all")
 
     folder = os.path.join(VAULT, "Symphony of the day")
-    if not os.path.isdir(folder):
+    if not os.path.isdir(folder) and not (args.script or args.dry_run):
         sys.exit("vault folder not found: %s" % folder)
 
     for slug in slugs:
@@ -191,6 +388,16 @@ def main():
             print("  skip   %s — no record" % slug)
             continue
         rec = json.load(open(path, encoding="utf-8"))
+
+        if args.script:
+            # For the day's shoot: the script on its own, nothing to scroll past.
+            script, warnings = reel_script(rec)
+            print("=" * 70)
+            print(script)
+            for w in warnings:
+                print("  !  %s" % w)
+            continue
+
         text = fmt(rec)
         rel = rec.get("obsidian_note") or ("Symphony of the day/%s.md" % slug)
         out = os.path.join(VAULT, rel.replace("/", os.sep))
@@ -202,6 +409,11 @@ def main():
             with open(out, "w", encoding="utf-8") as fh:
                 fh.write(text)
             print("  wrote  %s" % rel)
+        # The script's gaps are worth seeing at the terminal too: the note is
+        # generated and easy not to reread, and a placeholder left in a
+        # voice-over is only caught by a person.
+        for w in reel_script(rec)[1]:
+            print("     !  %s" % w)
 
 
 if __name__ == "__main__":

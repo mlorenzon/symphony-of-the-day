@@ -39,6 +39,10 @@
       "type": "string",
       "description": "Nickname alone, e.g. Linz. Empty if the work has none."
     },
+    "title_spoken": {
+      "type": "string",
+      "description": "Override for the title as spoken in the reel script. Leave it out unless the derived one reads badly: the script drops the opus number and says the nickname as words, which handles most titles."
+    },
     "catalogue": {
       "type": "string",
       "description": "K. 425, Op. 98, Hob. I:94 …"
@@ -220,6 +224,10 @@
         },
         "occasion": {
           "type": "string"
+        },
+        "occasion_spoken": {
+          "type": "string",
+          "description": "The same fact as `occasion`, worded to be spoken: it has to follow \"composed in <year> for\" in the reel script and read as one sentence. \"a benefit concert of his own\", not \"A benefit concert for the composer.\" No full stop. Without it the script reads `occasion` verbatim and warns."
         },
         "commission": {
           "type": "string",
@@ -417,6 +425,10 @@
           "hook": {
             "type": "string",
             "description": "One sentence a viewer who has never heard the piece can act on. 64–71 characters is the range that sits well on the card."
+          },
+          "spoken": {
+            "type": "string",
+            "description": "The card hook worded to be spoken: it has to follow \"Listen out for\" in the reel script. \"four notes, and a whole first movement built from almost nothing else\", not \"Four notes. The whole first movement is built from almost nothing else.\" No full stop. Only the hook flagged `card` needs one."
           },
           "kind": {
             "enum": [

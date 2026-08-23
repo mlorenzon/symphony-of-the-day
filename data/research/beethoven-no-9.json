@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-9",
-  "researched": "2026-08-21",
+  "researched": "2026-08-23",
   "title_full": "Symphony No. 9 in D minor, Op. 125 “Choral”",
   "title_short": "Choral",
   "catalogue": "Op. 125",
@@ -41,6 +41,7 @@
     "patron": "Philharmonic Society of London",
     "dedicatee": "King Friedrich Wilhelm III of Prussia",
     "occasion": "A commission from London, finally answering a scheme to set Schiller that Beethoven had carried since his twenties.",
+    "occasion_spoken": "a commission from the Philharmonic Society of London",
     "detail": "Grove traces the intention to set Schiller's An die Freude back to Beethoven's last days in Bonn: a letter of January 1793 from the Bonn law professor Fischenich to Schiller's wife reports that 'he proposes to compose Schiller's Freude, strophe by strophe'. Grove records that he 'now intended to conclude with Turkish music and a full choir', and reads the period as showing 'a desire in Beethoven around this time to gather up the unfinished business of the past'. Wikipedia dates the Philharmonic Society commission to 1817; the dedication went instead to the Prussian king."
   },
   "first_performance": {
@@ -51,11 +52,27 @@
     "conductor": "Michael Umlauf, with Beethoven on stage setting tempos",
     "soloists": "Henriette Sontag, Caroline Unger, Anton Haizinger, Joseph Seipelt",
     "reception": "Ovations Beethoven could not hear; the contralto Caroline Unger turned him round to face the audience.",
-    "notes": "Grove confirms the date and the Kärntnertortheater. The conducting arrangement, the soloists and the Unger story come from Wikipedia."
+    "notes": "Grove confirms the date and the Kärntnertortheater. The conducting arrangement, the soloists and the Unger story come from Wikipedia. On the forces: the premiere was played by an augmented band, drawn from the Kärntnertor house orchestra, the Burgtheater, the Theater an der Wien and noble households, with parts copied for over 120 performers. Albrecht's 1822 house roster is the establishment it was built on, not the force itself. Brown records that the 1824 performances placed the choir in front of the orchestra, standard Viennese practice. Schindler's conversation book of about 26 March 1824 notes that the late Anton Grams had led twelve basses, cellos and contrabasses counted together."
+  },
+  "scoring": {
+    "instrumentation": {
+      "instruments": 28,
+      "shorthand": "2+picc.2.2.2+cbsn - 4.2.3.0 - timp, bass drum, triangle, cymbals - strings",
+      "doublings": "None. Piccolo and contrabassoon are separate parts, both entering in the finale.",
+      "note": "10 wind, 9 brass, four percussion and the five string parts. Four horns and the Turkish percussion of the finale are what carry it past every other symphony in the set. Counted from the score's distinct parts, doublings once. Grove's work-list gives composition dates, first performances, publication and dedications but no instrumentation, so the count rests on Wikipedia's instrumentation section alone and is uncorroborated.",
+      "source": "wp-beethoven-no-9"
+    },
+    "voices": {
+      "chorus": null,
+      "soloists": 4,
+      "note": "Soprano, alto, tenor and bass soloists and an SATB chorus, the tenors briefly dividing, all in the finale only. The score sets no chorus size; the premiere drew on the Kärntnertor house orchestra, the Vienna Music Society and amateurs, and no count is recorded for any of them.",
+      "source": "wp-beethoven-no-9"
+    }
   },
   "listen_for": [
     {
       "hook": "Voices arrive in the finale — the first time in a major symphony.",
+      "spoken": "the voices arriving in the finale, for the first time in a major symphony",
       "kind": "innovation",
       "timing": "IV, after the instrumental recitatives",
       "card": true,
@@ -150,6 +167,42 @@
       "accessed": "2026-08-22",
       "zotero_key": "H39HKTPR",
       "snapshot": "6GB9PX6G"
+    },
+    {
+      "id": "albrecht-2009-players-in-the-pit",
+      "type": "article",
+      "title": "Picturing the Players in the Pit: The Orchestra of Vienna's Kärntnertor Theater, 1821–1822",
+      "author": "Theodore Albrecht",
+      "container": "Music in Art",
+      "year": 2009,
+      "url": "https://www.jstor.org/stable/41818590",
+      "accessed": "2026-08-23",
+      "zotero_key": "W6HJ3SSU",
+      "snapshot": "2NEWJPKP"
+    },
+    {
+      "id": "albrecht-1999-lewy-ninth",
+      "type": "article",
+      "title": "Elias (Eduard Constantin) Lewy and the First Performance of Beethoven's Ninth Symphony",
+      "author": "Theodore Albrecht",
+      "container": "The Horn Call",
+      "year": 1999,
+      "url": "https://www.proquest.com/docview/1226023",
+      "accessed": "2026-08-23",
+      "zotero_key": "W4PXVVFZ",
+      "snapshot": "QZVGIME3"
+    },
+    {
+      "id": "brown-1988-orchestra-vienna",
+      "type": "article",
+      "title": "The Orchestra in Beethoven's Vienna",
+      "author": "Clive Brown",
+      "container": "Early Music",
+      "year": 1988,
+      "url": "https://www.jstor.org/stable/3127044",
+      "accessed": "2026-08-23",
+      "zotero_key": "55I56SI3",
+      "snapshot": "X8F5B5SI"
     }
   ],
   "claims": {
@@ -219,6 +272,17 @@
       "grove-mozart-leopold",
       "grove-brahms",
       "grove-shostakovich"
+    ],
+    "scoring.instrumentation": [
+      "wp-beethoven-no-9"
+    ],
+    "scoring.voices": [
+      "wp-beethoven-no-9"
+    ],
+    "first_performance.forces_context": [
+      "albrecht-2009-players-in-the-pit",
+      "albrecht-1999-lewy-ninth",
+      "brown-1988-orchestra-vienna"
     ]
   },
   "conflicts": [
@@ -231,7 +295,8 @@
     }
   ],
   "unknowns": [
-    "Whether the Philharmonic Society commission of 1817 was for this symphony specifically, or for the 'promised two' Grove mentions."
+    "Whether the Philharmonic Society commission of 1817 was for this symphony specifically, or for the 'promised two' Grove mentions.",
+    "No roster of the 7 May 1824 premiere is available here. Albrecht reconstructs one in Appendix D of his 2024 book — annotating the fall 1822 Kärntnertor list toward 1824, and giving “possibly a total of 24 violins, including concertmasters” — but the University of Sydney holds that book in no form, electronic or print, so the figures have not been read. Until they are, the card counts the score's parts."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 9 (Choral).md"
 }
