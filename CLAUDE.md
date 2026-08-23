@@ -402,14 +402,29 @@ flip lands on "Listen out for", the fourteen captions sit in the band, and
 through it yet**, so the numbers most likely to move on first contact are
 `CFG.safe` and the caption budget.
 
+**The AE project now holds one work: `beethoven-no-1`** (23 Aug 2026). The
+other eleven were deleted from the project deliberately — it is the first to be
+recorded, and a project with twelve works in it is twelve things to scroll
+past. Nothing was lost: `SOTD.buildWork(slug)` rebuilds any of them from the
+work JSON, and every frozen map is still on disk in `data/maps/<slug>/`, which
+is what makes that true. `CFG.works` still lists all twelve, so `buildAll()`
+would bring them all back.
+
+`beethoven-no-1` is rebuilt into the new layout and verified: all four facts,
+the map carrying its HABSBURG MONARCHY label, and the frozen sequence still
+attached after the rebuild. It has no take yet, so its reel is the nominal
+30 seconds with an empty captions comp — recording it and running the four
+commands is the next thing that happens.
+
 **The layout changed for every work, and only two have been rebuilt into it.**
 Full-bleed video behind the card meant the card had to come down from 175% to
 120%, move left of centre (x 470) and hang from an anchor near its own top edge
 — so it spans y 744–1484, clears Instagram's button rail, and leaves the top
 740 px of frame for a face. The caption band sits under it at y 1562. Set by
 hand in the comp and read back into `CFG.overlay` / `CFG.caption`, so it is
-reproducible. `beethoven-no-5` is rebuilt into it; the other eleven still carry
-the old centred 175% layout. It is a rebuild, not a
+reproducible. `beethoven-no-1` and `beethoven-no-5` were rebuilt into it;
+the other ten no longer exist in the project and will get it whenever they are
+rebuilt. It is a rebuild, not a
 re-bake, so every frozen map survives:
 
 ```js
