@@ -923,6 +923,29 @@ of the whole card, so it is a louder call than it used to be.
 Everything here cost time on a live install. Companion notes for the map side
 are in [`geolayers-3-via-mcp.md`](geolayers-3-via-mcp.md).
 
+**Never run `removeUnusedFootage()` on this project.** AE's idea of "used" is
+*referenced by a layer*, and the work JSON is not: it is reached from
+expressions, as `footage("<slug>.json").sourceData`. So `beethoven-no-1.json`
+and `periods.json` both report `usedIn.length === 0` while every scrap of text
+on both cards depends on them. The purge would take them, the expressions would
+fail, and the cards would come back seeded with placeholder text.
+
+The safe purge is solids only, and it is worth doing — a rebuild leaves its old
+BG solids and CTRL/RIG nulls behind and AE never collects them. One project had
+accumulated 515:
+
+```js
+for (var i = app.project.numItems; i >= 1; i--) {
+    var it = app.project.item(i);
+    if (it instanceof FootageItem && it.usedIn.length === 0 &&
+        it.mainSource instanceof SolidSource) it.remove();
+}
+```
+
+**Rebuild before you purge, not after.** `buildWork` deletes and recreates every
+comp, which orphans the solids of the comps it just replaced. Purging first
+simply means doing it again.
+
 **`$.evalFile` does not define globals.** It evaluates in the *caller's* scope,
 so `var SOTD = ...` inside the file is local to whichever wrapper function
 loaded it and is gone by the next MCP call. The multi-call map workflow needs it

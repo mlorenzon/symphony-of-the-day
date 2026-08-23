@@ -410,6 +410,11 @@ work JSON, and every frozen map is still on disk in `data/maps/<slug>/`, which
 is what makes that true. `CFG.works` still lists all twelve, so `buildAll()`
 would bring them all back.
 
+The project was also purged of 515 orphaned solids and nulls left behind by
+past rebuilds — 590 items down to 78. **Solids only: `removeUnusedFootage()`
+would have taken the work JSON with them**, because AE does not count an
+expression as a use. See the trap in `docs/reel-cards.md`.
+
 `beethoven-no-1` is rebuilt into the new layout and verified: all four facts,
 the map carrying its HABSBURG MONARCHY label, and the frozen sequence still
 attached after the rebuild. It has no take yet, so its reel is the nominal
