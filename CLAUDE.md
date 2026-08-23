@@ -10,10 +10,11 @@ connector.
 | Before touching | Read |
 |---|---|
 | The cards, the reel, `sotd.jsx` | [`docs/reel-cards.md`](docs/reel-cards.md) |
+| The recorded take, subtitles, the cut, rendering | [`docs/reel-edit.md`](docs/reel-edit.md) |
 | The map, GEOlayers, geojson | [`docs/geolayers-3-via-mcp.md`](docs/geolayers-3-via-mcp.md) |
 | Researching a work, sources, Zotero, the vault | [`docs/research-engine.md`](docs/research-engine.md) |
 
-All three are field notes verified against a live install, and all three have a
+All four are field notes verified against a live install, and all four have a
 **Traps** section. Reading the relevant one first reliably saves more time than
 it costs — several of the traps fail silently rather than erroring.
 
@@ -73,6 +74,47 @@ terminal and in the note.
 
 ```bash
 python scripts/research_to_note.py <slug> --script
+```
+
+## Editing the reel
+
+A recording of the script in, a finished reel out. Five commands, and the whole
+edit is derived — nothing is dragged in a timeline, because `buildWork` would
+throw it away.
+
+```bash
+python scripts/take_transcribe.py <slug>   # word timings, into words.json
+python scripts/take_align.py <slug>        # cut + card timings + captions
+```
+```js
+SOTD.buildWork("<slug>");                  // comp, timed and captioned
+SOTD.renderReel("<slug>");                 // out/<slug>.ae.mp4 — blocks AE
+```
+```bash
+python scripts/reel_master.py <slug>       # out/<slug>.mp4 — the upload
+```
+
+Put the recording at `data/takes/<slug>/take_raw.mp4`: vertical, full-bleed, one
+take, a second of silence at each end. **After Effects finishes the reel and
+ffmpeg cuts it** — the flip timing is one expression-driven slider with the map
+move hanging off it, so flattening the overlay into an NLE would turn every
+200 ms adjustment into a re-render. Premiere is not in this pipeline.
+
+**The recogniser is a clock, not a transcriber.** The script is already known —
+`research_to_note.py` wrote it — so faster-whisper supplies word *times* and its
+text is discarded. A misheard word is a timing wobble; it cannot put wrong text
+on screen. The cut points come from `silencedetect` rather than from the words,
+because on the first take the recogniser dropped the opening line entirely and
+cutting to its first word would have lopped "Symphony of the Day" off the reel.
+
+The edit lands in `data/works/<slug>.json` under `video` — the take, the four
+slider values, the caption list — so a rebuild restores it exactly.
+
+`.venv-asr/` holds faster-whisper, needs no admin rights, and
+`take_transcribe.py` re-runs itself inside it. Build it once:
+
+```bash
+python -m venv .venv-asr && .venv-asr/Scripts/python -m pip install faster-whisper
 ```
 
 ## The era is the colour
@@ -350,16 +392,49 @@ the strap measured at 12/12 px of air on `beethoven-no-1` and 15/15 on
 `beethoven-no-5` — whose place line steps down to 21 px, which is the case a
 pinned strap could not have centred.
 
+**Step 3 — the recorded reel — is built and proved end to end** (23 Aug 2026),
+but only against a stand-in: a SAPI-synthesised voice over a measurement grid,
+at `data/takes/beethoven-no-5/`. Every mechanism in the chain is real and was
+verified in renders read off disk — the cut is frame-accurate (the take's
+burnt-in timecode read 15.360 at comp time 13.52 against a cut at 1.823), the
+flip lands on "Listen out for", the fourteen captions sit in the band, and
+`out/beethoven-no-5.mp4` is 27.0 s at −14.8 LUFS. **No real recording has been
+through it yet**, so the numbers most likely to move on first contact are
+`CFG.safe` and the caption budget.
+
+**The layout changed for every work, and only two have been rebuilt into it.**
+Full-bleed video behind the card meant the card had to come down from 175% to
+120%, move left of centre (x 470) and hang from an anchor near its own top edge
+— so it spans y 744–1484, clears Instagram's button rail, and leaves the top
+740 px of frame for a face. The caption band sits under it at y 1562. Set by
+hand in the comp and read back into `CFG.overlay` / `CFG.caption`, so it is
+reproducible. `beethoven-no-5` is rebuilt into it; the other eleven still carry
+the old centred 175% layout. It is a rebuild, not a
+re-bake, so every frozen map survives:
+
+```js
+SOTD.buildAll();
+```
+
+Card 2's fact list is the thing to watch when that happens — it is the tightest
+type in the design and it just lost 14% of its size. `Overlay Scale` is a
+slider if it stops reading.
+
 ## Conventions
 
-- Tracked: source, docs, `data/works/*.json`, `data/research/*.json`,
+- Tracked: source, docs, `data/works/*.json` (including the derived `video`
+  block — the edit is data, the media is not), `data/research/*.json`,
   `data/periods.json` (which now carries the period colours — see
   `scripts/check_palette.py`) and
   `data/audio/credits.json`. Not tracked: the
   `.aep`, portraits, map stills, clipped geojson, basemaps, the card-turn wav —
-  all regenerable by a script.
+  all regenerable by a script. Nor `data/takes/` (the recordings and everything
+  derived from one), `out/` (the rendered reels) or `.venv-asr/`.
 - Python is stdlib plus `requests` and `Pillow`, and `yt-dlp` + `ffmpeg` for
-  `fetch_sfx.py`. ExtendScript is ES3: no `let`, no arrow functions, no
+  `fetch_sfx.py`. `ffmpeg` also cuts and masters the reel. The one dependency
+  outside that is **faster-whisper, quarantined in `.venv-asr/`** and used by
+  exactly one script — nothing else imports it, and the rest of the pipeline
+  runs without it. ExtendScript is ES3: no `let`, no arrow functions, no
   template literals.
 - Fonts are Cambria for text and Trajan Pro 3 for caps — **Regular only**, so
   `CFG.font.capsBold` is Trajan Regular too. Trajan is an Adobe Fonts

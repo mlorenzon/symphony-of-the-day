@@ -37,3 +37,17 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Recorded takes and everything derived from one. The recording is the master
+# and belongs wherever you keep footage; align.json and locked.mp4 are both
+# regenerable from it with take_transcribe.py + take_align.py.
+data/takes/
+
+# Rendered reels — SOTD.renderReel(slug), then scripts/reel_master.py <slug>
+out/
+
+# The speech recogniser. Not a project dependency: rebuild it with
+#   python -m venv .venv-asr
+#   .venv-asr/Scripts/python -m pip install faster-whisper
+# (the model itself caches into data/.cache/, already ignored above)
+.venv-asr/

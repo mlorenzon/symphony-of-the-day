@@ -56,5 +56,97 @@
       },
       "source": "given"
     }
+  },
+  "video": {
+    "take": "data/takes/beethoven-no-5/locked.mp4",
+    "source": "data/takes/beethoven-no-5/take_raw.mp4",
+    "duration": 27.012,
+    "cut": {
+      "in": 1.823,
+      "out": 28.835
+    },
+    "timings": {
+      "revealStart": 1.508,
+      "revealDuration": 0.75,
+      "turnAt": 14.377,
+      "turnDuration": 0.6
+    },
+    "captions": [
+      {
+        "t": 0.0,
+        "d": 1.758,
+        "text": "Symphony of the Day"
+      },
+      {
+        "t": 1.758,
+        "d": 1.82,
+        "text": "We're listening to Beethoven's"
+      },
+      {
+        "t": 3.578,
+        "d": 1.94,
+        "text": "Symphony No. 5 in C minor,"
+      },
+      {
+        "t": 5.817,
+        "d": 2.04,
+        "text": "composed in 1808 for a benefit"
+      },
+      {
+        "t": 7.857,
+        "d": 2.18,
+        "text": "concert of his own, granted him"
+      },
+      {
+        "t": 10.037,
+        "d": 1.041,
+        "text": "for his charity work"
+      },
+      {
+        "t": 11.078,
+        "d": 1.56,
+        "text": "when the composer was 38"
+      },
+      {
+        "t": 12.638,
+        "d": 0.94,
+        "text": "years old."
+      },
+      {
+        "t": 14.377,
+        "d": 1.28,
+        "text": "Listen out for four notes,"
+      },
+      {
+        "t": 15.978,
+        "d": 1.299,
+        "text": "and a whole first movement"
+      },
+      {
+        "t": 17.277,
+        "d": 1.8,
+        "text": "built from almost nothing else."
+      },
+      {
+        "t": 20.017,
+        "d": 1.0,
+        "text": "Thanks for watching."
+      },
+      {
+        "t": 21.938,
+        "d": 1.339,
+        "text": "Listen to symphonies and get"
+      },
+      {
+        "t": 23.277,
+        "d": 1.46,
+        "text": "your attention span back."
+      },
+      {
+        "t": 25.598,
+        "d": 0.76,
+        "text": "See you tomorrow."
+      }
+    ]
   }
 }

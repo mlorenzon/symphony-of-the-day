@@ -516,8 +516,10 @@ SOTD/
   Works/    SOTD Reel · <slug>       1080×1920 — the deliverable
             CARD FRONT · <slug>      440×616
             CARD BACK  · <slug>      440×616
+            CAPTIONS · <slug>        1080×1920 — one layer per subtitle line
   Assets/   PORTRAIT · <slug>        412×272  — scale-to-fill crop, duotoned
             MAP · <slug>             412×240  — map panel, duotoned, plus pin
+            take · <slug>            the locked recording, if there is one
   Data/     <slug>.json              the work
             periods.json             the periods and their colours
 ```
@@ -530,13 +532,15 @@ Inside the reel comp:
 
 | Layer | What it does |
 |---|---|
-| `CAMERA` | Long lens, zoom 4600, so the card does not shear as it turns |
-| `CTRL` | Sliders: Reveal Start, Reveal Duration, **Turn At**, **Turn Duration**, Overlay Y, Overlay Scale |
-| `RIG` | 3D null both cards hang off; driven by Overlay Y and Overlay Scale |
+| `CAPTIONS` | The subtitles, above everything — see [`reel-edit.md`](reel-edit.md) |
 | `CARD 1 · details` / `CARD 2 · facts` | The two faces, stacked in the same spot |
-| `STAGE` | Guide layer marking where your video goes. Does not render |
+| `CAMERA` | Long lens, zoom 4600, so the card does not shear as it turns |
+| `CTRL` | Sliders: Reveal Start, Reveal Duration, **Turn At**, **Turn Duration**, Overlay X, Overlay Y, Overlay Scale |
+| `RIG` | 3D null both cards hang off; driven by Overlay X/Y and Overlay Scale |
+| `SAFE — Instagram furniture` / `SAFE — caption band` | Guide layers. Do not render |
+| `VIDEO · take` | The locked recording, full-bleed, scaled to cover |
 | `SFX · card 1 in` / `SFX · turn over` | A card-turn sound on each move |
-| `BG` | Dark solid |
+| `BG` | Dark solid, behind the video and visible only without one |
 
 ### Timing it to a voiceover
 
@@ -588,15 +592,24 @@ silently if it is missing.
 
 > **The sound is placed, not expression-driven.** A layer's start time is not an
 > expressible property in AE, so the two audio layers are positioned at build
-> time from `CFG.reveal`. This is the one thing that does *not* follow the
-> sliders: drag `Turn At` and `SFX · turn over` stays where it was. Drag it to
-> match, or set `CFG.reveal.turnAt` and rebuild.
+> time. This is the one thing that does *not* follow the sliders: drag `Turn At`
+> and `SFX · turn over` stays where it was. Drag it to match, or fix the value
+> at source and rebuild — which is what a work with a recording does, since
+> both the slider and the sound are placed from the same derived number.
 
-> Instagram's own UI covers roughly the bottom 250 px of a reel, and burned-in
-> captions want the top. One card instead of two buys the room to be bigger:
-> `CFG.overlay` puts it at 175% scale centred on y 1112, so it spans roughly
-> y 573–1651 and leaves the top 560 px for the video. `STAGE` marks that.
-> Raise `Overlay Y` or drop `Overlay Scale` if captions start colliding.
+> **Where the four values come from once there is a recording.** They are read
+> from `video.timings` in the work JSON, which `take_align.py` derives from the
+> take: `Turn At` is the moment "Listen out for" is spoken. `CFG.reveal` is only
+> the fallback for a work not yet recorded. See [`reel-edit.md`](reel-edit.md).
+
+> **The layout is pinned to Instagram's furniture.** `CFG.safe` — top 220,
+> bottom 310, left 60, right 200 — boxes it in: the card at 120%, left of
+> centre on x 470, hanging from an anchor near its own top edge so it spans
+> y 744–1484 and leaves the top of frame for a face; the caption band under it
+> at y 1562. Left of centre because the right-hand 200 px is the
+> like/comment/share rail. The two `SAFE` guide layers draw the box — the
+> numbers are approximations to correct against a real phone, not published
+> figures.
 
 ---
 

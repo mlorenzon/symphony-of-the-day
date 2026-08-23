@@ -319,10 +319,56 @@ var SOTD = (function () {
 
         // The map move: hold a continent-wide view until the cards have
         // landed, then fall in on the city over `dur` seconds and settle.
-        // Where the single card sits, and how big. One card instead of two
-        // buys a lot of size, which is the point — everything on it has to be
-        // legible on a phone.
-        overlay: { y: 1112, scale: 175, videoBottom: 560 },
+        // Instagram's own furniture, in reel pixels: the header at the top,
+        // the like/comment/share rail down the right, and the username, caption
+        // and audio ticker along the bottom. Nothing that has to be read may
+        // sit outside this box.
+        //
+        // These are conservative approximations, not published numbers — Meta
+        // does not give exact figures and the UI moves between app versions. So
+        // they are here, in one place, and `buildReel` draws them as a guide
+        // layer: post one test reel, screenshot it on the phone, and correct
+        // these four values rather than nudging any layer.
+        // `bottom` was 380 and is 310 because the caption band was placed by
+        // eye at y 1562, which puts the widest plate's lower edge at 1603 — so
+        // 380 was a guess the layout had already overruled. 310 contains it
+        // with room, and sits inside the 300–320 the platform is usually said
+        // to take. Still a guess until a phone says otherwise.
+        safe: { top: 220, bottom: 310, left: 60, right: 200 },
+
+        // Where the single card sits, and how big. The video is full-bleed
+        // behind it now, which changes both numbers: the card came down from
+        // 175% and moved left of centre, because the right-hand 200 px belongs
+        // to Instagram's button rail and a centred card ran under it.
+        //
+        // Sitting low is deliberate. The card's bottom edge stops just above
+        // the caption band, which leaves the top third of the frame — where a
+        // face actually is — uncovered.
+        // `anchor` is the point of the card that sits on the rig, in card
+        // pixels — [220, 78] is centred horizontally and near the top edge, so
+        // the card HANGS from a point high in the frame rather than being
+        // centred on one. That is what keeps the top third clear for a face
+        // while the card still reaches down to the caption band.
+        //
+        // Set by hand in the comp and read back rather than calculated: 120%
+        // and this anchor are where the framing looked right, and the numbers
+        // are a record of that judgement.
+        overlay: { x: 470, y: 838, scale: 120, anchor: [220, 78] },
+
+        // The subtitles. Cream on a translucent ink plate, because they are
+        // over a moving picture rather than over the card's flat colour, and
+        // cream alone will not survive a light frame.
+        //
+        // `centerY` is the middle of the band; the plate is measured to the
+        // text, so a one-word line does not get a full-width slab.
+        // Sized and placed to match the comp, then flattened: the band was set
+        // by scaling the caption layer to 111%, and a pre-comp scaled up is a
+        // pre-comp resampled — soft type for no reason. The same look, with the
+        // size set on the type itself, is sharp.
+        caption: {
+            size: 51, leading: 62, box: [910, 211], centerY: 1562,
+            plateOpacity: 66, platePad: [33, 18], plateRound: 13
+        },
 
         map: {
             dur:        5,      // seconds of travel
@@ -1395,27 +1441,141 @@ var SOTD = (function () {
         return L;
     }
 
+    // --------------------------------------------------------- captions comp
+
+    /**
+     * The subtitles, one comp, one layer per line.
+     *
+     * The lines and their times come from `video.captions` in the work JSON,
+     * which `take_align.py` derives from the recording. Nothing is typed here
+     * and nothing is keyframed: a caption is a layer with an in point and an
+     * out point, so re-cutting the take and rebuilding replaces the lot.
+     *
+     * The text is the *script*, not what the recogniser heard. See
+     * `take_align.py` — the recogniser supplies times and nothing else.
+     */
+    function buildCaptions(slug, work, dur, worksFolder) {
+        var R = CFG.reel, K = CFG.caption, V = CFG.overlay;
+        var caps = (work.video && work.video.captions) || [];
+        var c = makeComp("CAPTIONS · " + slug, R.w, R.h, dur, worksFolder);
+        // Built even when empty, so the reel always has the layer to point at
+        // and a work with no take yet still assembles.
+        for (var i = 0; i < caps.length; i++) {
+            var cap = caps[i];
+            // Numbered, not named after the line: the plate finds its text by
+            // name from inside an expression, and caption text is full of
+            // apostrophes and commas.
+            var tName = "cap " + (i + 1);
+            var T = addText(c, {
+                name:    tName,
+                text:    cap.text,
+                font:    CFG.font.serif,
+                size:    K.size,
+                leading: K.leading,
+                color:   CFG.col.cream,
+                justify: ParagraphJustification.CENTER_JUSTIFY,
+                box:     K.box,
+                topLeft: [V.x - K.box[0] / 2, K.centerY - K.box[1] / 2],
+                centerY: K.centerY
+            });
+
+            // The plate is measured to the ink, not to the text box, so a
+            // three-word line gets a three-word plate. Both properties read the
+            // same sourceRectAtTime, so they cannot disagree about where the
+            // words are.
+            var ref = 'var T = thisComp.layer(' + q(tName) + ');\n' +
+                      'var r = T.sourceRectAtTime(time, false);\n';
+            var P = addRect(c, {
+                name:    "plate " + (i + 1),
+                size:    [K.box[0], K.box[1]],
+                topLeft: [V.x - K.box[0] / 2, K.centerY - K.box[1] / 2],
+                round:   K.plateRound,
+                fill:    CFG.col.ink,
+                fillOpacity: K.plateOpacity
+            });
+            P.property("ADBE Root Vectors Group").property("rect")
+             .property("ADBE Vectors Group").property("ADBE Vector Shape - Rect")
+             .property("ADBE Vector Rect Size").expression =
+                ref + '[r.width + ' + (K.platePad[0] * 2) + ', r.height + ' +
+                (K.platePad[1] * 2) + '];';
+            P.property("ADBE Transform Group").property("ADBE Position").expression =
+                ref + 'T.toComp([r.left + r.width / 2, r.top + r.height / 2]);';
+            // addShape/addBoxText both insert at the top, so the plate lands
+            // over its own text. Put it back underneath.
+            P.moveAfter(T);
+
+            T.inPoint = cap.t;
+            T.outPoint = cap.t + cap.d;
+            P.inPoint = cap.t;
+            P.outPoint = cap.t + cap.d;
+        }
+        return c;
+    }
+
     // ------------------------------------------------------------- reel comp
 
-    function buildReel(slug, frontComp, backComp, worksFolder) {
-        var R = CFG.reel, V = CFG.overlay;
-        var c = makeComp("SOTD Reel · " + slug, R.w, R.h, R.dur, worksFolder);
+    /**
+     * Guide rectangles for Instagram's furniture. Not rendered — but the whole
+     * layout is pinned to them, so being able to see them in the viewer is the
+     * difference between measuring and guessing.
+     */
+    function addGuideBox(comp, name, topLeft, size, colour) {
+        var L = comp.layers.addShape();
+        L.name = name;
+        L.guideLayer = true;
+        var g = L.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group");
+        var vs = g.property("ADBE Vectors Group");
+        var r = vs.addProperty("ADBE Vector Shape - Rect");
+        r.property("ADBE Vector Rect Size").setValue(size);
+        var st = vs.addProperty("ADBE Vector Graphic - Stroke");
+        st.property("ADBE Vector Stroke Color").setValue(colour.concat([1]).slice(0, 4));
+        st.property("ADBE Vector Stroke Width").setValue(2);
+        L.position.setValue([topLeft[0] + size[0] / 2, topLeft[1] + size[1] / 2]);
+        return L;
+    }
+
+    function buildReel(slug, work, frontComp, backComp, worksFolder) {
+        var R = CFG.reel, V = CFG.overlay, S = CFG.safe, K = CFG.caption;
+        var vid = work.video || {};
+        var tim = vid.timings || {};
+
+        // The reel is as long as the take. Only a work with no recording yet
+        // falls back to the nominal 30 seconds.
+        var dur = vid.duration ? Math.ceil(vid.duration * R.fps) / R.fps : R.dur;
+        var revealStart = (tim.revealStart === undefined) ? CFG.reveal.start : tim.revealStart;
+        var revealDur   = (tim.revealDuration === undefined) ? CFG.reveal.duration : tim.revealDuration;
+        var turnAt      = (tim.turnAt === undefined) ? CFG.reveal.turnAt : tim.turnAt;
+        var turnDur     = (tim.turnDuration === undefined) ? CFG.reveal.turnDuration : tim.turnDuration;
+
+        var c = makeComp("SOTD Reel · " + slug, R.w, R.h, dur, worksFolder);
         c.bgColor = CFG.col.bg;
 
-        var bg = c.layers.addSolid(CFG.col.bg, "BG", R.w, R.h, 1, R.dur);
+        var bg = c.layers.addSolid(CFG.col.bg, "BG", R.w, R.h, 1, dur);
         bg.locked = true;
 
-        var stage = c.layers.addShape();
-        stage.name = "STAGE — drop your video here";
-        stage.guideLayer = true;
-        var sg = stage.property("ADBE Root Vectors Group").addProperty("ADBE Vector Group");
-        var svs = sg.property("ADBE Vectors Group");
-        var sr = svs.addProperty("ADBE Vector Shape - Rect");
-        sr.property("ADBE Vector Rect Size").setValue([R.w - 80, V.videoBottom]);
-        var sst = svs.addProperty("ADBE Vector Graphic - Stroke");
-        sst.property("ADBE Vector Stroke Color").setValue([0.35, 0.33, 0.30, 1]);
-        sst.property("ADBE Vector Stroke Width").setValue(2);
-        stage.position.setValue([R.w / 2, V.videoBottom / 2]);
+        // The take, full-bleed behind everything. Scaled to cover rather than
+        // to fit: a letterboxed talking head inside a vertical frame is the one
+        // thing this layout cannot look like.
+        if (vid.take) {
+            var takeItem = importFileAs(CFG.root + "/" + vid.take, "take · " + slug,
+                                        folder(CFG.folders.assets));
+            if (takeItem) {
+                var VL = c.layers.add(takeItem);
+                VL.name = "VIDEO · take";
+                var cover = Math.max(R.w / takeItem.width, R.h / takeItem.height) * 100;
+                var VT = VL.property("ADBE Transform Group");
+                VT.property("ADBE Scale").setValue([cover, cover]);
+                VT.property("ADBE Position").setValue([R.w / 2, R.h / 2]);
+                VL.startTime = 0;
+            }
+        }
+
+        var safeW = R.w - S.left - S.right, safeH = R.h - S.top - S.bottom;
+        addGuideBox(c, "SAFE — Instagram furniture", [S.left, S.top], [safeW, safeH],
+                    [0.35, 0.33, 0.30]);
+        addGuideBox(c, "SAFE — caption band",
+                    [V.x - K.box[0] / 2, K.centerY - K.box[1] / 2], K.box,
+                    [0.30, 0.28, 0.26]);
 
         // A long lens: the card sits well below centre, and a wide default
         // camera shears it badly as it rotates. Position and point of interest
@@ -1430,23 +1590,27 @@ var SOTD = (function () {
         camT.property("ADBE Anchor Point").setValue([R.w / 2, R.h / 2, 0]);  // point of interest
         camT.property("ADBE Position").setValue([R.w / 2, R.h / 2, -Z]);
 
-        var ctrl = c.layers.addNull(R.dur);
+        // Seeded from the work's own timings when it has a take: the four
+        // numbers come out of the recording, not out of CFG. They are still
+        // sliders, so a judgement call is a drag rather than a re-run.
+        var ctrl = c.layers.addNull(dur);
         ctrl.name = "CTRL";
         ctrl.guideLayer = true;
-        slider(ctrl, "Reveal Start", CFG.reveal.start);
-        slider(ctrl, "Reveal Duration", CFG.reveal.duration);
-        slider(ctrl, "Turn At", CFG.reveal.turnAt);
-        slider(ctrl, "Turn Duration", CFG.reveal.turnDuration);
+        slider(ctrl, "Reveal Start", revealStart);
+        slider(ctrl, "Reveal Duration", revealDur);
+        slider(ctrl, "Turn At", turnAt);
+        slider(ctrl, "Turn Duration", turnDur);
+        slider(ctrl, "Overlay X", V.x);
         slider(ctrl, "Overlay Y", V.y);
         slider(ctrl, "Overlay Scale", V.scale);
 
-        var rig = c.layers.addNull(R.dur);
+        var rig = c.layers.addNull(dur);
         rig.name = "RIG";
         rig.threeDLayer = true;
         rig.guideLayer = true;
         rig.property("ADBE Transform Group").property("ADBE Position").expression =
             'var C = thisComp.layer("CTRL");\n' +
-            '[thisComp.width / 2, C.effect("Overlay Y")("Slider"), 0];';
+            '[C.effect("Overlay X")("Slider"), C.effect("Overlay Y")("Slider"), 0];';
         rig.property("ADBE Transform Group").property("ADBE Scale").expression =
             'var s = thisComp.layer("CTRL").effect("Overlay Scale")("Slider");\n[s, s, s];';
 
@@ -1473,6 +1637,11 @@ var SOTD = (function () {
             var CT = L.property("ADBE Transform Group");
             CT.property("ADBE Scale").setValue([100, 100, 100]);
             CT.property("ADBE Position").setValue([0, 0, 0]);
+            // Both faces take the same anchor, or they would not read as one
+            // card being turned over. The x half must stay at the card's
+            // horizontal centre: it is the axis the flip spins about.
+            CT.property("ADBE Anchor Point")
+              .setValue([V.anchor[0], V.anchor[1], 0]);
             var sh = L.property("ADBE Effect Parade").addProperty("ADBE Drop Shadow");
             sh.property("ADBE Drop Shadow-0001").setValue([0, 0, 0, 1]);
             sh.property("ADBE Drop Shadow-0002").setValue(165);   // opacity
@@ -1483,6 +1652,9 @@ var SOTD = (function () {
 
         // CARD 1 — the details. Flips in from edge-on, then turns away.
         var one = placeCard(frontComp, "CARD 1 · details");
+        // The card comps are built at the nominal length; the reel is as long
+        // as the take. Trim rather than leave a layer hanging past the end.
+        one.outPoint = c.duration;
         var T1 = one.property("ADBE Transform Group");
         T1.property("ADBE Position").expression = clock +
             'var a = ease(time, t0, t0 + d0, 1, 0);\n' +
@@ -1527,8 +1699,8 @@ var SOTD = (function () {
                                folder(CFG.folders.assets));
         if (sfx) {
             var cues = [
-                { name: "SFX · card 1 in", at: CFG.reveal.start },
-                { name: "SFX · turn over", at: CFG.reveal.turnAt }
+                { name: "SFX · card 1 in", at: revealStart },
+                { name: "SFX · turn over", at: turnAt }
             ];
             for (var s = 0; s < cues.length; s++) {
                 var A = c.layers.add(sfx);
@@ -1541,6 +1713,13 @@ var SOTD = (function () {
                 A.moveToEnd();
             }
         }
+
+        // Captions last, so they sit above the cards: a line of type that
+        // disappears behind a turning card is worse than no line at all.
+        var capComp = buildCaptions(slug, work, dur, worksFolder);
+        var CL = c.layers.add(capComp);
+        CL.name = "CAPTIONS";
+        CL.moveToBeginning();
 
         return c;
     }
@@ -1719,7 +1898,7 @@ var SOTD = (function () {
         var map      = buildMapComp(slug, work, assetsF);
         var front    = buildCardFront(slug, portrait, worksF);
         var back     = buildCardBack(slug, map, work, worksF);
-        var reel     = buildReel(slug, front, back, worksF);
+        var reel     = buildReel(slug, work, front, back, worksF);
         if (!quiet) reel.openInViewer();
 
         return {
@@ -1750,6 +1929,58 @@ var SOTD = (function () {
             }
         }
         return out;
+    };
+
+    // ---------------------------------------------------------------- render
+
+    /**
+     * Render the reel to an MP4 Instagram will take.
+     *
+     * H.264 at 15 Mbps, which is inside Instagram's ceiling and well past the
+     * point where its own re-encode is the limiting factor. The file lands in
+     * `out/<slug>.ae.mp4`, which is not tracked — it is regenerable from the
+     * project and the take, like every other binary here. One more step,
+     * `scripts/reel_master.py`, sets the loudness and gives you the file to
+     * post.
+     *
+     * This blocks After Effects until it finishes. A 27-second reel is a couple
+     * of minutes; call it with a long timeout and do not touch AE meanwhile.
+     */
+    api.renderReel = function (slug, opts) {
+        opts = opts || {};
+        var name = "SOTD Reel · " + slug;
+        var comp = findItem(name, CompItem);
+        if (!comp) throw new Error("No reel comp for " + slug + " — build it first");
+
+        var rq = app.project.renderQueue;
+        // Anything already queued for this comp is a previous attempt. Leaving
+        // it would render the same file twice and race for the handle.
+        for (var i = rq.numItems; i >= 1; i--) {
+            var it = rq.item(i);
+            if (it.comp === comp && it.status !== RQItemStatus.DONE) it.remove();
+        }
+
+        var dir = new Folder(CFG.root + "/out");
+        if (!dir.exists) dir.create();
+        // ".ae.mp4" and not ".mp4": this is the render, not the upload.
+        // scripts/reel_master.py normalises its audio into out/<slug>.mp4,
+        // and giving the plain name to the file you actually post means you
+        // cannot post the un-normalised one by reaching for the obvious file.
+        var out = new File(dir.fsName + "/" + slug + ".ae.mp4");
+        if (out.exists) out.remove();
+
+        var item = rq.items.add(comp);
+        item.applyTemplate("Best Settings");
+        var om = item.outputModule(1);
+        om.applyTemplate(opts.template || "H.264 - Match Render Settings - 15 Mbps");
+        om.file = out;
+
+        if (opts.queueOnly) return { queued: out.fsName, duration: comp.duration };
+
+        rq.render();
+        var done = item.status === RQItemStatus.DONE;
+        return { rendered: done, file: out.fsName, exists: out.exists,
+                 duration: comp.duration, status: String(item.status) };
     };
 
     // ------------------------------------------------------------------- map
