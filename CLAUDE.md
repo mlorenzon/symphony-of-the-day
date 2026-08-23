@@ -70,7 +70,7 @@ changing one is a JSON edit and a rebuild, never a code edit.
 
 | Period | Colour | |
 |---|---|---|
-| Baroque | `#75550C` | dark gold |
+| Baroque | `#5E2080` | imperial purple |
 | Classical | `#254A85` | blue |
 | Romantic | `#932823` | red |
 | Modern | `#12554F` | teal |
@@ -79,9 +79,16 @@ changing one is a JSON edit and a rebuild, never a code edit.
 (`#F4ECDC`) straight onto the period colour, and the strap and fact plates are
 ink (`#14110F`) on it. So a period colour has to be dark enough to carry cream
 type and light enough for the plates to read as panels — the four are held at
-cream 5.8–7.5:1 and ink 2.1–2.7:1. **That is why Baroque is a dark gold and not
-a bright yellow:** at any lightness a viewer would actually call yellow, cream
-type on it fails.
+cream 6.9–9.0:1 and ink 1.8–2.3:1. **That is why Baroque is purple and not the
+yellow a hue-first reading would pick:** at any lightness a viewer would
+actually call yellow, cream type on it fails, and a yellow dark enough to carry
+cream reads as brown. Yellow would have needed black type, black type would have
+needed light plates, and that is a second card design rather than a fourth
+colour.
+
+Baroque sits at the dark end of both numbers on purpose — a purple light enough
+to reach ink 2.1 reads electric rather than rich — which is why the checker's ink
+floor is 1.75 and not the 2.1 the other three share.
 
 Run the checker after any edit to the file. It prints the table and fails on a
 colour outside the band, a gap in the boundaries, or two periods a viewer could
@@ -274,11 +281,12 @@ the Beethovens currently show three facts and the other three show two.
 **All twelve were rebuilt on 23 Aug 2026** for two changes. Neither is a
 re-bake, so every frozen map came through untouched:
 
-1. **The palette was reassigned** to Baroque gold, Classical blue, Romantic red,
-   Modern teal. Nine of the twelve are Classical and went from crimson to blue;
+1. **The palette was reassigned** to Baroque purple, Classical blue, Romantic
+   red, Modern teal. Nine of the twelve are Classical and went from crimson to blue;
    `brahms-no-4` keeps red as Romantic and `shostakovich-leningrad` keeps teal
    as Modern, so those two are unchanged by it. **No work is Baroque yet** —
-   nothing in the set predates 1750 — so the gold is still untested in a render.
+   nothing in the set predates 1750 — so the purple has only ever been seen in
+   the HTML mirror, never in an After Effects render.
 2. **Card 2's strap is stacked, not pinned.** The `PLACE OF COMPOSITION` heading
    and the address now centre on their plate as one measured block. All twelve
    wrap to two lines, so all twelve had been sitting ~4 px low (17 px of air

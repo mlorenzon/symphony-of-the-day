@@ -33,8 +33,15 @@ INK = "#14110F"
 # room to spare. They are "does this colour belong to the same family as the
 # other three", which is the thing that actually goes wrong when a colour is
 # picked by hue alone.
-CREAM_MIN, CREAM_MAX = 5.0, 8.5
-INK_MIN, INK_MAX = 1.9, 3.0
+#
+# INK_MIN was 1.9 when the set ran 2.15-2.30, and Baroque purple broke it: a
+# purple light enough to reach 2.1 reads electric rather than rich, and #5E2080
+# lands at 1.79 with plates that still visibly separate. So the floor is what
+# the eye accepts at the bottom of the range, not what the first three
+# happened to share -- checked in the mirror, not inferred. Below about 1.7 the
+# strap and the fact slab stop reading as panels and the card goes flat.
+CREAM_MIN, CREAM_MAX = 5.0, 10.0
+INK_MIN, INK_MAX = 1.75, 3.0
 
 
 def _lin(c):

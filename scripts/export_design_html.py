@@ -586,7 +586,34 @@ def main():
     blocks = []
     reel_cards = None
 
-    slugs = sys.argv[1:] or SLUGS
+    # `--period NAME` and `--colour HEX`, both repeatable, repaint each work in
+    # something other than its own colour. One row per flag, so candidates stack
+    # in a single page and can be compared side by side.
+    #
+    # They exist because a period can hold a colour long before any work falls in
+    # it: nothing in the set predates 1750, so Baroque cannot be rendered from
+    # real data at all, and "cream on this ground" is not a judgement anyone
+    # should make from a hex code. Both override only the COLOUR — the work's own
+    # period still prints in its ERA stat, so a swatch row cannot be mistaken for
+    # a real filing.
+    args = sys.argv[1:]
+    slugs, want_periods, want_colours = [], [], []
+    i = 0
+    while i < len(args):
+        if args[i] == "--colour" and i + 1 < len(args):
+            # A bare hex, for choosing a colour BEFORE it goes in periods.json.
+            # "The era is the colour" makes that choice the loudest one on the
+            # card, and until this existed the only way to see a candidate was
+            # to commit it to the palette first and rebuild.
+            want_colours.append(args[i + 1])
+            i += 2
+        elif args[i] == "--period" and i + 1 < len(args):
+            want_periods.append(args[i + 1])
+            i += 2
+        else:
+            slugs.append(args[i])
+            i += 1
+    slugs = slugs or SLUGS
     for slug in slugs:
         wpath = os.path.join(ROOT, "data", "works", slug + ".json")
         work = json.load(open(wpath, encoding="utf-8"))
@@ -607,14 +634,29 @@ def main():
         murl = data_uri(mpath, (MAP_PANEL["w"], MAP_PANEL["h"])) \
             if os.path.exists(mpath) else ""
 
-        f, b = front(work, color, purl), back(work, color, murl)
-        blocks.append(
-            '<p class="rowlabel">%s &mdash; %s &mdash; %s</p>\n'
-            '<div class="pair"><div class="card" data-comp="CARD FRONT">%s</div>'
-            '<div class="card" data-comp="CARD BACK">%s</div></div>'
-            % (esc(slug), esc(work["title_full"]), esc(color), f, b))
-        if reel_cards is None:
-            reel_cards = (f, b)
+        # One row per requested period, or a single row in the work colour.
+        variants = []
+        for name in want_periods:
+            hexes = [q.get("color") for q in table["periods"]
+                     if q["name"].lower() == name.lower()]
+            if not hexes or not hexes[0]:
+                raise SystemExit("no period %r with a colour in periods.json" % name)
+            variants.append((hexes[0],
+                             "%s &mdash; painted %s" % (esc(slug), esc(name))))
+        for hx in want_colours:
+            variants.append((hx, "%s &mdash; %s" % (esc(slug), esc(hx))))
+        if not variants:
+            variants.append((color, esc(slug)))
+
+        for hexcolour, label in variants:
+            f, b = front(work, hexcolour, purl), back(work, hexcolour, murl)
+            blocks.append(
+                '<p class="rowlabel">%s &mdash; %s &mdash; %s</p>\n'
+                '<div class="pair"><div class="card" data-comp="CARD FRONT">%s</div>'
+                '<div class="card" data-comp="CARD BACK">%s</div></div>'
+                % (label, esc(work["title_full"]), esc(hexcolour), f, b))
+            if reel_cards is None:
+                reel_cards = (f, b)
 
     cards = ('<h2>Front and back</h2>'
              '<div class="grid" style="flex-direction:column">%s</div>'

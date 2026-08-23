@@ -25,7 +25,7 @@ Cards are 440×616, which is 5:7, the standard trading-card ratio.
 
 **The card *is* its period colour**, edge to edge, and the portrait and map are
 duotoned into it — greyscale, a period-colour multiply, a cream screen to lift
-the blacks off the floor. Baroque gold, Classical blue, Romantic red, Modern
+the blacks off the floor. Baroque purple, Classical blue, Romantic red, Modern
 teal. A viewer reads *which era* as pure colour before reading a word, which is the whole point at reel size: a card is about 43% of screen
 width there, so anything under ~24 px on the artboard is texture, not
 information.
@@ -751,6 +751,34 @@ Two things the mirror cannot show, and one it lies about:
 `design/` is not tracked: it is regenerable, and it embeds copies of the
 untracked portraits.
 
+#### Trying a colour before it is a colour
+
+Named slugs narrow the export, and two flags repaint whatever it exports:
+
+```bash
+python scripts/export_design_html.py beethoven-no-1 --colour '#5E2080'
+python scripts/export_design_html.py beethoven-no-1 --period Baroque
+python scripts/export_design_html.py beethoven-no-1     --colour '#7828A0' --colour '#732193' --colour '#5E2080'
+```
+
+`--colour` takes a bare hex, `--period` takes a name out of `periods.json`, and
+both are repeatable — each one adds a row, so candidates sit stacked in one page
+for comparison. Both override only the ground colour: the work's own period still
+prints in its `ERA` stat, so a swatch row cannot be mistaken for a real filing.
+
+They exist because **the palette had no way to be seen before it was committed.**
+On this design the era *is* the colour, which makes it the loudest decision on
+the card, and until these flags the only way to look at a candidate was to write
+it into `periods.json` and rebuild twelve works. Worse, a period can hold a
+colour long before any work falls in it — nothing in the set predates 1750, so
+Baroque cannot be rendered from real data at all, and "cream on this ground" is
+not a judgement anyone should be making from a hex code.
+
+Baroque got picked this way: gold, rejected as brown, then three purples stacked
+in one page, of which the darkest was the only one that read as rich rather than
+electric. That was an eye decision the contrast numbers could not have made — the
+numbers only ruled out what was unreadable.
+
 ### What a rebuild keeps and what it discards
 
 `SOTD.buildWork(slug)` recreates the PORTRAIT, MAP, CARD FRONT, CARD BACK and
@@ -856,8 +884,11 @@ filed one. (It was crimson, which was safe only while no period was red.)
 cream straight onto the period colour, and the strap and fact plates are ink on
 it, so a period colour has to be dark enough to carry cream type and light
 enough for the plates to still read as panels. The shipped four sit at cream
-5.8–7.5:1 and ink 2.1–2.7:1. That is why Baroque is a dark gold rather than a
-bright yellow: at any lightness a viewer would call yellow, cream on it fails.
+6.9–9.0:1 and ink 1.8–2.3:1. That is why Baroque is purple rather than the
+yellow a hue-first reading would pick: at any lightness a viewer would call
+yellow, cream on it fails, and a yellow dark enough to carry cream reads as
+brown. Going yellow would have meant black type, and black type would have meant
+light plates — a second card design, not a fourth colour.
 `scripts/check_palette.py` prints the table and fails on anything outside the
 band, on a gap in the boundaries, and on two periods a viewer could not tell
 apart — run it after any edit to the file.
