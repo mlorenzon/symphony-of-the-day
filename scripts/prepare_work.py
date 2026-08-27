@@ -305,6 +305,11 @@ def main():
 
     ap.add_argument("--born", type=int, help="Override composer birth year")
     ap.add_argument("--died", type=int, help="Override composer death year")
+    ap.add_argument("--age", type=int,
+                    help="The composer's age when the work was finished. Overrides "
+                         "the year subtraction below, which is a year too high for any "
+                         "work finished before the birthday. research_to_work.py passes "
+                         "this from the research record, where the birth DATE is known.")
     ap.add_argument("--nationality", default="", help="Override, e.g. Austrian")
     ap.add_argument("--lon", type=float, help="Override place longitude")
     ap.add_argument("--lat", type=float, help="Override place latitude")
@@ -412,7 +417,12 @@ def main():
             geojson_path = os.path.join(CLIPPED_DIR, "europe_%s.geojson" % token)
 
     # --- assemble -----------------------------------------------------------
-    age = (args.year - born) if born else None
+    # Subtracting years is right only for a composer born on 1 January: it is
+    # a year too high for any work finished before the birthday. The research
+    # record knows the birth date and computes this properly, so --age wins
+    # wherever there is a record; the subtraction is the fallback for a work
+    # driven straight from the command line.
+    age = args.age if args.age is not None else ((args.year - born) if born else None)
     work = {
         "slug": slug,
         "title_full": args.title,
@@ -473,6 +483,31 @@ def main():
     # The highlight key comes from the geometry; the printed label comes from
     # the research record if there is one, and only falls back to the basemap's
     # own wording when nothing better exists. See map_focus.apply_focus.
+    # --- carry forward what this script does not derive ---------------------
+    # Everything above is rebuilt from the research record, but two things on
+    # a work JSON are not derived from it and a re-run would destroy both:
+    #
+    #   `video`  the edit — the cut, the four slider values and the caption
+    #            list that take_align.py wrote from a recording. It is tracked
+    #            precisely because it is data, and re-deriving a card after the
+    #            reel was cut would throw the whole edit away without a word.
+    #   the nudge on `map.focus.anchor`, a hand-set label offset that only a
+    #            human looking at a render can decide. map_focus.py keeps it by
+    #            loading the work from disk; this script builds a fresh dict, so
+    #            the previous focus has to be seeded in before apply_focus runs
+    #            or apply_nudge has nothing to find.
+    prior = {}
+    prior_path = os.path.join(WORKS_DIR, slug + ".json")
+    if os.path.exists(prior_path):
+        try:
+            with open(prior_path, encoding="utf-8") as fh:
+                prior = json.load(fh)
+        except (ValueError, OSError):
+            prior = {}
+    prior_focus = ((prior.get("map") or {}).get("focus") or {})
+    if prior_focus:
+        work["map"]["focus"] = prior_focus
+
     focus = map_focus.apply_focus(work, map_focus.focus_for_work(work),
                                   args.polity or None)
     report.append("focus      : %s (%s, %d group%s)"
@@ -485,6 +520,12 @@ def main():
     if focus.get("source") == "dataset" and focus["label"]:
         report.append("           : unverified — the basemap's own wording. Give the "
                       "work a research record, or pass --polity.")
+
+    if prior.get("video"):
+        work["video"] = prior["video"]
+        report.append("edit       : kept the `video` block from the existing "
+                      "work (%s captions) — the reel is already cut"
+                      % len(prior["video"].get("captions") or []))
 
     print("\n".join(report))
     if args.dry_run:

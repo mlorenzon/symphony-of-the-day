@@ -44,7 +44,7 @@ STATS = [{"label": "ERA", "w": 0.36},
 # REEL["scale"], so nothing here goes below 18.
 TYPE = {"given": 20, "surname": 46, "number": 84, "numLabel": 22,
         "statLabel": 18, "statValue": 30, "title": 40, "life": 28,
-        "place": 24, "placeLabel": 15, "factLabel": 16, "factBody": 18}
+        "place": 24, "placeLabel": 15, "factLabel": 16, "factBody": 19}
 
 # Mirrors CFG.facts / CFG.fact in sotd.jsx.
 # The first fact's label can be overridden per work (facts.scored_for_label);

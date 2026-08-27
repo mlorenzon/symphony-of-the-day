@@ -113,11 +113,15 @@ var SOTD = (function () {
             placeLabel: 15,  // the "PLACE OF COMPOSITION" heading over it
             // The fact list. Label and body share a line, so they are one text
             // layer with two styled ranges (see buildFactList) — which is why
-            // the label can sit at 16 while the body sits at 18. Trajan at 200
-            // tracking is wide: at 18 the labels alone eat two thirds of a line
-            // and the list overflows the slab.
+            // the label can sit at 16 while the body sits at 19. Trajan at 200
+            // tracking is wide: at 19 the labels alone eat two thirds of a line
+            // and the list overflows the slab, so the label stays behind at 16.
+            // The body went 18 → 19 on 25 Aug 2026: the card lost 14% of its
+            // size when the reel went full-bleed, and 18 was the reel's floor,
+            // not a comfortable reading size. It costs a line of the slab's
+            // budget — see "Keep the facts short" in docs/reel-cards.md.
             factLabel: 16,
-            factBody:  18,
+            factBody:  19,
             mapLabel:  20    // the focus country, printed on the map
         },
 
@@ -1556,16 +1560,27 @@ var SOTD = (function () {
         // The take, full-bleed behind everything. Scaled to cover rather than
         // to fit: a letterboxed talking head inside a vertical frame is the one
         // thing this layout cannot look like.
+        //
+        // `video.framing` reframes the shot when the card lands on the face.
+        // The card cannot move — it is the same rectangle in every reel of the
+        // series — so the person moves instead: `zoom` multiplies cover and
+        // `x`/`y` place the centre, both in the reel's own pixels. It lives on
+        // the work rather than in CFG because it is a fact about one take's
+        // headroom, not about the layout.
         if (vid.take) {
             var takeItem = importFileAs(CFG.root + "/" + vid.take, "take · " + slug,
                                         folder(CFG.folders.assets));
             if (takeItem) {
                 var VL = c.layers.add(takeItem);
                 VL.name = "VIDEO · take";
-                var cover = Math.max(R.w / takeItem.width, R.h / takeItem.height) * 100;
+                var fr = vid.framing || {};
+                var zoom = (fr.zoom === undefined) ? 1 : fr.zoom;
+                var cover = Math.max(R.w / takeItem.width, R.h / takeItem.height) * 100 * zoom;
                 var VT = VL.property("ADBE Transform Group");
                 VT.property("ADBE Scale").setValue([cover, cover]);
-                VT.property("ADBE Position").setValue([R.w / 2, R.h / 2]);
+                VT.property("ADBE Position").setValue([
+                    (fr.x === undefined) ? R.w / 2 : fr.x,
+                    (fr.y === undefined) ? R.h / 2 : fr.y]);
                 VL.startTime = 0;
             }
         }

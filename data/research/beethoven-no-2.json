@@ -1,7 +1,7 @@
 {
   "schema": "sotd-research/1",
   "slug": "beethoven-no-2",
-  "researched": "2026-08-23",
+  "researched": "2026-08-25",
   "title_full": "Symphony No. 2 in D major, Op. 36",
   "title_short": "",
   "catalogue": "Op. 36",
@@ -9,8 +9,9 @@
   "composer": {
     "name": "Ludwig van Beethoven",
     "nationality": "German",
-    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. 17 Dec 1770; d Vienna, 26 Mar 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
+    "nationality_note": "Grove opens the article “German composer” (b Bonn, bap. Dec 17, 1770; d Vienna, March 26, 1827), and this set follows Grove. The label names the German cultural and linguistic nation, not a state: no German nation-state existed until 1871. Beethoven was born in Bonn, seat of the Electorate of Cologne — an Imperial state of the Holy Roman Empire, styled “of the German Nation” — and lived in Vienna from 1792 until his death. Across the composers in this set Grove's nationalities track the modern state that now holds the birthplace: Bonn and Hamburg give German (Beethoven, Brahms), Salzburg Austrian (Mozart), St Petersburg Russian (Shostakovich). Grove states no editorial rule for this, and does not always assign a nationality at all — Leopold Mozart, born in Augsburg, is simply “Composer, violinist and theorist”.",
     "born": 1770,
+    "born_date": "1770-12-17",
     "died": 1827
   },
   "era": "Classical",
@@ -23,6 +24,7 @@
     ],
     "date": "1801–1802",
     "date_precision": "range",
+    "completed": "summer 1802",
     "place": {
       "city": "Heiligenstadt",
       "region": "outside Vienna",
@@ -41,7 +43,7 @@
     "summary": "Written at Heiligenstadt the summer his deafness became undeniable.",
     "dedicatee": "Prince Karl von Lichnowsky",
     "occasion": "No commission. Finished in the country retreat where he wrote the Heiligenstadt Testament that October.",
-    "occasion_spoken": "nobody but himself, in the summer his deafness became undeniable",
+    "occasion_spoken": "nobody but himself, alone with his deafness outside Vienna",
     "detail": "Grove dates the Heiligenstadt Testament 6–10 October 1802 and reads it as 'a trough of despondency in his fluctuating moods'. The symphony is the large public work of that same summer — Grove notes it is 'among the more conservative works' despite 'its great advance in assurance over the First', and that in it 'Beethoven for the first time really engaged with the symphony orchestra'."
   },
   "first_performance": {
@@ -89,7 +91,7 @@
       "container": "Grove Music Online",
       "year": 2001,
       "url": "https://www.oxfordmusiconline.com/grovemusic/display/10.1093/gmo/9781561592630.001.0001/omo-9781561592630-e-0000040026",
-      "accessed": "2026-08-22",
+      "accessed": "2026-08-25",
       "zotero_key": "J2HF4RUA",
       "snapshot": "5ER9GVTZ"
     },
@@ -231,12 +233,19 @@
     ],
     "scoring.instrumentation": [
       "wp-beethoven-no-2"
+    ],
+    "composer.born_date": [
+      "grove-beethoven"
+    ],
+    "composition.completed": [
+      "grove-beethoven"
     ]
   },
   "conflicts": [],
   "unknowns": [
     "How much of the symphony predates the move to Heiligenstadt in spring 1802.",
-    "No premiere roster survives: neither Grove nor Wikipedia gives player numbers for the 5 April 1803 Theater an der Wien concert, so the card counts the score's parts instead of the players on the platform."
+    "No premiere roster survives: neither Grove nor Wikipedia gives player numbers for the 5 April 1803 Theater an der Wien concert, so the card counts the score's parts instead of the players on the platform.",
+    "Beethoven's birth date is not recorded. Grove gives the baptism — bap. 17 December 1770 — and `composer.born_date` carries that, which is the standard proxy and at most a day or two early. It is only ever used to date his age in the script, and no plausible birth date moves that age."
   ],
   "obsidian_note": "Symphony of the day/Beethoven — Symphony No. 2.md"
 }

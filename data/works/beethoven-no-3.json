@@ -56,5 +56,267 @@
       },
       "source": "given"
     }
+  },
+  "video": {
+    "take": "data/takes/beethoven-no-3/locked.mp4",
+    "source": "data/takes/beethoven-no-3/take_raw.mp4",
+    "duration": 70.495,
+    "cut": {
+      "in": 0.0,
+      "out": 70.495
+    },
+    "timings": {
+      "revealStart": 1.93,
+      "revealDuration": 0.75,
+      "turnAt": 32.92,
+      "turnDuration": 0.6
+    },
+    "captions": [
+      {
+        "t": 0.0,
+        "d": 1.9,
+        "text": "Symphony of the Day"
+      },
+      {
+        "t": 2.18,
+        "d": 1.32,
+        "text": "We're listening to Beethoven's"
+      },
+      {
+        "t": 3.5,
+        "d": 2.2,
+        "text": "Symphony No. 3 in E flat major,"
+      },
+      {
+        "t": 6.0,
+        "d": 2.42,
+        "text": "the Eroica, composed in 1803"
+      },
+      {
+        "t": 8.42,
+        "d": 1.46,
+        "text": "when Beethoven was 33"
+      },
+      {
+        "t": 9.88,
+        "d": 0.92,
+        "text": "years old."
+      },
+      {
+        "t": 11.28,
+        "d": 1.2,
+        "text": "Now, this symphony has a really"
+      },
+      {
+        "t": 12.48,
+        "d": 1.1,
+        "text": "interesting story."
+      },
+      {
+        "t": 13.96,
+        "d": 1.4,
+        "text": "He initially dedicated it"
+      },
+      {
+        "t": 15.36,
+        "d": 2.0,
+        "text": "to Napoleon Bonaparte, who he"
+      },
+      {
+        "t": 17.36,
+        "d": 1.42,
+        "text": "saw as spreading liberty,"
+      },
+      {
+        "t": 18.84,
+        "d": 1.04,
+        "text": "equality and fraternity"
+      },
+      {
+        "t": 19.88,
+        "d": 1.04,
+        "text": "across Europe."
+      },
+      {
+        "t": 21.5,
+        "d": 1.18,
+        "text": "But when Napoleon crowned"
+      },
+      {
+        "t": 22.68,
+        "d": 1.52,
+        "text": "himself Emperor, Beethoven"
+      },
+      {
+        "t": 24.2,
+        "d": 1.52,
+        "text": "was outraged that he had"
+      },
+      {
+        "t": 25.72,
+        "d": 1.48,
+        "text": "betrayed his Republican ideals,"
+      },
+      {
+        "t": 27.2,
+        "d": 1.38,
+        "text": "and scratched out"
+      },
+      {
+        "t": 28.58,
+        "d": 1.5,
+        "text": "the dedication, replacing it"
+      },
+      {
+        "t": 30.08,
+        "d": 1.64,
+        "text": "with \"to the memory of a great"
+      },
+      {
+        "t": 31.72,
+        "d": 0.65,
+        "text": "man\"."
+      },
+      {
+        "t": 32.92,
+        "d": 1.2,
+        "text": "There's plenty of great music"
+      },
+      {
+        "t": 34.12,
+        "d": 1.34,
+        "text": "in this symphony, because it's"
+      },
+      {
+        "t": 35.46,
+        "d": 0.78,
+        "text": "about twice as long"
+      },
+      {
+        "t": 36.24,
+        "d": 1.32,
+        "text": "as symphonies usually were back"
+      },
+      {
+        "t": 37.56,
+        "d": 0.65,
+        "text": "then."
+      },
+      {
+        "t": 38.38,
+        "d": 1.4,
+        "text": "I love the second movement,"
+      },
+      {
+        "t": 39.82,
+        "d": 1.36,
+        "text": "which is a funeral march"
+      },
+      {
+        "t": 41.18,
+        "d": 1.36,
+        "text": "that has posed a puzzle"
+      },
+      {
+        "t": 42.54,
+        "d": 0.68,
+        "text": "to listeners."
+      },
+      {
+        "t": 43.7,
+        "d": 0.8,
+        "text": "Who died?"
+      },
+      {
+        "t": 45.64,
+        "d": 1.42,
+        "text": "Especially as it was composed"
+      },
+      {
+        "t": 47.06,
+        "d": 1.3,
+        "text": "before Beethoven changed"
+      },
+      {
+        "t": 48.36,
+        "d": 0.94,
+        "text": "the dedication."
+      },
+      {
+        "t": 50.22,
+        "d": 1.06,
+        "text": "Consensus seems to be"
+      },
+      {
+        "t": 51.28,
+        "d": 2.1,
+        "text": "that actually symphonic funeral"
+      },
+      {
+        "t": 53.38,
+        "d": 1.312,
+        "text": "marches were a commonplace"
+      },
+      {
+        "t": 54.94,
+        "d": 1.04,
+        "text": "after the revolution."
+      },
+      {
+        "t": 56.42,
+        "d": 1.14,
+        "text": "In France they were played"
+      },
+      {
+        "t": 57.56,
+        "d": 1.22,
+        "text": "in public for the victims"
+      },
+      {
+        "t": 58.78,
+        "d": 1.4,
+        "text": "of the revolution and the hope"
+      },
+      {
+        "t": 60.18,
+        "d": 1.6,
+        "text": "of a glorious future."
+      },
+      {
+        "t": 62.72,
+        "d": 1.58,
+        "text": "Beethoven isn't mourning anyone"
+      },
+      {
+        "t": 64.3,
+        "d": 0.96,
+        "text": "in particular."
+      },
+      {
+        "t": 66.0,
+        "d": 0.78,
+        "text": "Thanks for watching."
+      },
+      {
+        "t": 67.0,
+        "d": 1.04,
+        "text": "Listen to symphonies and get"
+      },
+      {
+        "t": 68.04,
+        "d": 1.24,
+        "text": "your attention span back."
+      },
+      {
+        "t": 69.34,
+        "d": 0.65,
+        "text": "See you tomorrow."
+      }
+    ],
+    "framing": {
+      "zoom": 1.212,
+      "x": 540.0,
+      "y": 822.2
+    }
   }
 }

@@ -26,6 +26,7 @@ import re
 import subprocess
 import sys
 
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RESEARCH_DIR = os.path.join(ROOT, "data", "research")
@@ -389,6 +390,91 @@ def review(rec):
 
 # ----------------------------------------------------------------------- bridge
 
+# --------------------------------------------------------------- the age slot
+# "when the composer was N years old" is spoken aloud, so N cannot be a bare
+# subtraction of years. Beethoven was baptised on 17 December: 1802 - 1770 = 32,
+# but he was 31 all through the Heiligenstadt summer in which he finished the
+# Second. Subtracting years is right only for a composer born on 1 January, and
+# wrong for most of the year for everyone else.
+#
+# So the age is taken against a DATE wherever the record has one: `born_date` on
+# the composer, and the finest date the work was finished — `composition.completed`
+# if the record carries one, otherwise `composition.date` when that is a single
+# date rather than a span. With only years to work from the answer is genuinely
+# ambiguous, and the warning says so rather than picking quietly.
+_MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7,
+           "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
+# Northern hemisphere, and the middle month of each: every composer in this
+# series so far worked north of the equator, and a season is a real precision
+# in the schema (`date_precision: season`), not a guess dressed up as one.
+_SEASONS = {"spring": 4, "summer": 7, "autumn": 10, "fall": 10, "winter": 1}
+
+
+def _year_month_day(text):
+    """(year, month|None, day|None) from a record's date string, or None.
+
+    Understands '1802-10-06', '1802-10', 'summer 1802', 'November 1783'. A span
+    ('1801-1802', '1801–2') yields the LAST year and no month: a range says
+    when the work was begun and finished, not when it was finished.
+    """
+    text = (text or "").strip().lower()
+    if not text:
+        return None
+    iso = re.match(r"^(\d{4})-(\d{2})(?:-(\d{2}))?$", text)
+    if iso:
+        return (int(iso.group(1)), int(iso.group(2)),
+                int(iso.group(3)) if iso.group(3) else None)
+    years = re.findall(r"\b(\d{4})\b", text)
+    if not years:
+        return None
+    year = int(years[-1])
+    if len(years) > 1 or re.search(r"\d{4}\s*[-–—]\s*\d{1,4}\b", text):
+        return (year, None, None)      # a span: the year, and nothing finer
+    for name, num in _SEASONS.items():
+        if name in text:
+            return (year, num, None)
+    for name, num in _MONTHS.items():
+        if name in text:
+            return (year, num, None)
+    return (year, None, None)
+
+
+def composer_age(rec):
+    """(age as a string, warning or None) at the moment the work was finished."""
+    c, comp = rec["composer"], rec["composition"]
+    year, born_year = comp.get("year"), c.get("born")
+    if not year:
+        return "[AGE]", None          # the year slot already warns for itself
+    if not born_year:
+        return "[AGE]", "no composer.born — [AGE] is still a placeholder"
+
+    naive = year - born_year
+    born = _year_month_day(c.get("born_date"))
+    if not born or born[1] is None:
+        return str(naive), ("no composer.born_date, so the age is a subtraction of "
+                            "years — which is a year too high for any work "
+                            "finished before the composer's birthday. Record "
+                            "composer.born_date and this becomes exact.")
+
+    finished = (_year_month_day(comp.get("completed"))
+                or _year_month_day(comp.get("date")))
+    if finished and finished[1] is not None:
+        had = (finished[1], finished[2] or 28) >= (born[1], born[2] or 1)
+        return str(finished[0] - born_year - (0 if had else 1)), None
+
+    # Year only, and the composer was not born on 1 January: the work was
+    # finished either side of a birthday and nothing in the record says which.
+    if born[1] == 1 and (born[2] or 1) == 1:
+        return str(naive), None
+    return str(naive - 1), ("the record dates the work to %d and no finer, and "
+                            "%s's birthday falls inside the year, so the age is "
+                            "either %d or %d. The script says %d — the age "
+                            "held for the part of the year before the birthday. "
+                            "Record composition.completed to settle it."
+                            % (year, c["name"].split()[-1], naive - 1, naive,
+                               naive - 1))
+
+
 def command_for(rec):
     place = rec.get("composition", {}).get("place", {})
     # prepare_work.py geocodes a single place string, so give it the finest
@@ -431,6 +517,14 @@ def command_for(rec):
     opt("--polity", place.get("polity"))
     opt("--born", rec["composer"].get("born"))
     opt("--died", rec["composer"].get("died"))
+    # The age is printed on card 1 and spoken in the reel script, so the two have
+    # to agree and both have to be right. research_to_note.py owns the sum,
+    # because it is the one that has to say it out loud; prepare_work.py would
+    # otherwise subtract years and be a year high for a work finished before the
+    # composer's birthday.
+    age, _ = composer_age(rec)
+    if age.isdigit():
+        argv.extend(["--age", age])
     return argv
 
 

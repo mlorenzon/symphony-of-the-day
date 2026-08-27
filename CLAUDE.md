@@ -63,28 +63,36 @@ The record then feeds two things. The card:
 python scripts/research_to_work.py <slug> --dry-run
 ```
 
-…and the reel's voice-over script, which is the note's last section. The
-wording is fixed for the series and only five slots move — composer, title,
-year, occasion, age, listening note — so it is generated from the record like
-the rest of the note, never typed. Two of the slots need prose written to be
+…and the two things the shoot day needs, which are the note's last two
+sections: the reel's voice-over script, and the caption the reel is posted
+with. The script's wording is fixed for the series and only five slots move —
+composer, title, year, occasion, age, listening note — so it is generated from
+the record like the rest of the note, never typed. Two of the slots need prose written to be
 spoken rather than read: `reason.occasion_spoken` has to follow "composed in
 1808 for", and `spoken` on the card hook has to follow "Listen out for". Without
 them the script falls back to the scholarly wording and says so, loudly, at the
 terminal and in the note.
 
+The caption is generated beside it, and its source list is **the sources under
+the script's facts, not every source on the note** — read from `claims`, so a
+fact the script says that nothing in `claims` covers is a warning rather than a
+silently uncredited claim. Chicago style, plain text, and checked against
+Instagram's 2200 characters.
+
 ```bash
-python scripts/research_to_note.py <slug> --script
+python scripts/research_to_note.py <slug> --script    # both, writes nothing
 ```
 
 ## Editing the reel
 
-A recording of the script in, a finished reel out. Five commands, and the whole
+A recording of the script in, a finished reel out. Six commands, and the whole
 edit is derived — nothing is dragged in a timeline, because `buildWork` would
 throw it away.
 
 ```bash
 python scripts/take_transcribe.py <slug>   # word timings, into words.json
 python scripts/take_align.py <slug>        # cut + card timings + captions
+python scripts/take_frame.py <slug>        # --measure, then --hair/--chin
 ```
 ```js
 SOTD.buildWork("<slug>");                  // comp, timed and captioned
@@ -178,8 +186,10 @@ records still carry premiere news in `reason.summary` (`beethoven-no-5`, `-no-6`
 why the work exists instead.
 
 **Nothing here auto-shrinks.** Titles and the place line have size steps; these
-do not. Keep each fact under ~80 characters and all four inside `CFG.back.slab`
-(274 px), or the last one is clipped. A missing fact closes up and the rest
+do not. Keep each fact under ~75 characters and all four inside `CFG.back.slab`
+(274 px), or the last one is clipped. The body sits at 19 px
+(`CFG.type.factBody`) and the labels stay behind at 16 — the budget is about ten
+lines for all four facts together. A missing fact closes up and the rest
 re-centre, so a work with nothing researched for one of them still looks
 deliberate — `mozart-linz` currently shows two.
 
@@ -321,7 +331,7 @@ draws:
 | Basemap | Works still to re-bake |
 |---|---|
 | 1783 | `mozart-linz` |
-| 1800 | `beethoven-no-2` … `beethoven-no-8` (seven) |
+| 1800 | `beethoven-no-4` … `beethoven-no-8` (five) |
 | 1815 | `beethoven-no-9` |
 | 1880 | `brahms-no-4` |
 | 1938 | `shostakovich-leningrad` (highlight only — needs the label) |
@@ -402,7 +412,8 @@ flip lands on "Listen out for", the fourteen captions sit in the band, and
 through it yet**, so the numbers most likely to move on first contact are
 `CFG.safe` and the caption budget.
 
-**The AE project now holds one work: `beethoven-no-1`** (23 Aug 2026). The
+**The AE project now holds three works: `beethoven-no-1`,
+`beethoven-no-2` and `beethoven-no-3`** (23–26 Aug 2026). The
 other eleven were deleted from the project deliberately — it is the first to be
 recorded, and a project with twelve works in it is twelve things to scroll
 past. Nothing was lost: `SOTD.buildWork(slug)` rebuilds any of them from the
@@ -439,6 +450,206 @@ SOTD.buildAll();
 Card 2's fact list is the thing to watch when that happens — it is the tightest
 type in the design and it just lost 14% of its size. `Overlay Scale` is a
 slider if it stops reading.
+
+**Card 2's body type went 18 px to 19** (25 Aug 2026), in `CFG.type.factBody`
+and mirrored in `export_design_html.py` — the fact list was set at the old
+175% card scale and 18 was the reel's floor, not a comfortable size, once the
+card came down to 120%. The labels stayed at 16. It costs about a line of the
+slab's ten-line budget, so the per-fact aim came down from 80 characters to 75;
+`beethoven-no-1` measures 185 px of the 274 with 44 px of air either side.
+Rebuilt and verified in a render read off disk. **Only `beethoven-no-1` has
+it** — every other work gets it when it is next rebuilt, and it is a rebuild,
+not a re-bake.
+
+**`beethoven-no-2` is done to the point of recording** (25 Aug 2026). Its
+research was re-verified against the live Grove article — the work-list entry for
+op.36 confirms 1801–2, first performance 5 April 1803, and the Lichnowsky
+dedication verbatim, and §6 confirms the finishing touches at Heiligenstadt in
+the summer of 1802. Nothing in the record was wrong. It was re-baked through the
+full map cycle, so it now carries the highlight and the HABSBURG MONARCHY label;
+the `LOOK` line resolved clean on inspection and it needs no `--nudge-lon`.
+
+**The spoken and printed age was a year too high, and is now derived from a
+date** (25 Aug 2026). `[AGE]` in the script and "aged N" on card 1 were both
+`composition.year - composer.born`, which is right only for a composer born on
+1 January. Beethoven was baptised on 17 December, so every one of the nine was
+overstated by a year — No. 2 said 32 for a symphony he finished at 31, and
+No. 1 says 30 for one premiered when he was 29. The record now carries
+`composer.born_date` and, where `date` is a span, `composition.completed`;
+`research_to_note.composer_age` owns the sum and `research_to_work.py` passes it
+to `prepare_work.py` as `--age` so the card and the voice-over cannot disagree.
+See `docs/research-engine.md`.
+
+**`beethoven-no-1` and `-no-2` are corrected; the other seven are not.** Those
+seven have no `born_date`, so each prints a loud warning against its script and
+each still carries a card built with the old sum. The fix per work is two fields
+and a rebuild.
+
+No. 1 is 29, not 30: Grove gives the composition as 1799–1800 and the premiere as
+2 April 1800, so `composition.completed` is set to `1800-04` as the latest the
+work can have been finished. The precision does not matter — every date in 1800
+before his 17 December birthday gives 29 — and that reasoning is in the record's
+`unknowns` so nobody has to redo it. Its card is rebuilt and verified at
+"aged 29" in a render read off disk.
+
+**But No. 1's reel was already cut, and the voice says "thirty years old".**
+`out/beethoven-no-1.mp4` and the copy in the sync folder still carry the old
+card *and* the old spoken age. Re-rendering would fix the card and leave the
+voice-over wrong, which reads worse than being consistently wrong — so it has
+deliberately NOT been re-rendered. That reel needs a re-record, or it goes out
+as it is.
+
+**The first real recording is through the chain** (25 Aug 2026),
+`beethoven-no-2`: a 51.4 s take in, a 50.2 s reel out at −14.8 LUFS, true peak
+−1.3 dBFS, `out/beethoven-no-2.mp4`. Verified by pulling frames off the mastered
+file — card 1 and its captions, the flip landing edge-on at 32.5 s, card 2 with
+the map moving under it, and the last caption on "is his first symphonic
+scherzo." The two numbers flagged as most likely to move on first contact both
+held: 31 caption lines, longest 31 characters, all inside the band, and
+`CFG.safe` needed no change.
+
+Four things the stand-in take could not have taught, all of which will recur
+every day:
+
+1. **The phone shoots 1920×1080 with a `rotation=90` flag, not 1080×1920.**
+   ffmpeg honours it on decode, so the recogniser and the cut are fine either
+   way — but After Effects is not to be trusted with it. Bake it before the
+   take goes in `data/takes/<slug>/`:
+   `ffmpeg -i <raw> -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -c:a copy take_raw.mp4`
+2. **The recordings land in `~/Desktop/random/symphony-video/`** as
+   `YYYY_MM_DD_HH_MM_SS.mp4`, newest is the day's take. An `_enhanced.mp4`
+   beside one is a cleaned copy from a tool outside this repo — that is what
+   became `take_raw.mp4` for `beethoven-no-1`. No. 2 went through on the raw
+   audio and mastered fine.
+3. **The take is not the generated script.** Matthew speaks a longer version of
+   it — the fixed opening and close, his own middle. `script.txt` in the take
+   folder is what the captions come from, and `take_align.py` already prefers it
+   over the generated script; it aligned at 99% heard, 1 word inferred. Where no
+   written transcript exists, the recogniser's text is a usable *draft* for it,
+   but it is on screen verbatim, so it gets confirmed before it is used.
+4. **The turn cue is usually missing, so `--turn-at` is not optional.** The
+   spoken version rarely contains "listen out for", and `take_align.py` then
+   parks the flip mid-reel. Pick the word that starts the listening section —
+   here "Now, you'd think this symphony would be gloomy…" at 32.18 s — rather
+   than the beat where the hook is named, or card 2 arrives after its own point
+   has been made. No. 1's cue was heard and landed at 40% of the reel; No. 2 at
+   64% by hand, which is the shape to aim for.
+
+One thing to fix at the source: **the take had no head silence.** `silencedetect`
+put speech at 0.000, so `HEAD_PAD` had nothing to trim into and the reel opens on
+the attack of the first word. A second of room tone before the first syllable is
+what the pipeline wants.
+
+**`prepare_work.py` used to destroy the edit, and no longer does** (25 Aug
+2026). It rebuilds the work JSON from scratch, and it had no notion of the
+`video` block — so re-deriving a card for a work whose reel had already been cut
+silently threw away the cut, the four slider values and every caption. Nothing
+warned, because the block is written by a different script (`take_align.py`) and
+the file is tracked, so the loss only showed up as a diff nobody was reading.
+Correcting No. 1's age would have triggered exactly that.
+
+It now loads any existing work JSON first and carries forward the two things it
+does not derive: the `video` block, and a hand-set label nudge on
+`map.focus.anchor` — the latter because `map_focus.py` preserves a nudge by
+loading the work from disk, while `prepare_work.py` builds a fresh dict, so the
+previous focus has to be seeded in before `apply_focus` runs or `apply_nudge` has
+nothing to find. It says `edit : kept the video block …` when it does.
+
+**The head goes above the card, and it is derived like everything else**
+(25 Aug 2026). `video.framing` — `zoom` on the cover scale, `x`/`y` for the
+centre — reframes the take because the card cannot move: it is the same
+rectangle in every reel of the series. Those numbers were hand-dragged in the
+comp for `beethoven-no-1`, which is the kind of nudge `buildWork` throws away, so
+`scripts/take_frame.py` now owns the arithmetic:
+
+```bash
+python scripts/take_frame.py <slug> --measure          # a filmstrip of the cut
+python scripts/take_frame.py <slug> --hair 250 --chin 920
+```
+
+**The two measurements are extremes, not one frame.** He moves 80–90 px over a
+take — measuring No. 2 at a single moment put the hair 135 px out and cropped
+his head at the top of the reel. `--hair` is the *highest* the hair ever gets
+(smallest y) and `--chin` the *lowest* the beard gets (largest y), read off one
+filmstrip that carries both bands across the whole cut.
+
+**The two constraints cannot both be met, and No. 1 settles which loses.** The
+frame is exactly as tall as the take, so lifting him needs zoom to pay for it,
+and zoom makes him bigger, which pushes the beard back down. Measuring what No.
+1's accepted framing actually does — hair reaching source 330, beard 890, at
+zoom 1.32 and centre 854 — gives 22 px of headroom and lets the beard dip 18 px
+under the card. So **the hair staying in frame is the hard constraint** and the
+beard grazing the card is accepted: a cropped head reads as a mistake, a beard
+touching a card edge does not. The solver reproduces 1.320 / 854 exactly from No.
+1's own measurements, which is the check that the reference is right.
+
+No. 2 solved to **zoom 1.148, centre 540,838** and re-rendered; the head is clear
+of the card at every sampled moment, its lowest and most upright included. Its
+zoom is set by the lift rather than by head size — he sits lower in that take —
+and the script says so when that happens.
+
+**`beethoven-no-3` is shot, cut and posted** (26 Aug 2026): a 71.5 s take in, a
+**70.5 s reel** out at −14.40 LUFS, true peak −1.24 dBFS,
+`out/beethoven-no-3.mp4`. The longest reel of the series so far, and the first
+where the ad-libbed middle is most of it — 48 caption lines against No. 2's 31,
+longest 31 characters, all inside the band. Verified off the mastered file: card
+1 at "aged 33", the flip edge-on at 33.2 s, card 2's four facts, and the map
+settled on Vienna under its HABSBURG MONARCHY label. Framing solved to **zoom
+1.212, centre 540,822** — hair at reel y 22.4 and beard 17.2 px under the card,
+both identical to No. 1's accepted numbers.
+
+**A stale bake makes `freezeMapRender` refuse, and the refusal reads like
+success.** It returns `{rendered: false, reason: "already frozen"}` — which is
+true but not the point: `buildWork` attaches any bake it finds in
+`data/maps/<slug>/` and therefore never creates the live `MAP` layer that
+`freezeMapRender` looks for. So a work with an out-of-date map cannot be re-baked
+by running the cycle at it. **Move the old frames aside first, then re-run
+`buildWork`, then freeze:**
+
+```bash
+mv data/maps/<slug>/*.png <somewhere>/     # then SOTD.buildWork(slug)
+```
+
+This will bite on all ten remaining works, because every one of them has exactly
+this problem — a bake from before the highlight and label existed.
+
+**`mapDraw` really can be skipped when the basemap year is unchanged.** No. 2 and
+No. 3 are both 1800, same geojson, same clip bbox, same focus polity, so
+`mapFinish → mapLabel → mapZoom` on the borders already drawn was enough, and the
+whole panel-crash class of failure was avoided by never calling `draw`.
+`mapFinalize` then reported `tilesGained: 0`, which the doc flags as ambiguous —
+cache already warm, or panel shut and fetching nothing. **Resolve it by looking,
+not by purging:** `comp.saveFrameToPng` on the mapcomp at three times showed Esri
+terrain, 1800 borders and the highlight all present, which settles it in one call
+and risks nothing. `{purge: true}` would have thrown the cache away to answer the
+same question.
+
+**Force-killing After Effects arms a "crash repair options" dialog**, and that
+dialog blocks the script bridge on the next launch exactly as the original hang
+did — so the obvious fix for an unresponsive bridge reproduces the symptom. Worse
+if the session is locked: AE launched into a black screen wedges on that dialog
+with its working set frozen (153 MB here) and the main window never created, and
+no amount of waiting moves it. **Check the session is awake before restarting
+AE**, and expect to dismiss the dialog by hand afterwards. The tell from outside:
+a visible `#32770` window with *no child controls* — Adobe draws its own, so
+enumerating it reads blank.
+
+**No. 3's spoken and printed age is 33, and that is a decision, not a
+derivation.** The record has no `composer.born_date`, so
+`research_to_note.py` warned and the generated script said 33; he recorded 33.
+Correcting the card alone would have put 32 on screen against a voice and a
+caption both saying 33, so it ships consistent. **Whether 33 is right is
+genuinely open**: `composition.date` is `1803`, which with a 17 December birthday
+gives 32 — but the Eroica was finished in early 1804, which gives 33. That needs
+Grove and a `composition.completed`, and until it has one No. 3 is not evidence
+either way for the other six.
+
+**Three takes, three with no head silence.** `silencedetect` again put speech at
+0.000, so `HEAD_PAD` had nothing to trim into and the reel opens on the attack of
+"Symphony". It is the one thing that cannot be fixed downstream. **The turn cue
+was missing again too** — the spoken version has no "listen out for" at all — and
+was set by hand to 32.92 s, the sentence turning from the Napoleon story to the
+music itself. That is 46.7% of the reel, between No. 1's 40% and No. 2's 64%.
 
 ## Conventions
 
