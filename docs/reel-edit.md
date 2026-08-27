@@ -231,6 +231,27 @@ and it makes every reel in the series the same loudness as the one before,
 which a viewer notices far more than they notice any single video's level.
 
 ## Traps
+- **Framing is measured at the extremes, or it crops his head.** He moves
+  80–90 px over a take, so `take_frame.py --hair/--chin` want the *highest*
+  hair and the *lowest* beard across the whole cut, not the two numbers off one
+  frame. Measuring No. 2 at its midpoint alone put the hair 135 px out and
+  clipped the top of his head for the first ten seconds of the reel, which no
+  return value mentions — `--measure` exists to make the extremes visible in
+  one picture.
+- **`File.exists` lies inside the call that wrote the file.** `saveFrameToPng`
+  does write, but a `File` object checked in the same `execute-script` call
+  reports `exists: false` for it. Check the path from the shell afterwards
+  rather than trusting the return value.
+
+- **Re-deriving the card destroys the edit — or used to.** The `video` block is
+  written here by `take_align.py`, but `data/works/<slug>.json` is *generated*
+  by `prepare_work.py`, which rebuilds the file from the research record and
+  knew nothing about `video`. So `research_to_work.py <slug>` on a work whose
+  reel was already cut threw away the cut, the four slider values and every
+  caption, silently. `prepare_work.py` now loads the existing work first and
+  carries `video` forward (and a hand-set `map.focus.anchor` nudge with it),
+  reporting `edit : kept the video block …`. If you are working on an older
+  checkout, correct the record and hand-patch the two fields instead.
 
 - **`see-frame` cannot be trusted here either.** Use
   `comp.saveFrameToPng(t, file)` from `execute-script`: it takes a time, writes

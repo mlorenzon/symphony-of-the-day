@@ -216,13 +216,14 @@ if nothing was corrected, but only after checking.
 
 ## Script
 
-The reel voice-over, fenced. Generated, never written here.
+The reel voice-over, then the post caption, both fenced. Generated, never
+written here.
 ```
 
 ## The script
 
-The last section of the note is the words read over the reel — step 1.2 of the
-engine, between the research and the card. The wording is fixed for the series
+The note's second-to-last section is the words read over the reel — step 1.2 of
+the engine, between the research and the card. The wording is fixed for the series
 and only five slots move:
 
 > **SCRIPT**
@@ -236,10 +237,32 @@ Do not improve the sentences. The series works because the same words land the
 same way every day; the only thing that varies is what goes in the brackets.
 
 It is generated from the record for the same reason the rest of the note is: a
-script typed by hand is a fourth place a fact can be wrong. `[YEAR]` and `[AGE]`
-are arithmetic — `composition.year`, and that minus `composer.born`, the same
-sum the note's header prints. The title drops the opus number and says the
-nickname in words, because nobody reads "Op. 55" aloud.
+script typed by hand is a fourth place a fact can be wrong. `[YEAR]` is
+`composition.year`, and the title drops the opus number and says the nickname in
+words, because nobody reads "Op. 55" aloud.
+
+**`[AGE]` is not a subtraction of years.** It was, until 25 August 2026, and it
+was a year too high for most of the series: Beethoven was baptised on 17
+December, so 1802 − 1770 = 32 while he was in fact 31 all through the
+Heiligenstadt summer in which he finished the Second. Subtracting years is
+correct only for a composer born on 1 January. So the age is taken against a
+*date*:
+
+| The record has | The age is |
+|---|---|
+| `composer.born_date` and a month-precise finish — `composition.completed`, or a `composition.date` that is a single date rather than a span | exact |
+| `composer.born_date` and only a year | the age held before the birthday, **and a warning** naming both candidates and asking for `composition.completed` |
+| no `composer.born_date` | the old subtraction, **and a warning** |
+
+`composition.completed` exists only for this: the finest date the work was
+*finished*, where `date` is a span and cannot say. It parses ISO, a bare month,
+or a season — `"summer 1802"`.
+
+The same number is printed on card 1 ("aged 31"), so `research_to_work.py`
+computes it with `research_to_note.composer_age` and passes it to
+`prepare_work.py` as `--age`. `prepare_work.py` keeps the subtraction as its
+fallback, for a work driven straight from the command line with no record
+behind it.
 
 **The other two slots need prose written for the mouth, and the scholarly
 fields cannot do it.** `reason.occasion` is a sentence in its own right, so
@@ -271,7 +294,65 @@ warned over 60 seconds. The Beethovens run 26–30 seconds, so the ceiling is
 generous — but an occasion line written as a paragraph will find it.
 
 ```bash
-python scripts/research_to_note.py <slug> --script    # just the script, writes nothing
+python scripts/research_to_note.py <slug> --script    # script + caption, writes nothing
+```
+
+## The caption
+
+The script is read to camera; the caption is pasted under the reel at upload.
+They are drafted together, from the same record, in the same run — step 1.3, and
+the last section of the note.
+
+> Symphony of the day. Today we're listening to *[Composer's]* *[Symphony title]*.
+>
+> SOURCES
+> *[Chicago-formatted list]*
+>
+> #SymphonyOfTheDay #*[Composer]* #ClassicalMusic
+
+Fixed wording again, and the same reason: the top line is the script's own
+opening fact, so it says the title exactly as the voice does — opus number
+dropped, nickname in words, from the same `spoken_title`. The hashtag closes up
+a two-word surname (`#VaughanWilliams`), because a hashtag cannot hold a space.
+
+**The source list is the sources under the script, not the sources on the
+note.** That is the whole point of the section: it credits the work behind the
+claims the reel actually makes. A record also carries sources for the premiere
+venue, the nationality argument, the instrumentation count — real scholarship
+that no line of the voice-over spends, and listing it would credit a source for
+a claim the video never makes.
+
+Which sources those are is read from `claims`, never chosen by hand. Each of the
+script's five slots names the field it rests on, and the first field with a
+claim wins — which is how the occasion follows the same fallback the script
+does:
+
+| Slot | Claim path, first present wins |
+|---|---|
+| title | `title_full` |
+| composer | `composer.name` |
+| year | `composition.year`, then `composition.date` |
+| occasion | `reason.occasion`, then `reason.summary` |
+| age | `composer.born` (and `composer.born_date`) |
+| listening note | `listen_for` |
+
+So a fact the script says and `claims` does not cover is a warning, at the
+terminal and in the note — the same treatment as a `[Placeholder]`. An
+uncredited claim is the one kind of error this series cannot post.
+
+The entries are Chicago bibliography style, in plain text, in record order:
+author inverted, article and entry titles in quotation marks, book and score
+titles bare because a caption box renders no italics. Volume and issue numbers
+are not in the record, so a journal entry reduces to container and year. Record
+order rather than claim order, so the same two sources come out in the same
+sequence every day instead of reshuffling by which slot needed which first.
+
+Length is checked against Instagram's 2200 characters — the tightest ceiling of
+the platforms — and warned over. The Beethovens run about 550.
+
+```bash
+python scripts/research_to_note.py <slug> --script     # script + caption, writes nothing
+python scripts/research_to_note.py <slug> --caption    # just the caption
 ```
 
 ## Keeping the Grove page
@@ -364,6 +445,7 @@ python scripts/research_to_work.py <slug> --check     # validate the record
 python scripts/research_to_work.py <slug> --dry-run   # ...and show the build command
 python scripts/research_to_work.py <slug>             # ...and run it
 python scripts/research_to_note.py <slug>             # write the vault note
-python scripts/research_to_note.py <slug> --script    # just the reel script
+python scripts/research_to_note.py <slug> --script    # the reel script and the caption
+python scripts/research_to_note.py <slug> --caption   # just the post caption
 python scripts/research_to_note.py --all              # rewrite every vault note
 ```

@@ -17,8 +17,8 @@
   },
   "composition": {
     "year": 1802,
-    "age": 32,
-    "age_line": "Beethoven was 32",
+    "age": 31,
+    "age_line": "Beethoven was 31",
     "place": "Heiligenstadt",
     "country_then": "Archduchy of Austria",
     "lon": 16.3549,
@@ -55,6 +55,183 @@
         "clearance_deg": 2.5687
       },
       "source": "given"
+    }
+  },
+  "video": {
+    "take": "data/takes/beethoven-no-2/locked.mp4",
+    "source": "data/takes/beethoven-no-2/take_raw.mp4",
+    "duration": 50.196,
+    "cut": {
+      "in": 0.0,
+      "out": 50.196
+    },
+    "timings": {
+      "revealStart": 1.93,
+      "revealDuration": 0.75,
+      "turnAt": 32.18,
+      "turnDuration": 0.6
+    },
+    "captions": [
+      {
+        "t": 0.66,
+        "d": 1.22,
+        "text": "Symphony of the Day"
+      },
+      {
+        "t": 2.18,
+        "d": 1.3,
+        "text": "We're listening to Beethoven's"
+      },
+      {
+        "t": 3.48,
+        "d": 2.0,
+        "text": "Symphony No. 2 in D major,"
+      },
+      {
+        "t": 5.76,
+        "d": 1.44,
+        "text": "composed in 1802"
+      },
+      {
+        "t": 7.2,
+        "d": 1.32,
+        "text": "in Heiligenstadt,"
+      },
+      {
+        "t": 8.88,
+        "d": 0.82,
+        "text": "outside Vienna."
+      },
+      {
+        "t": 10.56,
+        "d": 1.26,
+        "text": "This was the same summer"
+      },
+      {
+        "t": 11.82,
+        "d": 1.66,
+        "text": "his increasing deafness led him"
+      },
+      {
+        "t": 13.48,
+        "d": 1.46,
+        "text": "to write a famous letter"
+      },
+      {
+        "t": 14.94,
+        "d": 1.52,
+        "text": "to his brothers, a sort"
+      },
+      {
+        "t": 16.46,
+        "d": 2.34,
+        "text": "of anti-suicide note describing"
+      },
+      {
+        "t": 18.8,
+        "d": 1.98,
+        "text": "his terror that people will"
+      },
+      {
+        "t": 20.78,
+        "d": 1.6,
+        "text": "notice his degraded hearing"
+      },
+      {
+        "t": 22.38,
+        "d": 1.52,
+        "text": "when he's trying to make it"
+      },
+      {
+        "t": 23.9,
+        "d": 0.82,
+        "text": "as a musician."
+      },
+      {
+        "t": 25.32,
+        "d": 1.1,
+        "text": "But in the end he says"
+      },
+      {
+        "t": 26.42,
+        "d": 1.12,
+        "text": "the kindness of others"
+      },
+      {
+        "t": 27.54,
+        "d": 1.74,
+        "text": "and his determination to create"
+      },
+      {
+        "t": 29.28,
+        "d": 1.4,
+        "text": "great art gives him the will"
+      },
+      {
+        "t": 30.68,
+        "d": 0.74,
+        "text": "to go on."
+      },
+      {
+        "t": 32.18,
+        "d": 1.22,
+        "text": "Now, you'd think this symphony"
+      },
+      {
+        "t": 33.4,
+        "d": 1.46,
+        "text": "would be gloomy, but it's"
+      },
+      {
+        "t": 34.86,
+        "d": 1.68,
+        "text": "a classical romp like"
+      },
+      {
+        "t": 36.54,
+        "d": 2.18,
+        "text": "his first, albeit with a more"
+      },
+      {
+        "t": 38.72,
+        "d": 1.9,
+        "text": "triumphant energy, especially"
+      },
+      {
+        "t": 40.62,
+        "d": 1.72,
+        "text": "in the third movement, which"
+      },
+      {
+        "t": 42.34,
+        "d": 2.32,
+        "text": "is his first symphonic scherzo."
+      },
+      {
+        "t": 45.28,
+        "d": 1.0,
+        "text": "Thanks for watching."
+      },
+      {
+        "t": 46.56,
+        "d": 1.2,
+        "text": "Listen to symphonies and get"
+      },
+      {
+        "t": 47.76,
+        "d": 1.28,
+        "text": "your attention span back."
+      },
+      {
+        "t": 49.12,
+        "d": 0.65,
+        "text": "See you tomorrow."
+      }
+    ],
+    "framing": {
+      "zoom": 1.148,
+      "x": 540.0,
+      "y": 837.7
     }
   }
 }

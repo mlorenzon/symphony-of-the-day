@@ -27,7 +27,8 @@ ERA_HINT = "periods.json buckets by year and that bucket sets the card colour"
 # interesting part — which of the three levels of evidence won. Import it rather
 # than reimplement it, so the note cannot claim a different number from the card.
 sys.path.insert(0, HERE)
-from research_to_work import card_hook, scoring_fact, SCORING_PRIORITY  # noqa: E402
+from research_to_work import (card_hook, composer_age, scoring_fact,  # noqa: E402
+                             SCORING_PRIORITY)
 
 # Why each level says what it says, in the note's own words.
 FORCES_BASIS = {
@@ -131,11 +132,9 @@ def reel_script(rec):
     if not year:
         warnings.append("no composition.year — [YEAR] is still a placeholder")
 
-    if year and c.get("born"):
-        age = str(year - c["born"])
-    else:
-        age = "[AGE]"
-        warnings.append("no composer.born — [AGE] is still a placeholder")
+    age, w = composer_age(rec)
+    if w:
+        warnings.append(w)
 
     occasion, w = spoken_occasion(rec)
     if w:
@@ -167,6 +166,161 @@ def script_section(rec):
          "*Voice-over for the reel. Generated from this record — fix the record "
          "and re-run, do not edit it here. About %d words, %d seconds at %d wpm.*"
          % (words, round(words / SPEECH_WPM * 60.0), SPEECH_WPM),
+         "", "```text", text, "```", ""]
+    for w in warnings:
+        L.append("> [!warning] %s" % w)
+    if warnings:
+        L.append("")
+    return L
+
+
+# ---------------------------------------------------------------- the caption
+# Step 1.3: the words that go under the reel when it is posted. Same rule as the
+# script — generated from the record, never typed — because its whole job is to
+# say where the facts came from, and a hand-typed source list is one more place
+# a citation can be wrong.
+#
+# The list is NOT every source on the record. The caption credits the sources
+# behind the *script*, which is a handful of facts: the title, the year, the
+# composer's age, why the work exists, and the listening note. A record also
+# carries sources for the premiere venue, the nationality argument, the
+# instrumentation count and so on — real scholarship that no line of the reel
+# actually spends, and printing it would credit sources for claims the video
+# never makes.
+CAPTION_TEMPLATE = ("Symphony of the day. Today we're listening to "
+                    "{possessive} {title}.\n\nSOURCES\n{sources}\n\n"
+                    "#SymphonyOfTheDay #{composer} #ClassicalMusic")
+
+CAPTION_LIMIT = 2200   # Instagram's ceiling, and the tightest of the platforms
+
+# The claim paths the five script slots rest on, in the order the script says
+# them. A record files provenance per field, so this is the join: script slot ->
+# field -> claims entry -> source. Each entry is tried against `claims` in turn
+# and the first one present wins, which is how the occasion follows the same
+# fallback the script does.
+SCRIPT_CLAIMS = (
+    ("title",    ("title_full",)),
+    ("composer", ("composer.name",)),
+    ("year",     ("composition.year", "composition.date")),
+    ("occasion", ("reason.occasion", "reason.summary")),
+    ("age",      ("composer.born",)),
+    ("listen",   ("listen_for",)),
+)
+
+
+def _invert(author):
+    """'Joseph Kerman, Alan Tyson and William Drabkin' -> Chicago order.
+
+    Chicago inverts the first name only — 'Kerman, Joseph, Alan Tyson, and
+    William Drabkin' — and the record stores authors the way a title page
+    prints them, so the inversion happens here rather than in the JSON.
+    """
+    names = [n.strip() for n in re.split(r",| and ", author) if n.strip()]
+    if not names:
+        return ""
+    first = names[0].split()
+    lead = "%s, %s" % (first[-1], " ".join(first[:-1])) if len(first) > 1 else first[0]
+    if len(names) == 1:
+        return lead
+    if len(names) == 2:
+        return "%s, and %s" % (lead, names[1])
+    return "%s, %s, and %s" % (lead, ", ".join(names[1:-1]), names[-1])
+
+
+def _long_date(iso):
+    """2026-08-21 -> August 21, 2026. Anything else is passed through."""
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", iso or "")
+    if not m:
+        return iso or ""
+    months = ("January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December")
+    return "%s %d, %s" % (months[int(m.group(2)) - 1], int(m.group(3)), m.group(1))
+
+
+def chicago(s):
+    """One source as a Chicago bibliography entry, in plain text.
+
+    Plain text on purpose: this goes in a caption box that renders no markdown,
+    so a title that wants italics gets them by being unquoted, the way a printed
+    bibliography distinguishes a book from an article.
+    """
+    quoted = s.get("type") not in ("book", "score")
+    bits = []
+    author = _invert(s.get("author") or "")
+    if author:
+        bits.append(author.rstrip(".") + ".")
+    elif s.get("container"):
+        # No author — Wikipedia, mostly. The site takes the author's place and
+        # does not then repeat itself later in the entry.
+        bits.append(s["container"].rstrip(".") + ".")
+    bits.append('"%s."' % s["title"].rstrip(".") if quoted else "%s." % s["title"].rstrip("."))
+    if s.get("container") and not (not author and bits[0].startswith(s["container"])):
+        bits.append(s["container"].rstrip(".") + ".")
+    if s.get("year"):
+        bits.append("%s." % s["year"])
+    if s.get("accessed"):
+        bits.append("Accessed %s." % _long_date(s["accessed"]))
+    if s.get("url"):
+        bits.append(s["url"])
+    return " ".join(b for b in bits if b)
+
+
+def script_sources(rec):
+    """The sources behind the script's facts, in record order. (list, warnings)."""
+    claims, warnings = rec.get("claims") or {}, []
+    wanted, missing = [], []
+    for slot, paths in SCRIPT_CLAIMS:
+        for path in paths:
+            if claims.get(path):
+                wanted.extend(claims[path])
+                break
+        else:
+            missing.append(slot)
+    if missing:
+        warnings.append("no claims filed for %s, so the caption cannot credit "
+                        "%s source%s — check the record's `claims`."
+                        % (", ".join(missing), "its" if len(missing) == 1 else "those",
+                           "" if len(missing) == 1 else "s"))
+    by_id = dict((s["id"], s) for s in rec["sources"])
+    unknown = [i for i in wanted if i not in by_id]
+    if unknown:
+        warnings.append("claims cite source id%s %s, which %s not in `sources`"
+                        % ("" if len(unknown) == 1 else "s", ", ".join(sorted(set(unknown))),
+                           "is" if len(unknown) == 1 else "are"))
+    # Record order, not claim order: the caption should list Grove before the
+    # Wikipedia article every day, rather than reordering itself according to
+    # which slot happened to need which source first.
+    seen = set(wanted)
+    return [s for s in rec["sources"] if s["id"] in seen], warnings
+
+
+def reel_caption(rec):
+    """(caption text, warnings) for the post the reel goes out in."""
+    c = rec["composer"]
+    surname = c["name"].split()[-1]
+    sources, warnings = script_sources(rec)
+    if not sources:
+        warnings.append("no sources at all under the script's facts — the caption "
+                        "posts an empty SOURCES list")
+    text = CAPTION_TEMPLATE.format(possessive=surname + "'s",
+                                   title=spoken_title(rec),
+                                   sources="\n".join(chicago(s) for s in sources),
+                                   # A hashtag cannot hold a space, so a
+                                   # two-word surname closes up: #VaughanWilliams.
+                                   composer=re.sub(r"[^0-9A-Za-z]", "", surname))
+    if len(text) > CAPTION_LIMIT:
+        warnings.append("%d characters — over Instagram's %d. Trim the source list "
+                        "or shorten a URL." % (len(text), CAPTION_LIMIT))
+    return text, warnings
+
+
+def caption_section(rec):
+    """The note's caption block, fenced so it copies out clean."""
+    text, warnings = reel_caption(rec)
+    L = ["## Caption", "",
+         "*The post text. Generated from this record — the source list is the "
+         "sources under the script's facts, not every source on this note. "
+         "%d of %d characters.*" % (len(text), CAPTION_LIMIT),
          "", "```text", text, "```", ""]
     for w in warnings:
         L.append("> [!warning] %s" % w)
@@ -356,6 +510,10 @@ def fmt(rec):
     # words read over the finished reel — and a reader scanning the note for a
     # fact should not have to step over it to reach the sources.
     L += script_section(rec)
+    # And the caption under it: the same shoot-day pair, in the order they
+    # are used - the script is read to camera, the caption is pasted at
+    # upload.
+    L += caption_section(rec)
 
     return "\n".join(L)
 
@@ -367,7 +525,9 @@ def main():
     ap.add_argument("--all", action="store_true", help="Every record in data/research")
     ap.add_argument("--dry-run", action="store_true", help="Print instead of writing")
     ap.add_argument("--script", action="store_true",
-                    help="Print just the reel script, and write nothing")
+                    help="Print the reel script and the caption, and write nothing")
+    ap.add_argument("--caption", action="store_true",
+                    help="Print just the post caption, and write nothing")
     args = ap.parse_args()
 
     if args.all:
@@ -379,7 +539,7 @@ def main():
         sys.exit("give a slug, or --all")
 
     folder = os.path.join(VAULT, "Symphony of the day")
-    if not os.path.isdir(folder) and not (args.script or args.dry_run):
+    if not os.path.isdir(folder) and not (args.script or args.caption or args.dry_run):
         sys.exit("vault folder not found: %s" % folder)
 
     for slug in slugs:
@@ -389,11 +549,21 @@ def main():
             continue
         rec = json.load(open(path, encoding="utf-8"))
 
-        if args.script:
-            # For the day's shoot: the script on its own, nothing to scroll past.
-            script, warnings = reel_script(rec)
+        if args.script or args.caption:
+            # For the day's shoot: the two things that get used on the day, with
+            # no scholarship to scroll past. The caption comes out with the
+            # script because it is drafted from the same facts and posted with
+            # the reel the script was read for.
             print("=" * 70)
-            print(script)
+            if args.script:
+                script, warnings = reel_script(rec)
+                print(script)
+                for w in warnings:
+                    print("  !  %s" % w)
+                print("")
+            caption, warnings = reel_caption(rec)
+            print("CAPTION")
+            print(caption)
             for w in warnings:
                 print("  !  %s" % w)
             continue
@@ -412,7 +582,7 @@ def main():
         # The script's gaps are worth seeing at the terminal too: the note is
         # generated and easy not to reread, and a placeholder left in a
         # voice-over is only caught by a person.
-        for w in reel_script(rec)[1]:
+        for w in reel_script(rec)[1] + reel_caption(rec)[1]:
             print("     !  %s" % w)
 
 

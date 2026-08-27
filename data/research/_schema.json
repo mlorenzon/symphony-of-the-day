@@ -81,6 +81,13 @@
             "integer",
             "null"
           ]
+        },
+        "born_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Birth date, ISO where possible: 1770-12-17. The reel script says the composer's age aloud, and subtracting years is a year too high for any work finished before the birthday, so record this wherever the sources give it. Where the birth itself is unrecorded and the sources give a baptism instead — Beethoven — record the baptism and say so in `unknowns`: it is the standard proxy and is never more than a few days out."
         }
       }
     },
@@ -201,6 +208,13 @@
               "description": "Q-id the coordinates came from, so the next person can check rather than re-search."
             }
           }
+        },
+        "completed": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The finest known date the work was FINISHED, where `date` is a span and cannot say: 1802-10, 'summer 1802'. Used only to date the composer's age in the reel script, which is otherwise ambiguous by a year for a work written across a birthday."
         }
       }
     },

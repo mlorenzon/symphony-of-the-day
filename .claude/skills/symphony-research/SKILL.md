@@ -1,14 +1,15 @@
 ---
 name: symphony-research
-description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection with a stored PDF of every Grove page consulted, and written up as a note in the Obsidian vault that ends with the reel's voice-over script. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, the reel script, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
+description: Research one symphony to a sourced record for the "symphony of the day" reels — Wikipedia fact-checked against Grove Music Online, saved to data/research/<slug>.json, filed in the Zotero "Symphony of the day" collection with a stored PDF of every Grove page consulted, and written up as a note in the Obsidian vault that ends with the reel's voice-over script and the caption it is posted with. Use WHENEVER Matthew names a symphony to research, says "today's symphony is…", "research Dvořák 9", "do the New World", or asks for the research JSON, the sources, the reel script, the post caption, or the Obsidian note for a work. Trigger on a bare symphony name too — in this project, naming a work is a request to research it.
 ---
 
 # Researching a symphony
 
 One work in, three artefacts out: a sourced JSON record, a Zotero folder of the
 sources, and a readable note. The JSON is upstream of the card
-(`data/works/<slug>.json`); the note is what a human reads, and its last section
-is the script read over the reel.
+(`data/works/<slug>.json`); the note is what a human reads, and it ends with the
+two things the day itself needs — the script read over the reel, and the caption
+the reel is posted with.
 
 Read `docs/research-engine.md` before the first run of a session — it carries
 the schema rationale and the failure modes. This file is the procedure.
@@ -189,26 +190,34 @@ the record — write those `detail` fields properly in step 4 and the note takes
 care of itself. Re-running overwrites, so fix the record and regenerate rather
 than editing the note.
 
-The note's last section is the **reel script** — the voice-over, in the series'
-fixed wording, with only the five bracketed slots filled from the record. It is
-generated too, so the same rule applies: fix the record, re-run. Read what it
-prints:
+The note ends with the two generated sections: the **reel script** — the
+voice-over, in the series' fixed wording, with only the five bracketed slots
+filled from the record — and the **caption** the reel is posted with. Both are
+generated, so the same rule applies: fix the record, re-run. Read what they
+print, together:
 
 ```bash
 python scripts/research_to_note.py <slug> --script
 ```
 
-Every warning it prints is a slot that will be read aloud wrong — a `[YEAR]`
-still in brackets, or a scholarly sentence dropped into the middle of a spoken
-one. Write the missing `occasion_spoken` or `spoken` into the record and run it
-again until it is quiet. Say the script out loud once before you report; the
-warnings catch missing fields, not clumsy ones.
+Every warning against the script is a slot that will be read aloud wrong — a
+`[YEAR]` still in brackets, or a scholarly sentence dropped into the middle of a
+spoken one. Write the missing `occasion_spoken` or `spoken` into the record and
+run it again until it is quiet. Say the script out loud once before you report;
+the warnings catch missing fields, not clumsy ones.
+
+Every warning against the caption is a fact the script says that `claims` does
+not cover, because the caption's source list is read from `claims` — the sources
+under the script's facts only, not every source on the note. Fix it in `claims`,
+not in the caption: an uncredited claim is the one thing this series cannot
+post. The caption is fixed wording too, so the only judgement left in it is
+whether the Chicago entries look right.
 
 ## 7. Report
 
 Tell Matthew, briefly: what the work is, anything Grove corrected in Wikipedia,
-anything still unknown, the reel script in full, and the command to build the
-card. Do not build the card
+anything still unknown, the reel script and the caption in full, and the command
+to build the card. Do not build the card
 unless he asks — research and build are separate steps.
 
 ```bash

@@ -17,8 +17,8 @@
   },
   "composition": {
     "year": 1800,
-    "age": 30,
-    "age_line": "Beethoven was 30",
+    "age": 29,
+    "age_line": "Beethoven was 29",
     "place": "Vienna",
     "country_then": "Archduchy of Austria",
     "lon": 16.3725,
@@ -56,5 +56,162 @@
       },
       "source": "given"
     }
+  },
+  "video": {
+    "take": "data/takes/beethoven-no-1/locked.mp4",
+    "source": "data/takes/beethoven-no-1/take_raw.mp4",
+    "duration": 44.505,
+    "cut": {
+      "in": 0.0,
+      "out": 44.505
+    },
+    "framing": {
+      "zoom": 1.32,
+      "x": 540,
+      "y": 854
+    },
+    "timings": {
+      "revealStart": 1.79,
+      "revealDuration": 0.75,
+      "turnAt": 17.88,
+      "turnDuration": 0.6
+    },
+    "captions": [
+      {
+        "t": 0.62,
+        "d": 1.24,
+        "text": "Symphony of the Day"
+      },
+      {
+        "t": 2.04,
+        "d": 1.36,
+        "text": "We're listening to Beethoven's"
+      },
+      {
+        "t": 3.4,
+        "d": 2.06,
+        "text": "Symphony No. 1 in C major,"
+      },
+      {
+        "t": 5.7,
+        "d": 2.1,
+        "text": "composed in 1800 when he was 30"
+      },
+      {
+        "t": 7.8,
+        "d": 1.0,
+        "text": "years old."
+      },
+      {
+        "t": 9.34,
+        "d": 1.34,
+        "text": "It was the first concert he"
+      },
+      {
+        "t": 10.68,
+        "d": 1.38,
+        "text": "ever put on for his own"
+      },
+      {
+        "t": 12.06,
+        "d": 0.65,
+        "text": "benefit."
+      },
+      {
+        "t": 12.92,
+        "d": 1.18,
+        "text": "He didn't have a regular"
+      },
+      {
+        "t": 14.1,
+        "d": 1.44,
+        "text": "income, so he got the ticket"
+      },
+      {
+        "t": 15.54,
+        "d": 1.22,
+        "text": "sales from the door."
+      },
+      {
+        "t": 17.72,
+        "d": 1.62,
+        "text": "So listen out for the opening."
+      },
+      {
+        "t": 19.64,
+        "d": 2.26,
+        "text": "It's twelve bars before C"
+      },
+      {
+        "t": 21.9,
+        "d": 1.58,
+        "text": "major, the actual home key"
+      },
+      {
+        "t": 23.48,
+        "d": 0.96,
+        "text": "of this symphony,"
+      },
+      {
+        "t": 24.72,
+        "d": 1.02,
+        "text": "finally arrives."
+      },
+      {
+        "t": 26.52,
+        "d": 1.04,
+        "text": "Now of course, I don't think"
+      },
+      {
+        "t": 27.56,
+        "d": 1.2,
+        "text": "everyone back then had perfect"
+      },
+      {
+        "t": 28.76,
+        "d": 1.32,
+        "text": "pitch, but they would have"
+      },
+      {
+        "t": 30.08,
+        "d": 1.54,
+        "text": "clocked this unusually"
+      },
+      {
+        "t": 31.62,
+        "d": 2.24,
+        "text": "questioning, wandering opening"
+      },
+      {
+        "t": 33.86,
+        "d": 2.38,
+        "text": "before the more lively C major"
+      },
+      {
+        "t": 36.24,
+        "d": 1.44,
+        "text": "theme finally landed."
+      },
+      {
+        "t": 38.46,
+        "d": 1.02,
+        "text": "That's all for today."
+      },
+      {
+        "t": 40.5,
+        "d": 1.42,
+        "text": "Listen to symphonies and get"
+      },
+      {
+        "t": 41.92,
+        "d": 1.32,
+        "text": "your attention span back."
+      },
+      {
+        "t": 43.42,
+        "d": 0.65,
+        "text": "See you tomorrow."
+      }
+    ]
   }
 }

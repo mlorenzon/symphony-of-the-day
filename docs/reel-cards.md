@@ -87,28 +87,34 @@ thing to become unreadable on a phone. Unlike the titles and the place line they
 **do not auto-shrink** — there are no size steps, so a long fact costs *lines*,
 not type size, and the bill lands on whatever is below it.
 
-The whole slab is 274 px and a line is 23 px, so with the three gaps between
+The whole slab is 274 px and a line is 24 px, so with the three gaps between
 facts the budget is about **ten lines for all four facts together**. Overrun it
 and the last fact is clipped below the slab rather than resized — silently.
 
+That budget is measured, not estimated: `beethoven-no-1`'s four facts run
+1 + 2 + 3 + 2 lines and the stack comes to 185 px of the 274, centred with 44 px
+of air above and below. Two more lines would use the air; a third would clip.
+
 How much fits on a line depends on the label, because the label eats the first
-one. At 18 px in a 384 px box a line holds roughly 44 characters, less whatever
-the caps heading takes:
+one. At 19 px in a 384 px box a line holds roughly 42 characters, less whatever
+the caps heading takes — and the heading's cost does not move with the body,
+because the label stayed at 16 px when the body went to 19:
 
 | Fact | Label costs | First line then holds | Later lines |
 |---|---|---|---|
-| `OCCASION` | ~117 px | ~31 chars | ~44 |
-| `SCORED FOR` | ~143 px | ~28 | ~44 |
-| `LISTEN OUT FOR` | ~195 px | ~22 | ~44 |
-| `FIRST PERFORMANCE` | ~234 px | ~17 | ~44 |
+| `OCCASION` | ~117 px | ~29 chars | ~42 |
+| `SCORED FOR` | ~143 px | ~26 | ~42 |
+| `LISTEN OUT FOR` | ~195 px | ~20 | ~42 |
+| `FIRST PERFORMANCE` | ~234 px | ~16 | ~42 |
 
 `FIRST PERFORMANCE` is wide enough that a long venue leaves the label alone on
 its line — `beethoven-no-9` does exactly that. It reads acceptably; it is not a
 bug, and it is the reason `venue_short` exists.
 
-Aim for **80 characters or fewer per fact**. As measured: `beethoven-no-9`'s
-79-character occasion takes two lines, and `shostakovich-leningrad`'s
-139-character one takes four — which fits today only because that work has two
+Aim for **75 characters or fewer per fact** — 80 until the body went to 19 px
+on 25 Aug 2026, and the aim came down with the line. As measured:
+`beethoven-no-9`'s 79-character occasion takes two lines, and
+`shostakovich-leningrad`'s 139-character one takes four — which fits today only because that work has two
 of the four facts filled. When its scoring and premiere are researched, it will
 need cutting. `research_to_work.py` warns on a long occasion before it ever
 reaches a card.
@@ -833,7 +839,7 @@ character range:
 
 ```js
 text.sourceText.style.setText(lab + v)
-    .setFont("Cambria").setFontSize(18)
+    .setFont("Cambria").setFontSize(19)
     .setFont("TrajanPro3-Regular", 0, n)   // just the label
     .setFontSize(16, 0, n)
     .setTracking(200, 0, n)
@@ -844,9 +850,12 @@ The range form is `(value, startIndex, count)`. It has no opacity, which is why
 the label's 78% is a **mixed colour** (`CFG.col.dimLabel`, cream at 78% over
 ink) rather than a faded layer the way every other 78% label on the cards is.
 
-The label sits at 16 px while the body sits at 18. That is not a slip: Trajan at
-200 tracking is wide, and at 18 px the four labels alone eat two thirds of every
-line and the list overflows the slab.
+The label sits at 16 px while the body sits at 19. That is not a slip: Trajan at
+200 tracking is wide, and at 19 px the four labels alone eat two thirds of every
+line and the list overflows the slab. So the two sizes move independently — the
+body went 18 → 19 on 25 Aug 2026 and the label did not follow, which is why the
+label costs in the table above are unchanged and only the characters-per-line
+number moved.
 
 **Stacking is a chain, and it is what handles missing facts.** Each fact sits
 under the measured bottom of the one above, so a wrapped fact pushes the rest

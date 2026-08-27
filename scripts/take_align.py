@@ -104,16 +104,25 @@ def norm(word):
 ABBREVIATIONS = set("no op k bwv hob woo d s mr mrs ms dr st vol nos".split())
 
 
-def script_tokens(rec):
+def script_tokens(rec, spoken=None):
     """The script as spoken words, with the places a caption must break.
 
     Punctuation is kept — the captions show the written script, so they get its
     commas. The script's own line break (the title beat, "Symphony of the Day")
     is a hard break: it is a separate thought and reads terribly run into the
     sentence after it.
+
+    `spoken` is the contents of `data/takes/<slug>/script.txt` when a take has
+    one: the words actually said, written out. The captions are still a written
+    script rather than the recogniser's text — this only changes *which* script
+    they come from, so a take that departed from the generated wording still
+    gets captions that match the voice. Same shape: line ends are hard breaks.
     """
-    text, warnings = reel_script(rec)
-    body = text.split("\n", 1)[1]            # drop the "SCRIPT" label line
+    if spoken is not None:
+        body, warnings = spoken, []
+    else:
+        text, warnings = reel_script(rec)
+        body = text.split("\n", 1)[1]        # drop the "SCRIPT" label line
     toks, breaks = [], set()
     for line in body.split("\n"):
         line_toks = [t for t in line.split() if t.strip()]
@@ -314,6 +323,10 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="Report, write nothing")
     ap.add_argument("--no-cut", action="store_true", help="Skip the ffmpeg cut")
     ap.add_argument("--turn-at", type=float, help="Override the derived Turn At")
+    ap.add_argument("--script-file",
+                    help="Caption from this written script instead of the "
+                         "generated one (default: data/takes/<slug>/script.txt "
+                         "if it exists)")
     args = ap.parse_args()
 
     folder = os.path.join(TAKES, args.slug)
@@ -325,11 +338,23 @@ def main():
     if not words:
         sys.exit("words.json is empty — the take has no speech the recogniser found")
 
-    rpath = os.path.join(RESEARCH, args.slug + ".json")
-    if not os.path.exists(rpath):
-        sys.exit("no research record for %s — the script comes from it" % args.slug)
-    rec = json.load(open(rpath, encoding="utf-8"))
-    script, breaks, script_warnings = script_tokens(rec)
+    # The script the captions show. Normally the one the note generated; a take
+    # that departed from it can carry its own written-out wording alongside the
+    # recording, which keeps the captions matching the voice.
+    spath = args.script_file or os.path.join(folder, "script.txt")
+    spoken = None
+    if os.path.exists(spath):
+        spoken = open(spath, encoding="utf-8").read().strip()
+        print("  script %s (the take's own wording, not the generated script)"
+              % os.path.relpath(spath, ROOT).replace("\\", "/"))
+
+    rec = None
+    if spoken is None:
+        rpath = os.path.join(RESEARCH, args.slug + ".json")
+        if not os.path.exists(rpath):
+            sys.exit("no research record for %s — the script comes from it" % args.slug)
+        rec = json.load(open(rpath, encoding="utf-8"))
+    script, breaks, script_warnings = script_tokens(rec, spoken)
     for w in script_warnings:
         print("  !  script: %s" % w)
 
@@ -409,6 +434,14 @@ def main():
         sys.exit("no work JSON at %s — run prepare_work.py first" % wpath)
     work = json.load(open(wpath, encoding="utf-8"),
                      object_pairs_hook=collections.OrderedDict)
+    # Framing is the one part of the `video` block this script does not derive:
+    # it is set by eye when the card lands on the face, so a re-align must carry
+    # it through rather than reset the shot to full-frame.
+    framing = (work.get("video") or {}).get("framing")
+    if framing:
+        video["framing"] = framing
+        print("  framing kept: zoom %s, centre %s,%s"
+              % (framing.get("zoom", 1), framing.get("x", "-"), framing.get("y", "-")))
     work["video"] = video
     with open(wpath, "w", encoding="utf-8") as fh:
         fh.write(json.dumps(work, ensure_ascii=False, indent=2))
