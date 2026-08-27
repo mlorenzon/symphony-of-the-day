@@ -18,6 +18,32 @@ All four are field notes verified against a live install, and all four have a
 **Traps** section. Reading the relevant one first reliably saves more time than
 it costs — several of the traps fail silently rather than erroring.
 
+## This repo stands on the research library
+
+`research/` is a **git submodule**, pinned to a commit of
+[`mlorenzon/research`](https://github.com/mlorenzon/research) — the general
+research library that owns ingesting sources, citekeys, extracted text and the
+Obsidian vault conventions. It is pinned, not tracked live, so you can always
+tell which version of those conventions a given reel was made under.
+
+| Owned there (`research/`) | Owned here |
+|---|---|
+| Ingest, citekeys, extracted text | After Effects, the cards, the map |
+| Zotero as the bibliographic record | The recording, the cut, the render |
+| Vault note frontmatter, pandoc citations | The reel script and the caption |
+
+**When filing a source or writing a note, follow the library's conventions, not
+your own** — read `research/docs/vault-notes.md` (frontmatter, the citekey
+join, the preserved-prose marker) and `research/docs/answering-from-corpus.md`
+(**cite printed pages, not PDF pages**) before writing. `symphony-research`
+specialises those rules for symphonies; it does not replace them.
+
+The rule that keeps the split honest: **anything invented here that is not
+specific to symphonies gets promoted up into `research`.** After Effects stays
+here; a better way to file a source does not.
+
+First checkout needs `git submodule update --init`.
+
 ## The golden rule
 
 **The design lives in `scripts/sotd.jsx`, not in the `.aep`.**
