@@ -42,7 +42,11 @@ The rule that keeps the split honest: **anything invented here that is not
 specific to symphonies gets promoted up into `research`.** After Effects stays
 here; a better way to file a source does not.
 
-First checkout needs `git submodule update --init`.
+First checkout needs `git submodule update --init`. On the Pi, which
+authenticates to GitHub over SSH rather than HTTPS, that fails until the URL is
+overridden locally — `git config submodule.research.url
+git@github.com:mlorenzon/research.git`. The override is local on purpose:
+`.gitmodules` keeps the HTTPS URL, which is what the laptop needs.
 
 ## The golden rule
 
